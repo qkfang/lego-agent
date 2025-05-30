@@ -12,6 +12,8 @@ import { z } from "zod";
 import * as dotenv from "dotenv";
 import { AIProjectsClient } from "@azure/ai-projects";
 import type { MessageRole, MessageContentOutput } from "@azure/ai-projects";
+// @ts-ignore
+import fetch = require("node-fetch");
 
 // Load environment variables
 dotenv.config();
@@ -52,13 +54,47 @@ async function run(scriptname: string): Promise<void> {
   const { promisify } = await import("util");
   const execAsync = promisify(exec);
 
-  const scriptPath = "C:\\Temp\\run.bat";
-  const { stdout, stderr } = await execAsync(`"${scriptPath}"`);
+  const scriptPath = "ampy --port COM6 run c:/Temp/code.py";
+  const { stdout, stderr } = await execAsync(scriptPath);
 
-  console.log("Script output:", stdout);
-
+  // console.log("Script output:", stdout);
 }
 
+
+async function runble(script: string): Promise<void> {
+  
+  const { exec } = await import("child_process");
+  const { promisify } = await import("util");
+  const execAsync = promisify(exec);
+
+  
+  const fs = await import("fs/promises");
+  const path = await import("path");
+  const timestamp = Date.now();
+  const filename = `script_${timestamp}.py`;
+  const filepath = path.join("D:/gh-repo/lego-agent/lego-ble/temp", filename);
+  console.log('filepath= ' + filepath);
+  await fs.writeFile(filepath, script, "utf8");
+
+  const scriptCmd = `python D:/gh-repo/lego-agent/lego-ble/python/app.py --program ${filepath}`;
+
+  console.log('runble= ' + scriptCmd);
+  // const { stdout, stderr } = await execAsync(scriptCmd);
+
+  // console.log("Script output:", stdout);
+  // console.log("Script error:", stderr);
+
+  // Send script to local HTTP server
+  const response = await fetch("http://localhost:8000/exec", {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: script
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  // Optionally, handle response if needed
+}
 
 mcp.tool(
   "list",
@@ -103,7 +139,18 @@ mcp.tool(
   async (param) => {
    
     try {
-      
+      await runble(`
+import runloop, sys
+from hub import light_matrix
+
+async def main():
+    await light_matrix.write("mv")
+    print("done")
+    sys.exit(0)
+
+    
+runloop.run(main())
+          `);
       return {
         content: [{ type: "text" as const, text: `${param.robot_id} robot turned ${param.distance}` }],
       };
@@ -132,7 +179,18 @@ mcp.tool(
   async (param) => {
    
     try {
-     
+      await runble(`
+import runloop, sys
+from hub import light_matrix
+
+async def main():
+    await light_matrix.write("tr")
+    print("done")
+    sys.exit(0)
+
+    
+runloop.run(main())
+          `);
       return {
         content: [{ type: "text" as const, text: `${param.robot_id} robot turned ${param.degree}` }],
       };
@@ -160,7 +218,18 @@ mcp.tool(
   async (param) => {
    
     try {
-      await run("");
+      await runble(`
+import runloop, sys
+from hub import light_matrix
+
+async def main():
+    await light_matrix.write("beep")
+    print("done")
+    sys.exit(0)
+
+    
+runloop.run(main())
+          `);
       return {
         content: [{ type: "text" as const, text: `${param.robot_id} robot beeped` }],
       };
