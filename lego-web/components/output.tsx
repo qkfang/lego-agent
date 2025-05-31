@@ -1,11 +1,13 @@
 import * as d3 from "d3";
 import styles from "./output.module.scss";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import useDimensions from "store/usedimensions";
 import { type OutputNode, type Data, Dimensions } from "store/output";
 import TextOutput from "./output/textoutput";
 import { API_ENDPOINT } from "store/endpoint";
 import OutputDisplay, { type OuptutDisplayHandle } from "./output/outputdisplay";
+
+import VideoImagePicker from "components/videoimagepicker";
 
 type Props = {
   data: OutputNode;
@@ -18,6 +20,7 @@ const Output: React.FC<Props> = ({ data }: Props) => {
     marginBottom: 100,
   });
 
+  const [showCapture, setShowCapture] = useState(true);
   const treemap = (data: OutputNode) =>
     d3
       .treemap<OutputNode>()
@@ -78,7 +81,15 @@ const Output: React.FC<Props> = ({ data }: Props) => {
           </g>
         </>
       );
-    } else if (data.type === "image") {
+    } else if (data.type === "video") {
+      return (
+        <>
+           {/* <VideoImagePicker
+              show={showCapture}
+              setShow={setShowCapture}
+            /> */}
+        </>
+      )} else if (data.type === "image") {
       const url = data.image_url.startsWith("http")
         ? data.image_url
         : `${API_ENDPOINT}/${data.image_url}`;

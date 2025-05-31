@@ -12,7 +12,7 @@ type Props = {
   setCurrentImage: (image: string) => void;
 };
 
-const VideoImagePicker = ({ show, setShow, setCurrentImage }: Props) => {
+const VideoImagePicker = ({ show, setShow }: Props) => {
   const [showCamera, setShowCamera] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -22,10 +22,14 @@ const VideoImagePicker = ({ show, setShow, setCurrentImage }: Props) => {
 
   useEffect(() => {
     if (!isLoading && devices.length > 0 && selectedDevice === "default") {
-      // const videoDevices = devices.filter(
-      //   (device) => device.kind === "videoinput"
-      // );
-      const videoDevices = devices;
+      const videoDevices = devices.filter(
+        (device) => device.kind === "videoinput"
+      );
+      // const videoDevices = devices;
+      if (videoDevices.length === 0) {
+        setShowCamera(false);
+        return;
+      }
       setSelectedDevice(videoDevices[0].deviceId);
       startVideo(videoDevices[0].deviceId);
     }
@@ -33,18 +37,18 @@ const VideoImagePicker = ({ show, setShow, setCurrentImage }: Props) => {
 
   const startVideo = async (deviceId: string) => {
     if (videoRef.current) {
-      try {
+      // try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { deviceId: { exact: deviceId } },
         });
         videoRef.current.disablePictureInPicture = true;
         videoRef.current.srcObject = stream;
         setShowCamera(true);
-      } catch {
-        alert("Error accessing camera.");
-        videoRef.current.srcObject = null;
-        setShowCamera(false);
-      }
+      // } catch {
+      //   alert("Error accessing camera.");
+      //   videoRef.current.srcObject = null;
+      //   setShowCamera(false);
+      // }
     }
   };
 
@@ -87,8 +91,8 @@ const VideoImagePicker = ({ show, setShow, setCurrentImage }: Props) => {
   return (
     <>
       {show && (
-        <div className={styles.videooverlay}>
-          <div className={styles.videoimagepicker}>
+        // <div className={styles.videooverlay}>
+        //   <div className={styles.videoimagepicker}>
             <div className={styles.videobox}>
               <div className={styles.header}>
                 <select
@@ -130,8 +134,8 @@ const VideoImagePicker = ({ show, setShow, setCurrentImage }: Props) => {
                 ></video>
               </div>
             </div>
-          </div>
-        </div>
+        //   </div>
+        // </div>
       )}
     </>
   );

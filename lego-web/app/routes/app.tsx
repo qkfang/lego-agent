@@ -38,6 +38,7 @@ import {
   scenarioEffort,
   scenarioOutput,
   writerData,
+  videoData,
 } from "store/data";
 import VideoImagePicker from "components/videoimagepicker";
 import { HiOutlineVideoCamera } from "react-icons/hi2";
@@ -118,6 +119,21 @@ export default function Home() {
           },
           children: [],
         });
+      } else if (item.type === "video") {
+        output?.addOutput(parent, agent, {
+          id: uuidv4(),
+          title: agent,
+          value: 1,
+          data: {
+            id: uuidv4(),
+            type: "video",
+            description: item.description,
+            image_url: item.image_url,
+            size: item.size,
+            quality: item.quality,
+          },
+          children: [],
+        });
       } else if (item.type === "image") {
         await sendRealtime({
           id: uuidv4(),
@@ -150,6 +166,8 @@ export default function Home() {
       case "message":
         if (serverEvent.content) {
           effort?.addEffort(serverEvent);
+          // setShowCapture(true);
+         
         }
         break;
       case "function":
@@ -319,24 +337,30 @@ export default function Home() {
         />
 
         <div className={styles.scratch}>
+          <div className={styles.output}>
+            <div style={{ margin: "20px" }}>
+            <VideoImagePicker
+              show={showCapture}
+              setShow={setShowCapture}
+              setCurrentImage={setCurrentImage}
+            />
+            </div>
+            {output && output.output && output.output.children.length > 0 && (
+              <Output data={output.output} />
+            )}
+          </div>
           <div className={styles.effort}>
             <EffortList />
-
-            <input
+            {/* <input
               type="text"
               placeholder={"Send a message"}
               className={styles.textInput}
-            />
+            /> */}
             <VoiceTool
               onClick={handleVoice}
               callState={callState}
               analyzer={analyzer}
             />
-          </div>
-          <div className={styles.output}>
-            {output && output.output && output.output.children.length > 0 && (
-              <Output data={output.output} />
-            )}
           </div>
         </div>
         <div className={styles.tools}>
@@ -376,12 +400,30 @@ export default function Home() {
               />
               <Tool
                 icon={
-                  <HiOutlineVideoCamera size={18} title={"Capture Image"} />
+                  <HiOutlineVideoCamera size={18} title={"Capture Image 2"} />
                 }
                 onClick={() => {
                   setShowCapture((prev) => !prev);
+                  // output?.addOutput("gpt-image-1_agent", "video", {
+                  //   id: uuidv4(),
+                  //   title: "vide",
+                  //   value: 1,
+                  //   data: videoData,
+                  //   children: [],
+                  // });
+                  //  output?.addOutput(
+                  //   "content_writer_agent",
+                  //   "Content Writer Agent",
+                  //   {
+                  //     id: uuidv4(),
+                  //     title: "Content Writer Agent",
+                  //     value: 1,
+                  //     data: videoData,
+                  //     children: [],
+                  //   }
+                  // );
                 }}
-                title={"Capture Image"}
+                title={"Capture Image 2"}
               />
 
               <Tool
@@ -455,11 +497,6 @@ export default function Home() {
         </div>
       </main>
 
-      <VideoImagePicker
-        show={showCapture}
-        setShow={setShowCapture}
-        setCurrentImage={setCurrentImage}
-      />
       <FileImagePicker
         ref={filePickerRef}
         setCurrentImage={setCurrentImage}

@@ -51,7 +51,16 @@ export interface ImageData {
 }
 
 
-export type Data = TextData | ImageData
+export interface VideoData {
+  id: string;
+  type: "video";
+  description: string;
+  image_url: string;
+  size: string;
+  quality: string;
+}
+
+export type Data = TextData | ImageData | VideoData
 
 export interface OutputNode {
   id: string;

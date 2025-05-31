@@ -249,6 +249,45 @@ runloop.run(main())
   }
 );
 
+mcp.tool(
+  "action",
+  "Make robot do an action that is not movement .",
+  {
+    robot_id: z.string().describe("robot_id that should perform the action")
+  },
+  async (param) => {
+   
+    try {
+      await runble(`
+import runloop, sys
+from hub import light_matrix
+
+async def main():
+    await light_matrix.write("act")
+    print("done")
+    sys.exit(0)
+
+    
+runloop.run(main())
+          `);
+      return {
+        content: [{ type: "text" as const, text: `${param.robot_id} robot beeped` }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: `Error running command: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+      };
+    }
+  }
+);
+
 // Main function
 async function main() {
   console.error("\n==================================================");
