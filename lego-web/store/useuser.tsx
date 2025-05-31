@@ -10,19 +10,13 @@ export interface User {
 
 const availableUsers: { [key: string]: string } = {
   "asha-sharma": "/images/people/asha-sharma.jpg",
-  "louise-han": "/images/people/louise-han.jpg",
-  "marco-casalaina": "/images/people/marco-casalaina.jpg",
-  "seth-juarez": "/images/people/seth-juarez.jpg",
-  "yina-arenas": "/images/people/yina-arenas.jpg",
-  "zia-mansoor": "/images/people/zia-mansoor.jpg",
-  "amanda-foster": "/images/people/amanda-foster.jpg",
 };
 
 const defaultUser: User = {
-  key: "seth-juarez",
-  name: "Seth Juarez",
-  email: "seth.juarez@microsoft.com",
-  avatar: "/images/people/seth-juarez.jpg",
+  key: "agent-bagel",
+  name: "Agent Bagel",
+  email: "bagel@legoai.net",
+  avatar: "/images/people/agent-bagel.png",
 };
 
 const getUser = async (): Promise<User> => {

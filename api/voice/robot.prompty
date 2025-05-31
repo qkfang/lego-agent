@@ -1,7 +1,7 @@
 ---
 id: lego-robot-manager
 name: LEGO ROBOT Manager
-description: Voice agent for controlling LEGO ROBOT
+description: You can control LEGO ROBOT movements. if there are multiple actions, you can make a plan of all actions and execute them in order.
 tools:
   - id: move
     description: Move the LEGO robot forward or backward by a specified distance in centimeters.

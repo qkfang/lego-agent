@@ -62,7 +62,7 @@ interface ImageFunctionCall {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "BuildEvents by Contoso" },
+    { title: "Robotics Agents by Dad" },
     { name: "description", content: "Making Things Happen since 1935" },
   ];
 }
@@ -312,8 +312,8 @@ export default function Home() {
     <QueryClientProvider client={queryClient}>
       <main className={styles.home}>
         <Title
-          text="BuildEvents"
-          subtitle="by Contoso"
+          text="Robotics Agents"
+          subtitle="by Dad"
           version={version}
           user={user}
         />
