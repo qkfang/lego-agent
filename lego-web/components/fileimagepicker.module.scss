@@ -1,0 +1,29 @@
+@use "../app/defaults.scss" as *;
+
+.fileGetButton {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border-width: 0px;
+  border-style: solid;
+  outline: 2px solid $color-zinc-300;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $color-zinc-200;
+  cursor: pointer;
+}
+
+.fileGetButton:hover {
+  outline: 2px solid $color-sky-600;
+  background-color: $color-sky-200;
+}
+
+.fileGetButtonIcon {
+  width: 24px;
+  height: 24px;
+  stroke: $color-sky-800;
+}
+
+.fileGetButtonIcon:hover {
+  stroke: $color-sky-600;
+}

@@ -1,0 +1,8 @@
+@use "../app/defaults.scss" as *;
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}

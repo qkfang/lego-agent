@@ -1,0 +1,21 @@
+@use "../app/defaults.scss" as *;
+
+.button {
+  background-color: $color-zinc-50;
+  color: $color-zinc-800;
+  border: solid 3px $color-zinc-100;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.button:hover {
+  background-color: $color-zinc-300;
+  border-color: $color-zinc-600;
+}

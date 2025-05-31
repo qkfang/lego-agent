@@ -1,0 +1,111 @@
+@use "../app/defaults.scss" as *;
+
+.voiceTool {
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.button {
+  background-color: $color-zinc-50;
+  color: $color-zinc-800;
+  border: solid 8px $color-zinc-300;
+  border-radius: 50%;
+  width: 6rem;
+  height: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  z-index: 100;
+  position: absolute;
+  bottom: 56px;
+
+  &:hover {
+    background-color: $color-zinc-300;
+    border-color: $color-zinc-600;
+  }
+}
+
+
+.canvas {
+  //border: solid 1px $color-red-100;
+  //display: none;
+  background-color: transparent;
+  position: relative;
+  margin: 0px auto;
+  z-index: 50;
+}
+
+.idle {
+  background-color: $color-zinc-50;
+  color: $color-zinc-800;
+  border: solid 8px $color-zinc-300;
+  border-radius: 50%;
+  width: 6rem;
+  height: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  z-index: 100;
+  position: absolute;
+  bottom: 56px;
+
+  &:hover {
+    background-color: $color-zinc-300;
+    border-color: $color-zinc-600;
+  }
+}
+
+@keyframes blink {
+  0% {
+    fill: $color-zinc-800;
+  }
+
+  50% {
+    fill: $color-zinc-600;
+  }
+
+  100% {
+    fill: $color-zinc-800;
+  }
+}
+
+.call {
+  background-color: $color-orange-200;
+  color: $color-zinc-800;
+  border: solid 8px $color-zinc-50;
+  border-radius: 50%;
+  width: 6rem;
+  height: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  z-index: 100;
+  position: absolute;
+  bottom: 56px;
+  
+
+  & svg {
+   
+    fill: $color-zinc-50;
+    animation: blink 2s linear infinite;
+  }
+
+
+  &:hover {
+    background-color: $color-zinc-300;
+    border-color: $color-zinc-50;
+  }
+}

@@ -1,0 +1,23 @@
+@use "../app/defaults.scss" as *;
+
+.settings {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-end;
+  justify-content: flex-end;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 4rem;
+  background-color: white;
+  border: solid 1px $color-zinc-300;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}

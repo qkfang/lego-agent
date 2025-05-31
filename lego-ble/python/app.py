@@ -280,7 +280,7 @@ if __name__ == "__main__":
     from uvicorn import Config, Server
 
     async def run_uvicorn():
-        config = Config(app, host="0.0.0.0", port=8000, loop="asyncio")
+        config = Config(app, host="0.0.0.0", port=8001, loop="asyncio")
         server = Server(config)
         await server.serve()
 

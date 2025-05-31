@@ -1,0 +1,68 @@
+@use "../../app/defaults.scss" as *;
+@use 'sass:color';
+
+
+.message {
+  border: solid 1px color.change($color-zinc-100, $alpha: 0.2);
+  border-radius: 10px;
+  color: $color-zinc-100;
+  padding: 10px;
+  font-size: 1rem;
+
+  & h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ol,
+  ul,
+  li {
+    color: $color-zinc-100;
+    font-family: $font-family-sans;
+    font-weight: 300;
+    line-height: 1.25;
+  }
+
+  & h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    //margin: 0 0 4px;
+    font-weight: 600;
+  }
+
+  & strong {
+    font-weight: 400;
+    color: $color-orange-300;
+  }
+
+  & h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.25;
+  }
+
+  & ol li, ul li {
+    margin: 0 0 4px;
+    margin-left: -1rem;
+    text-indent: 0;
+    padding-left: 0;
+  }
+}
+
+
+
+.assistant {
+  margin-right: 25px;
+}
+
+.user {
+  margin-left: 25px;
+}
