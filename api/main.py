@@ -8,19 +8,21 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect
+from openai.types.beta.realtime.session_update_event import SessionTool
 
+from api.agent.decorators import function_agents, function_calls
 from api.agent.storage import get_storage_client
 from api.connection import connections
 from api.model import Update
 from api.telemetry import init_tracing
-from api.voice.common import get_default_configuration_data
+from api.voice.common import get_default_configuration_data, convert_function_params
 from api.voice.session import RealtimeSession
 from api.voice import router as voice_configuration_router
 from api.agent import router as agent_router
 from api.agent.common import get_custom_agents, create_foundry_thread
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from semantic_kernel.connectors.mcp import MCPStdioPlugin
-
+from api.agent.common import foundry_agents, custom_agents, get_foundry_agents, get_custom_agents
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -168,6 +170,27 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                 await connection.close()
                 return
 
+            # Add tools from custom_agents to prompt_settings.tools
+            # cagent = await get_custom_agents()
+            # for agent in custom_agents:
+            #     if hasattr(agent, "tools") and agent.tools:
+            #         prompt_settings.tools.extend(agent.tools)
+
+            # fagents = await get_foundry_agents()
+            # for agent in foundry_agents:
+            #     if hasattr(agent, "tools") and agent.tools:
+            #         prompt_settings.tools.extend(agent.tools)
+
+            for agent_id, agent in function_agents.items():
+                prompt_settings.tools.append(
+                    SessionTool(
+                        type="function",
+                        name=agent.name,
+                        description=agent.description,
+                        parameters=convert_function_params(agent.parameters),
+                    )
+                )
+
             # create a new thread in the foundry
             thread_id = await create_foundry_thread()
 
@@ -223,3 +246,15 @@ async def voice_endpoint(id: str, websocket: WebSocket):
 
 
 FastAPIInstrumentor.instrument_app(app, exclude_spans=["send", "receive"])
+
+
+    # except Exception as e:
+    #     await connection.send_update(
+    #         Update.exception(
+    #             id=id,
+    #             error="Unexpected error",
+    #             content=str(e),
+    #         )
+    #     )
+    # finally:
+    #     await connections.disconnect(id)

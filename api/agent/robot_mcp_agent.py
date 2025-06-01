@@ -42,6 +42,8 @@ def set_up_tracing():
 async def run(prompt: str, lego_robot_mcp):
     set_up_tracing()
     await lego_robot_mcp.connect()
+
+    #todo
     agentdef = await project_client.agents.create_agent(
         model="gpt-4o" , #""os.environ["MODEL_DEPLOYMENT_NAME"],
         name="lego-api333",

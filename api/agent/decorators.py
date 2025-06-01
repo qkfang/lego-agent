@@ -32,9 +32,9 @@ def agent(func: Union[Callable, None] = None, **kwargs: Any) -> Callable:
         args.pop("image", None)
 
     if func.__name__ not in function_agents:
-        function_agents[name.lower().replace(" ", "_")] = Agent(
+        function_agents[func.__name__] = Agent(
             id=func.__name__,
-            name=name,
+            name=func.__name__,
             type="function_agent",
             description=" ".join(description.split()),
             parameters=[

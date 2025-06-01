@@ -253,7 +253,8 @@ mcp.tool(
   "action",
   "Make robot do an action that is not movement .",
   {
-    robot_id: z.string().describe("robot_id that should perform the action")
+    robot_id: z.string().describe("robot_id that should perform the action"),
+    command: z.string().describe("command name that the robot should perform")
   },
   async (param) => {
    

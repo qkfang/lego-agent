@@ -10,6 +10,9 @@ from api.model import AgentUpdateEvent, Content
 from api.agent.storage import save_image_blobs
 from api.agent.common import execute_foundry_agent, post_request
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 AZURE_IMAGE_ENDPOINT = os.environ.get("AZURE_IMAGE_ENDPOINT", "EMPTY").rstrip("/")
 AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
@@ -35,9 +38,9 @@ async def gpt_image_generation(
     )
 
     size: str = "1024x1024"
-    quality: str = "low"
-    api_version = "2025-04-01-preview"
-    deployment_name = "gpt-image-1"
+    quality: str = "standard"
+    api_version = "2024-02-01"
+    deployment_name = "dall-e-3"
     endpoint = f"{AZURE_IMAGE_ENDPOINT}/openai/deployments/{deployment_name}/images/generations?api-version={api_version}"
 
     await notify(
@@ -86,30 +89,33 @@ async def gpt_image_generation(
             information="storing images" if n > 1 else "storing image",
         )
 
-        base64_images = [
-            item["b64_json"] for item in response["data"] if item["b64_json"]
-        ]
+        # base64_images = [
+        #     item["b64_json"] for item in response["data"] if item["b64_json"]
+        # ]
 
-        images = []
-        async for blob_name in save_image_blobs(base64_images):
-            images.append(blob_name)
-            await notify(
-                id="image_generation",
-                status="step completed",
-                content=Content(
-                    type="image",
-                    content=[
-                        {
-                            "type": "image",
-                            "description": description,
-                            "size": size,
-                            "quality": quality,
-                            "image_url": blob_name,
-                        }
-                    ],
-                ),
-                output=True,
-            )
+        img = response["data"][0]["url"]
+
+        images = [img]
+        # async for blob_name in save_image_blobs(base64_images):
+        # async for blob_name in save_image_blobs(base64_images):
+        #     images.append(blob_name)
+        await notify(
+            id="image_generation",
+            status="step completed",
+            content=Content(
+                type="image",
+                content=[
+                    {
+                        "type": "image",
+                        "description": description,
+                        "size": size,
+                        "quality": quality,
+                        "image_url": img,
+                    }
+                ],
+            ),
+            output=True,
+        )
 
         await notify(
             id="image_generation",
@@ -160,8 +166,8 @@ async def gpt_image_edit(
         information="Starting image edit",
     )
 
-    api_version = "2025-04-01-preview"
-    deployment_name = "gpt-image-1"
+    api_version = "2024-02-01"
+    deployment_name = "dall-e-3"
     endpoint = f"{AZURE_IMAGE_ENDPOINT}/openai/deployments/{deployment_name}/images/edits?api-version={api_version}"
 
     await notify(
@@ -169,7 +175,7 @@ async def gpt_image_edit(
     )
 
     size: str = "1024x1024"
-    quality: str = "low"
+    quality: str = "standard"
 
     # send image as multipart/form-data
     if image.startswith("data:image/jpeg;base64,"):

@@ -84,7 +84,8 @@ async def get_foundry_project_client():
 async def get_foundry_agents() -> dict[str, Agent]:
     global foundry_agents
     async with get_foundry_project_client() as project_client:
-        agents = await project_client.agents.list_agents()
+        agents = await project_client.agents.list_agents(limit=100)
+        agentslist = [agent for agent in agents.data if agent["name"].startswith("lego-")]
         foundry_agents = {
             agent["name"]
             .strip()
@@ -109,7 +110,7 @@ async def get_foundry_agents() -> dict[str, Agent]:
                     },
                 ],
             )
-            for agent in agents.data
+            for agent in agentslist
         }
 
         return foundry_agents

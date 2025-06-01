@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import APIRouter
 from fastapi.websockets import WebSocketState
 from pydantic import BaseModel
+from api.agent.common import execute_foundry_agent, post_request
 
 from api.agent.decorators import function_agents, function_calls
 from api.model import Agent, AgentUpdate, AgentUpdateEvent, Content
@@ -163,32 +164,37 @@ async def execute_agent(id: str, function: FunctionCall):
     if id not in connections:
         return {"error": "Connection not found"}
     
-    global robo_agent_mcp1
-    cmd = "perform below action: " +  function.name + " " + json.dumps(function.arguments) + " "
-    await robot_mcp_agent.run(cmd, robo_agent_mcp1)
+    # global robo_agent_mcp1
+    # cmd = "perform below action: " +  function.name + " " + json.dumps(function.arguments) + " "
+    # await robot_mcp_agent.run(cmd, robo_agent_mcp1)
 
-    # if function.name in foundry_agents:
-    #     # execute foundry agent
-    #     foundry_agent = foundry_agents[function.name]
-    #     await execute_foundry_agent(
-    #         foundry_agent.id,
-    #         function.arguments["additional_instructions"],
-    #         function.arguments["query"],
-    #         function_calls,
-    #         send_agent_status(
-    #             connection_id=id, name=foundry_agent.name, call_id=function.call_id
-    #         ),
-    #     )
-    # elif function.name in function_agents:
-    #     function_agent = function_agents[function.name]
-    #     functions = dir(agents)
-    #     if function_agent.id in functions:
-    #         # execute function agent
-    #         func = getattr(agents, function_agent.id)
-    #         args = function.arguments.copy()
-    #         args["notify"] = send_agent_status(
-    #             connection_id=id, name=function_agent.name, call_id=function.call_id
-    #         )
-    #         await func(**args)
-    #     else:
-    #         return {"error": "Function not found"}
+    if function.name in foundry_agents:
+        # execute foundry agent
+        foundry_agent = foundry_agents[function.name]
+        await execute_foundry_agent(
+            foundry_agent.id,
+            function.arguments["additional_instructions"],
+            function.arguments["query"],
+            function_calls,
+            send_agent_status(
+                connection_id=id, name=foundry_agent.name, call_id=function.call_id
+            ),
+        )
+    elif function.name in function_agents:
+        function_agent = function_agents[function.name]
+        functions = dir(agents)
+        if function_agent.id in functions:
+            # execute function agent
+            func = getattr(agents, function_agent.id)
+            args = function.arguments.copy()
+            args["notify"] = send_agent_status(
+                connection_id=id, name=function_agent.name, call_id=function.call_id
+            )
+            await func(**args)
+        else:
+            return {"error": "Function not found"}
+    
+    return {
+        "message": f"Agent {function.name} executed successfully",
+        "call_id": function.call_id,
+    }
