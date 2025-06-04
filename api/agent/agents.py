@@ -9,13 +9,114 @@ from api.agent.decorators import agent
 from api.model import AgentUpdateEvent, Content
 from api.agent.storage import save_image_blobs
 from api.agent.common import execute_foundry_agent, post_request
+from api.robot.objectdetector import run 
 
 from dotenv import load_dotenv
+import datetime
 
 load_dotenv()
 
 AZURE_IMAGE_ENDPOINT = os.environ.get("AZURE_IMAGE_ENDPOINT", "EMPTY").rstrip("/")
 AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
+
+
+@agent(
+    name="Observer Agent",
+    description='''
+    This agent can analyze a photo of current robot field.  If the user is uploading a file, set the kind to "FILE" - the user will explictly mention an "upload".
+    ''',
+)
+async def agent_observer(
+    description: Annotated[
+        str,
+        "The detailed prompt of image to be edited. The more detailed the description, the better the image will be. Make sure to include the style of the image, the colors, and any other details that will help the model generate a better image.",
+    ],
+    image: Annotated[
+        str,
+        "The base64 encoded image to be used as a starting point for the generation. You do not need to include the image itself, you can add a placeholder here since the UI will handle the image upload.",
+    ],
+    kind: Annotated[
+        str,
+        'This can be either a file upload or an image that is captured with the users camera. Choose "FILE" if the image is uploaded from the users device. Choose "CAMERA" if the image should be captured with the users camera.',
+    ],
+    notify: AgentUpdateEvent,
+) -> list[str]:
+
+    await notify(
+        id="robot_observer",
+        status="run in_progress",
+        information="Starting image generation",
+    )
+
+    if image.startswith("data:image/jpeg;base64,"):
+        image = image.replace("data:image/jpeg;base64,", "")
+    img = io.BytesIO(base64.b64decode(image))
+
+    # Save the uploaded image to a file
+    timestamp_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+    root = "D:/gh-repo/lego-agent/api/temp"
+    temp_img_path = "{root}/obimg_in_{timestamp_str}.jpg"
+    temp_img_output_path = "{root}/obimg_out_{timestamp_str}.jpg"
+    temp_json_output_path = "{root}/obimg_out_{timestamp_str}.json"
+
+    with open(temp_img_path, "wb") as f:
+        f.write(img.getbuffer())
+
+    class Args:
+        def __init__(self):
+            self.image_path = temp_img_path
+            self.method = "color"
+            self.templates = None
+            self.target_objects = ["blue", "red"]
+            self.confidence = 0.5
+            self.output = "image_o.json"
+            self.visualize = "image_v.json"
+            self.pixels_per_unit = 1.0
+            self.no_display = False
+            self.no_preprocessing = False
+
+    args = Args()
+    args.image_path = temp_img_path
+    args.method = "color"
+    args.templates = None
+    args.target_objects = ["blue", "red"]
+    args.confidence = 0.5
+    args.output = temp_img_output_path
+    args.visualize = temp_json_output_path
+    args.pixels_per_unit = 1.0
+    args.no_display = True
+    args.no_preprocessing = True
+    detection_result = run(args)
+
+    with open(temp_img_output_path, "rb") as img_file:
+        base64_image = base64.b64encode(img_file.read()).decode("utf-8")
+
+    async for blob in save_image_blobs([base64_image]):
+        await notify(
+            id="image_edit",
+            status="step_completed",
+            content=Content(
+                type="image",
+                content=[
+                    {
+                        "type": "image",
+                        "description": description,
+                        "image_url": blob,
+                        "kind": kind,
+                    }
+                ],
+            ),
+            output=True,
+        )
+
+    await notify(
+        id="robot_observer",
+        status="run done",
+        information="Completed observing the robot field",
+    )
+
+    return detection_result
+
 
 
 @agent(

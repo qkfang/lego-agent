@@ -15,7 +15,7 @@ from api.agent.storage import get_storage_client
 from api.connection import connections
 from api.model import Update
 from api.telemetry import init_tracing
-from api.voice.common import get_default_configuration_data, convert_function_params
+from api.voice.common import get_default_configuration_data, convert_function_params, convert_mcp_function_params
 from api.voice.session import RealtimeSession
 from api.voice import router as voice_configuration_router
 from api.agent import router as agent_router
@@ -23,6 +23,8 @@ from api.agent.common import get_custom_agents, create_foundry_thread
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from semantic_kernel.connectors.mcp import MCPStdioPlugin
 from api.agent.common import foundry_agents, custom_agents, get_foundry_agents, get_custom_agents
+import api.agent
+            
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -36,7 +38,7 @@ LOCAL_TRACING_ENABLED = os.getenv("LOCAL_TRACING_ENABLED", "false").lower() == "
 init_tracing(local_tracing=LOCAL_TRACING_ENABLED)
 
 base_path = Path(__file__).parent
-robo_agent_mcp = None
+mcptools = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,8 +58,9 @@ async def lifespan(app: FastAPI):
                 },
             ) as lego_robot_mcp
         ):
-            import api.agent
             api.agent.robo_agent_mcp1 = lego_robot_mcp  # set the value in api.agent
+            global mcptools
+            mcptools = await lego_robot_mcp.session.list_tools()
                 
         yield
     finally:
@@ -171,10 +174,22 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                 return
 
             # Add tools from custom_agents to prompt_settings.tools
-            # cagent = await get_custom_agents()
-            # for agent in custom_agents:
-            #     if hasattr(agent, "tools") and agent.tools:
-            #         prompt_settings.tools.extend(agent.tools)
+            cagent = await get_custom_agents()
+            for agent in custom_agents:
+                if hasattr(agent, "tools") and agent.tools:
+                    prompt_settings.tools.extend(agent.tools)
+
+            # mcp actions
+            global mcptools
+            for mcptool in mcptools.tools:
+                prompt_settings.tools.append(
+                    SessionTool(
+                        type="function",
+                        name=mcptool.name,
+                        description=mcptool.description,
+                        parameters=convert_mcp_function_params(mcptool.inputSchema['properties']) if mcptool.inputSchema and len(mcptool.inputSchema['properties'])>=0 else None,
+                    )
+                )
 
             # fagents = await get_foundry_agents()
             # for agent in foundry_agents:
@@ -182,14 +197,16 @@ async def voice_endpoint(id: str, websocket: WebSocket):
             #         prompt_settings.tools.extend(agent.tools)
 
             for agent_id, agent in function_agents.items():
-                prompt_settings.tools.append(
-                    SessionTool(
+                stool = SessionTool(
                         type="function",
                         name=agent.name,
                         description=agent.description,
                         parameters=convert_function_params(agent.parameters),
                     )
-                )
+                prompt_settings.tools.append(stool)
+
+            for tool in prompt_settings.tools:
+                print(f"ToolName: {tool.name}")
 
             # create a new thread in the foundry
             thread_id = await create_foundry_thread()

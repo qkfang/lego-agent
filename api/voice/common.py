@@ -166,9 +166,25 @@ def convert_function_params(params: list[dict]) -> dict:
         "required": [p["name"] for p in params if p["required"]],
     }
 
+def convert_mcp_function_params(params: list[dict]) -> dict:
+    return {
+        "type": "object",
+        "properties": {
+            p: {
+                "type": attr["type"],
+                "description": (
+                    attr["description"] if "description" in p else "No Description"
+                ),
+            }
+            for p, attr in params.items()
+        },
+        "required": [p for p, attr in params.items() if "required" in attr and attr["required"]],
+    }
 
 async def get_default_configuration_data(**args) -> Union[DefaultConfiguration, None]:
-    config = await get_default_configuration()
+    # config = await get_default_configuration()
+    
+    config = await load_prompty_file("robot.prompty")
     if config:
         p = load_prompty(config.content)
         msgs = await prompty.prepare_async(p, inputs={**args})

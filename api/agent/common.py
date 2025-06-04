@@ -31,7 +31,7 @@ custom_agents: dict[str, Prompty] = {}
 # load agents from prompty files in directory
 async def get_custom_agents() -> dict[str, Prompty]:
     global custom_agents
-    agents_dir = Path(__file__).parent / "agents"
+    agents_dir = Path(__file__).parent / "prompty"
     if not agents_dir.exists():
         # print(f"No custom agents found in {agents_dir}")
         return {}

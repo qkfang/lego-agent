@@ -164,11 +164,13 @@ async def execute_agent(id: str, function: FunctionCall):
     if id not in connections:
         return {"error": "Connection not found"}
     
+    print(f"Executing agent {id} with function {function.name} and arguments {function.arguments}")
+    
     # global robo_agent_mcp1
-    # cmd = "perform below action: " +  function.name + " " + json.dumps(function.arguments) + " "
-    # await robot_mcp_agent.run(cmd, robo_agent_mcp1)
-
-    if function.name in foundry_agents:
+    if function.name.startswith("robot_"):
+        cmd = "perform below action: " +  function.name + " " + json.dumps(function.arguments) + " "
+        await robot_mcp_agent.run(cmd, robo_agent_mcp1)
+    elif function.name in foundry_agents:
         # execute foundry agent
         foundry_agent = foundry_agents[function.name]
         await execute_foundry_agent(
