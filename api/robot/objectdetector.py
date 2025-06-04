@@ -467,24 +467,22 @@ class ObjectDetector:
                 distance = self.calculate_distance(self.detected_objects[i], self.detected_objects[j])
                 cv2.putText(vis_image, f"{distance:.1f}px", (mid_x, mid_y), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0), 1)
-        
-        # Save vis_image (BGR) to file if save_path is provided
-        if save_path:
-            cv2.imwrite(save_path, vis_image)
-            print(f"Raw visualization image saved to: {save_path}")
-
+       
         # Convert BGR to RGB for matplotlib
-        # vis_image_rgb = cv2.cvtColor(vis_image, cv2.COLOR_BGR2RGB)
+        vis_image_rgb = cv2.cvtColor(vis_image, cv2.COLOR_BGR2RGB)
         
-        # plt.figure(figsize=(12, 8))
-        # plt.imshow(vis_image_rgb)
-        # plt.title('Object Detection and Distance Analysis')
-        # plt.axis('off')
+        plt.figure(figsize=(12, 8))
+        plt.imshow(vis_image_rgb)
+        plt.title('Object Detection and Distance Analysis')
+        plt.axis('off')
         
-        # if save_path:
-        #     plt.savefig(save_path, bbox_inches='tight', dpi=300)
-        #     print(f"Visualization saved to: {save_path}")
-
+        if save_path:
+            plt.savefig(save_path, bbox_inches='tight', dpi=300)
+            print(f"Visualization saved to: {save_path}")
+        
+        # if show_plot:
+        #     plt.show()
+        
 
 def create_sample_color_ranges():
     """Create sample color ranges for common objects."""

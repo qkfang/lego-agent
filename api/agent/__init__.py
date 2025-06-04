@@ -7,6 +7,19 @@ from api.agent.common import execute_foundry_agent, post_request
 
 from api.agent.decorators import function_agents, function_calls
 from api.model import Agent, AgentUpdate, AgentUpdateEvent, Content
+from openai.types.beta.realtime import (
+    SessionUpdateEvent,
+    InputAudioBufferAppendEvent,
+    # InputAudioBufferCommitEvent,
+    # InputAudioBufferClearEvent,
+    ConversationItemCreateEvent,
+    # ConversationItemTruncateEvent,
+    # ConversationItemDeleteEvent,
+    ResponseCreateEvent,
+    ConversationItem
+    # ResponseCancelEvent,
+)
+
 from api.agent.common import (
     get_client_agents,
     get_foundry_agents,
@@ -26,6 +39,7 @@ from api.connection import connections
 from . import robot_mcp_agent
 
 robo_agent_mcp1 = None
+realtime1 = None
 
 # available agents
 router = APIRouter(
@@ -192,7 +206,18 @@ async def execute_agent(id: str, function: FunctionCall):
             args["notify"] = send_agent_status(
                 connection_id=id, name=function_agent.name, call_id=function.call_id
             )
-            await func(**args)
+            result = await func(**args)
+
+            await realtime1.realtime.send(
+                ConversationItemCreateEvent(
+                    type="conversation.item.create",
+                    item=ConversationItem(
+                        call_id=function.call_id,
+                        type="function_call_output",
+                        output= json.dumps(result , indent=2)
+                    ),
+                )
+            )
         else:
             return {"error": "Function not found"}
     

@@ -98,7 +98,7 @@ async function runble(script: string): Promise<void> {
 }
 
 mcp.tool(
-  "list",
+  "robot_list",
   "Get all the vailable robots",
   {
   },
@@ -131,7 +131,7 @@ mcp.tool(
 );
 
 mcp.tool(
-  "move",
+  "robot_move",
   "Move robot forward or backward. positive value in mm means forward, negative value in mm means backward.",
   {
     robot_id: z.string().describe("robot_id that should perform the action"),
@@ -171,7 +171,7 @@ runloop.run(main())
 );
 
 mcp.tool(
-  "turn",
+  "robot_turn",
   "Turn robot left or right. positive value in mm means right, negative value in mm means left.",
   {
     robot_id: z.string().describe("robot_id that should perform the action"),
@@ -211,7 +211,7 @@ runloop.run(main())
 );
 
 mcp.tool(
-  "beep",
+  "robot_beep",
   "Make robot beep and make a sound.",
   {
     robot_id: z.string().describe("robot_id that should perform the action")
@@ -250,7 +250,7 @@ runloop.run(main())
 );
 
 mcp.tool(
-  "action",
+  "robot_action",
   "Make robot do an action that is not movement .",
   {
     robot_id: z.string().describe("robot_id that should perform the action"),

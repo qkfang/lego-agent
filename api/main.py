@@ -112,7 +112,7 @@ async def get_image(image_id: str):
         # return bytes as png image
         image_data = await blob_client.download_blob()
         image_bytes = await image_data.readall()
-        return Response(content=image_bytes, media_type="image/png")
+        return Response(content=image_bytes, media_type="image/jpg")
 
 
 @app.websocket("/api/voice/{id}")
@@ -211,11 +211,13 @@ async def voice_endpoint(id: str, websocket: WebSocket):
             # create a new thread in the foundry
             thread_id = await create_foundry_thread()
 
+            global session
             session = RealtimeSession(
                 realtime=realtime_client,
                 client=connection,
                 thread_id=thread_id,
             )
+            api.agent.realtime1 = session  # set the session in api.agent
 
             detection_type: Literal["semantic_vad", "server_vad"] = (
                 settings["detection_type"]

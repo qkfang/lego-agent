@@ -7,7 +7,7 @@ from typing import Annotated
 import aiohttp
 from api.agent.decorators import agent
 from api.model import AgentUpdateEvent, Content
-from api.agent.storage import save_image_blobs
+from api.agent.storage import save_image_blobs, save_image_binary_blobs
 from api.agent.common import execute_foundry_agent, post_request
 from api.robot.objectdetector import run 
 
@@ -23,7 +23,7 @@ AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
 @agent(
     name="Observer Agent",
     description='''
-    This agent can analyze a photo of current robot field.  If the user is uploading a file, set the kind to "FILE" - the user will explictly mention an "upload".
+    This agent can analyze a photo of current robot field.  If the user is uploading a file or a photo, set the kind to "FILE", the user will explictly mention an "upload".
     ''',
 )
 async def agent_observer(
@@ -55,9 +55,9 @@ async def agent_observer(
     # Save the uploaded image to a file
     timestamp_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
     root = "D:/gh-repo/lego-agent/api/temp"
-    temp_img_path = "{root}/obimg_in_{timestamp_str}.jpg"
-    temp_img_output_path = "{root}/obimg_out_{timestamp_str}.jpg"
-    temp_json_output_path = "{root}/obimg_out_{timestamp_str}.json"
+    temp_img_path = f"{root}/obimg_in_{timestamp_str}.jpg"
+    temp_img_output_path = f"{root}/obimg_out_{timestamp_str}.jpg"
+    temp_json_output_path = f"{root}/obimg_out_{timestamp_str}.json"
 
     with open(temp_img_path, "wb") as f:
         f.write(img.getbuffer())
@@ -81,17 +81,16 @@ async def agent_observer(
     args.templates = None
     args.target_objects = ["blue", "red"]
     args.confidence = 0.5
-    args.output = temp_img_output_path
-    args.visualize = temp_json_output_path
+    args.output = temp_json_output_path
+    args.visualize = temp_img_output_path
     args.pixels_per_unit = 1.0
     args.no_display = True
     args.no_preprocessing = True
     detection_result = run(args)
 
-    with open(temp_img_output_path, "rb") as img_file:
-        base64_image = base64.b64encode(img_file.read()).decode("utf-8")
+    img_file = open(temp_img_output_path, "rb")
 
-    async for blob in save_image_blobs([base64_image]):
+    async for blob in save_image_binary_blobs([img_file]):
         await notify(
             id="image_edit",
             status="step_completed",

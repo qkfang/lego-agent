@@ -6,6 +6,9 @@ import uuid
 from azure.identity.aio import DefaultAzureCredential
 from azure.storage.blob.aio import BlobServiceClient
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 SUSTINEO_STORAGE = os.environ.get("SUSTINEO_STORAGE", "EMPTY")
 SUSTINEO_CONTAINER = "sustineo"
@@ -24,8 +27,8 @@ async def get_storage_client(container: str):
         # remove the comment below if you want to ensure 
         # the container exists. commenting to avoid unnecessary 
         # creation
-        #if not await container_client.exists():
-        #    await container_client.create_container()
+        if not await container_client.exists():
+           await container_client.create_container()
 
         yield container_client
     finally:
@@ -41,5 +44,17 @@ async def save_image_blobs(images: list[str]) -> AsyncGenerator[str, None]:
             blob_name = f"images/{str(uuid.uuid4())}.png"
             await container_client.upload_blob(
                 name=blob_name, data=image_bytes, overwrite=True
+            )
+            yield blob_name
+
+
+async def save_image_binary_blobs(images: list[bytes]) -> AsyncGenerator[str, None]:
+    print(SUSTINEO_STORAGE)
+    print(SUSTINEO_CONTAINER)
+    async with get_storage_client(SUSTINEO_CONTAINER) as container_client:
+        for image in images:
+            blob_name = f"images/{str(uuid.uuid4())}.jpg"
+            await container_client.upload_blob(
+                name=blob_name, data=image, overwrite=True
             )
             yield blob_name

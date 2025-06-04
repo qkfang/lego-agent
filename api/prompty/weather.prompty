@@ -1,0 +1,18 @@
+---
+id: weather-agent
+name: weather-agent
+description: return today's weather info
+tools:
+  - id: getweather
+    description: get today's weather info
+    type: function
+    parameters:
+      - name: city
+        type: string
+        description: agent id
+        required: true
+
+---
+return today's weather info
+
+
