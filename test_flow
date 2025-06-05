@@ -1,0 +1,33 @@
+from semantic_kernel.connectors.mcp import MCPStdioPlugin
+from test_shared import robotData
+from test_observer import run_step1
+from test_planner import run_step2
+from test_controller import run_step3
+import asyncio
+import test_shared
+
+
+async def main():
+    lego_robot_mcp = MCPStdioPlugin(
+            name="AIFoundryAgents",
+            description="Al Foundry Agents and run query, call this plugin.",
+            command="node",
+            args= ["D:\\gh-repo\\lego-agent\\lego-mcp\\typescript\\build\\index.js"],
+            env={
+                "PROJECT_CONNECTION_STRING": "eastus2.api.azureml.ms;79b9afaa-2d77-4d1e-b902-98df2bd3b3d6;rg-agent100;mamimezf5xgqov-aiproject",
+                "DEFAULT_ROBOT_ID": "robot_b"
+            },
+        )
+    lego_robot_mcp.connect()
+    
+    test_shared.mcp = lego_robot_mcp
+
+    robotData.step0_img_path = "D:/gh-repo/lego-agent/testdata/step/step0-photo.jpg"
+    await run_step1()
+    await run_step2()
+    await run_step3()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
