@@ -349,14 +349,6 @@ export default function Home() {
           version={version}
           user={user}
         />
-        <img
-          id="live-stream"
-          src="http://192.168.0.50:5000/video_feed"
-          alt="Live Stream"
-          style={{ width: '400px', height: '200px', border: '2px solid #333' }}
-          crossOrigin="anonymous"
-          onClick={handleLiveStreamClick}
-        />
         <div className={styles.scratch}>
           <div className={styles.output}>
             <div style={{ margin: "20px" }}>
@@ -371,13 +363,21 @@ export default function Home() {
             )}
           </div>
           <div className={styles.effort}>
+        <img
+          id="live-stream"
+          src="http://192.168.0.50:5000/video_feed"
+          alt="Live Stream"
+          style={{ width: '300px', height: '200px', border: '2px solid #333' }}
+          crossOrigin="anonymous"
+          onClick={handleLiveStreamClick}
+        />
             <EffortList />
             {/* <input
               type="text"
               placeholder={"Send a message"}
               className={styles.textInput}
             /> */}
-                  
+            
             <VoiceTool
               onClick={handleVoice}
               callState={callState}

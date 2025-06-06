@@ -2,7 +2,7 @@ import datetime
 
 class RobotData:
     def __init__(self):
-        self.root = "D:/gh-repo/lego-agent/api/temp"
+        self.root = "D:/gh-repo/lego-agent/lego-api/temp"
         self.runid = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
         self.field_data = {}
 

@@ -7,7 +7,7 @@ from robot.test_s0_orchestrator import run_step0
 from robot.test_s1_observer import run_step1
 from robot.test_s2_planner import run_step2
 from robot.test_s3_controller import run_step3
-from robot.test_s4_judge import run_step4
+from robot.test_s4_judger import run_step4
 from model import AgentUpdateEvent, Content
 import shared
 from shared import robotData
@@ -20,7 +20,7 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
     agentObserver = await run_step1(agentOnly=True)
     agentPlanner = await run_step2(agentOnly=True)
     agentController = await run_step3(agentOnly=True)
-    agentJudge = await run_step4(agentOnly=True)
+    agentJudger = await run_step4(agentOnly=True)
 
     class ApprovalTerminationStrategy(TerminationStrategy):
         """A strategy for determining when an agent should terminate."""
@@ -31,8 +31,8 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
 
     # 5. Place the agents in a group chat with a custom termination strategy
     chat = AgentGroupChat(
-        agents=[agentOrchestrator, agentObserver, agentPlanner, agentController, agentJudge],
-        termination_strategy=ApprovalTerminationStrategy(agents=[agentJudge], maximum_iterations=10),
+        agents=[agentOrchestrator, agentObserver, agentPlanner, agentController, agentJudger],
+        termination_strategy=ApprovalTerminationStrategy(agents=[agentJudger], maximum_iterations=10),
     )
     shared.chat = chat
 

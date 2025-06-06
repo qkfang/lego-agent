@@ -12,7 +12,7 @@ async def run_step4(agentOnly: bool = False):
 
     agentdef = await shared.project_client.agents.create_agent(
         model="gpt-4o",
-        name="lego-judge",
+        name="lego-judger",
         temperature=0,
         instructions=
 '''

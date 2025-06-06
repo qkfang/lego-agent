@@ -5,7 +5,7 @@ __pycache__/
 *$py.class
 
 lego-ble/temp
-api/temp
+lego-api/temp
 
 # C extensions
 *.so
