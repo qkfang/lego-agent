@@ -101,12 +101,12 @@ export default function Home() {
     console.log("Adding output", parent, agent, call_id, content);
     for (const item of content) {
       if (item.type === "text") {
-        await sendRealtime({
-          id: uuidv4(),
-          type: "function_completion",
-          call_id: call_id,
-          output: item.value,
-        });
+        // await sendRealtime({
+        //   id: uuidv4(),
+        //   type: "function_completion",
+        //   call_id: call_id,
+        //   output: item.value,
+        // });
         output?.addOutput(parent, agent, {
           id: uuidv4(),
           title: agent,
@@ -135,12 +135,12 @@ export default function Home() {
           children: [],
         });
       } else if (item.type === "image") {
-        await sendRealtime({
-          id: uuidv4(),
-          type: "function_completion",
-          call_id: call_id,
-          output: `Generated image as described by ${item.description}. It is ${item.size} and ${item.quality}. It has been saved and is currently being displayed to ${user.name}.`,
-        });
+        // await sendRealtime({
+        //   id: uuidv4(),
+        //   type: "function_completion",
+        //   call_id: call_id,
+        //   output: `Generated image as described by ${item.description}. It is ${item.size} and ${item.quality}. It has been saved and is currently being displayed to ${user.name}.`,
+        // });
 
         output?.addOutput(parent, agent, {
           id: uuidv4(),
@@ -326,6 +326,20 @@ export default function Home() {
     fetchCachedImage(image, setImage);
   };
 
+  const handleLiveStreamClick = () => {
+    const img = document.getElementById("live-stream") as HTMLImageElement | null;
+    if (!img) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const base64Image = canvas.toDataURL("image/png");
+    // You can now use base64Image as needed, e.g., save or display it
+    console.log("Base64 Image:", base64Image);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <main className={styles.home}>
@@ -335,7 +349,14 @@ export default function Home() {
           version={version}
           user={user}
         />
-
+        <img
+          id="live-stream"
+          src="http://192.168.0.50:5000/video_feed"
+          alt="Live Stream"
+          style={{ width: '80%', height: '500px', border: '2px solid #333' }}
+          crossOrigin="anonymous"
+          onClick={handleLiveStreamClick}
+        />
         <div className={styles.scratch}>
           <div className={styles.output}>
             <div style={{ margin: "20px" }}>
@@ -356,6 +377,7 @@ export default function Home() {
               placeholder={"Send a message"}
               className={styles.textInput}
             /> */}
+                  
             <VoiceTool
               onClick={handleVoice}
               callState={callState}
