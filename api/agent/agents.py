@@ -3,25 +3,14 @@ import io
 import base64
 import json
 import aiohttp
-import agenttest
-import shared
 from typing import Annotated
 from agent.decorators import agent
 from model import AgentUpdateEvent, Content
 from agent.storage import save_image_blobs, save_image_binary_blobs
 from agent.common import execute_foundry_agent, post_request
-from robot.objectdetector import run 
-from agenttest.robotmodel import RobotData, RoboProcessArgs
-from semantic_kernel.agents.strategies import TerminationStrategy
-from semantic_kernel.agents import AgentGroupChat, AzureAIAgent, AzureAIAgentSettings
-from semantic_kernel.contents import AuthorRole
-from agenttest.test_s0_orchestrator import run_step0
-from agenttest.test_s1_observer import run_step1
-from agenttest.test_s2_planner import run_step2
-from agenttest.test_s3_controller import run_step3
-from agenttest.test_s4_judge import run_step4
 from dotenv import load_dotenv
-
+from robot.test_robot_agent import robot_agent_run
+from robot.robotmodel import RobotData, RoboProcessArgs
 load_dotenv()
 
 AZURE_IMAGE_ENDPOINT = os.environ.get("AZURE_IMAGE_ENDPOINT", "EMPTY").rstrip("/")
@@ -41,54 +30,8 @@ async def agent_robot(
     ],
     notify: AgentUpdateEvent,
 ) -> list[str]:
-
-    agenttest.test_shared.mcp =  shared.robo_agent_mcp1
-    agenttest.test_shared.thread = None
-    agenttest.test_shared.mcp.connect()
-
-    agentOrchestrator = await run_step0(agentOnly=True)
-    agentObserver = await run_step1(agentOnly=True)
-    agentPlanner = await run_step2(agentOnly=True)
-    agentController = await run_step3(agentOnly=True)
-    agentJudge = await run_step4(agentOnly=True)
-
-    class ApprovalTerminationStrategy(TerminationStrategy):
-        """A strategy for determining when an agent should terminate."""
-
-        async def should_agent_terminate(self, agent, history):
-            """Check if the agent should terminate."""
-            return "goal completed" in history[-1].content.lower()
-
-    # 5. Place the agents in a group chat with a custom termination strategy
-    chat = AgentGroupChat(
-        agents=[agentOrchestrator, agentObserver, agentPlanner, agentController, agentJudge],
-        termination_strategy=ApprovalTerminationStrategy(agents=[agentJudge], maximum_iterations=10),
-    )
-    agenttest.test_shared.chat = chat
-
-    try:
-
-        await chat.add_chat_message(message=goal)
-        print(f"# {AuthorRole.USER}: '{goal}'")
-        async for content in chat.invoke():
-            print("\033[93m \r\n--------------------- agent --------------------- \033[0m")
-            print(f"# {content.role} - {content.name or '*'}: '{content.content}'")
-
-            await notify(
-                id=content.name,
-                status="run done",
-                information=content.content,
-            )
-        
-
-    finally:
-        await chat.reset()
-        
-        await agenttest.test_shared.project_client.agents.delete_agent(agentOrchestrator.id)
-        await agenttest.test_shared.project_client.agents.delete_agent(agentObserver.id)
-        await agenttest.test_shared.project_client.agents.delete_agent(agentPlanner.id)
-        await agenttest.test_shared.project_client.agents.delete_agent(agentController.id)
-        await agenttest.test_shared.project_client.agents.delete_agent(agentJudge.id)
+    
+    await robot_agent_run(goal, notify)
 
     return ["Robot actions completed."]
 
@@ -160,29 +103,6 @@ async def agent_robot(
 #     )
 
 #     return data.detection_result
-
-
-async def processImage(robotData: RobotData):
-    args = RoboProcessArgs()
-    args.image_path = robotData.step0_img_path
-    args.method = "color"
-    args.templates = None
-    args.target_objects = ["blue", "red"]
-    args.confidence = 0.5
-    args.output = robotData.step1_analyze_json()
-    args.visualize = robotData.step1_analyze_img()
-    args.pixels_per_unit = 1.0
-    args.no_display = True
-    args.no_preprocessing = True
-    detection_result = run(args)
-
-    img_file = open(robotData.step1_analyze_img(), "rb")
-    blob = await save_image_binary_blobs(img_file)
-
-    fieldData = { "detection_result": detection_result, "blob": blob }
-    robotData.field_data = fieldData
-    return fieldData
-
 
 @agent(
     name="Image Generation Agent",

@@ -177,7 +177,7 @@ async def execute_agent(id: str, function: FunctionCall):
     
     if function.name.startswith("robot_"):
         cmd = "perform below action: " +  function.name + " " + json.dumps(function.arguments) + " "
-        await robot_mcp_agent.run(cmd, shared.robo_agent_mcp1)
+        await robot_mcp_agent.run(cmd, shared.mcp)
     elif function.name in foundry_agents:
         # execute foundry agent
         foundry_agent = foundry_agents[function.name]

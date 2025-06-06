@@ -470,15 +470,16 @@ class ObjectDetector:
        
         # Convert BGR to RGB for matplotlib
         vis_image_rgb = cv2.cvtColor(vis_image, cv2.COLOR_BGR2RGB)
+        cv2.imwrite(save_path, vis_image_rgb)
         
-        plt.figure(figsize=(12, 8))
-        plt.imshow(vis_image_rgb)
-        plt.title('Object Detection and Distance Analysis')
-        plt.axis('off')
+        # plt.figure(figsize=(12, 8))
+        # plt.imshow(vis_image_rgb)
+        # plt.title('Object Detection and Distance Analysis')
+        # plt.axis('off')
         
-        if save_path:
-            plt.savefig(save_path, bbox_inches='tight', dpi=300)
-            print(f"Visualization saved to: {save_path}")
+        # if save_path:
+        #     plt.savefig(save_path, bbox_inches='tight', dpi=300)
+        #     print(f"Visualization saved to: {save_path}")
         
         # if show_plot:
         #     plt.show()

@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI):
                 },
             ) as lego_robot_mcp
         ):
-            shared.robo_agent_mcp1 = lego_robot_mcp  # set the value in api.agent
+            shared.mcp = lego_robot_mcp  # set the value in api.agent
             shared.mcptools = await lego_robot_mcp.session.list_tools()
                 
         yield

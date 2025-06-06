@@ -1,11 +1,11 @@
 import json
-import agenttest.test_shared
+import shared
 from semantic_kernel.agents.azure_ai.azure_ai_agent import AzureAIAgent
 from semantic_kernel.functions import kernel_function
-from agenttest.test_shared import robotData
+from shared import robotData
 from semantic_kernel.contents.chat_message_content import ChatMessageContent
-from agenttest.robotmodel import RobotData, RoboProcessArgs
-from agent.storage import save_image_blobs, save_image_binary_blobs
+from robot.robotmodel import RobotData, RoboProcessArgs
+from agent.storage import save_image_binary_blobs
 from robot.objectdetector import run 
 
 
@@ -66,7 +66,7 @@ class FieldStatePlugin:
 async def run_step1(agentOnly: bool = False):
 
     
-    agentdef = await agenttest.test_shared.project_client.agents.create_agent(
+    agentdef = await shared.project_client.agents.create_agent(
         model="gpt-4o",
         name="lego-observer",
         temperature=0,
@@ -86,7 +86,7 @@ Only return analysis data in json format in your response. dont return any other
     )
 
     agent = AzureAIAgent(
-        client=agenttest.test_shared.project_client,
+        client=shared.project_client,
         definition=agentdef,
         plugins=[FieldStatePlugin],
     )
@@ -94,11 +94,11 @@ Only return analysis data in json format in your response. dont return any other
     if(agentOnly):
         return agent
 
-    response = await agent.get_response(
-        messages=
-'describe the current field data, the blue object stands for the robot, the red object stands for the goal. ',
-        thread=agenttest.test_shared.thread,
-    )
-    print(f"# {response.name}: {response}")
-    test_shared.thread = response.thread
+#     response = await agent.get_response(
+#         messages=
+# 'describe the current field data, the blue object stands for the robot, the red object stands for the goal. ',
+#         thread=shared.thread,
+#     )
+#     print(f"# {response.name}: {response}")
+#     test_shared.thread = response.thread
 
