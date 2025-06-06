@@ -10,7 +10,7 @@ from robot.test_s3_controller import run_step3
 from robot.test_s4_judge import run_step4
 from model import AgentUpdateEvent, Content
 import shared
-import robot
+from shared import robotData
 
 async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
   
@@ -52,22 +52,39 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
                 )
 
             if content.name == "lego-observer":
-                i = 1
-
-            await notify(
-                id="image_edit",
-                status="step_completed",
-                content=Content(
-                    type="image",
-                    content=[
-                        {
-                            "type": "text",
-                            "value": content.content,
-                        }
-                    ],
-                ),
-                output=True,
-            )
+                await notify(
+                    id="image_edit",
+                    subagent = content.name,
+                    status="step_completed",
+                    content=Content(
+                        type="image",
+                        content=[
+                            {
+                                "type": "image",
+                                "description": content.content,
+                                "image_url": robotData.field_data["blob"],
+                                "kind": 'image',
+                            }
+                        ],
+                    ),
+                    output=True,
+                )
+            else:
+                await notify(
+                    id="text_update",
+                    subagent = content.name,
+                    status="step_completed",
+                    content=Content(
+                        type="text",
+                        content=[
+                            {
+                                "type": "text",
+                                "value": content.content,
+                            }
+                        ],
+                    ),
+                    output=True,
+                )
         
 
     finally:

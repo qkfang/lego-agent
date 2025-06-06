@@ -178,15 +178,15 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                     prompt_settings.tools.extend(agent.tools)
 
             # mcp actions
-            for mcptool in shared.mcptools.tools:
-                prompt_settings.tools.append(
-                    SessionTool(
-                        type="function",
-                        name=mcptool.name,
-                        description=mcptool.description,
-                        parameters=convert_mcp_function_params(mcptool.inputSchema['properties']) if mcptool.inputSchema and len(mcptool.inputSchema['properties'])>=0 else None,
-                    )
-                )
+            # for mcptool in shared.mcptools.tools:
+            #     prompt_settings.tools.append(
+            #         SessionTool(
+            #             type="function",
+            #             name=mcptool.name,
+            #             description=mcptool.description,
+            #             parameters=convert_mcp_function_params(mcptool.inputSchema['properties']) if mcptool.inputSchema and len(mcptool.inputSchema['properties'])>=0 else None,
+            #         )
+            #     )
 
             # fagents = await get_foundry_agents()
             # for agent in foundry_agents:

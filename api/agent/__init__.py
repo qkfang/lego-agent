@@ -122,6 +122,7 @@ def send_agent_status(connection_id: str, name: str, call_id: str) -> AgentUpdat
     async def send_status(
         id: str,
         status: str,
+        subagent: str | None = None,
         information: str | None = None,
         content: Content | None = None,
         output: bool = False,
@@ -136,7 +137,7 @@ def send_agent_status(connection_id: str, name: str, call_id: str) -> AgentUpdat
                     id=id,
                     type="agent",
                     call_id=call_id,
-                    name=name,
+                    name=subagent if subagent is not None else name,
                     status=status,
                     information=information,
                     content=content,
