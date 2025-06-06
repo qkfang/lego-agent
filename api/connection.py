@@ -1,4 +1,4 @@
-from api.model import Update
+from model import Update
 from fastapi import WebSocket
 from dataclasses import asdict
 from fastapi.websockets import WebSocketState

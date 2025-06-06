@@ -19,7 +19,7 @@ import matplotlib.patches as patches
 from matplotlib.animation import FuncAnimation
 
 # Import the existing ObjectDetector
-from api.robot.objectdetector import ObjectDetector, create_sample_color_ranges
+from robot.objectdetector import ObjectDetector, create_sample_color_ranges
 
 
 class ObjectTracker:

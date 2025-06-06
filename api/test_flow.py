@@ -24,6 +24,7 @@ async def main():
     
     test_shared.mcp = lego_robot_mcp
     test_shared.thread = None
+    robotData.step0_img_path = "D:/gh-repo/lego-agent/testdata/r1.jpg"
 
     # robotData.runid = ""
     # robotData.step0_img_path = "D:/gh-repo/lego-agent/testdata/step/step0-photo.jpg"

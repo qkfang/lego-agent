@@ -14,7 +14,7 @@ from azure.cosmos import PartitionKey
 from azure.cosmos.aio import CosmosClient, ContainerProxy
 
 from openai.types.beta.realtime.session_update_event import SessionTool
-from api.model import Configuration, DefaultConfiguration
+from model import Configuration, DefaultConfiguration
 
 from dotenv import load_dotenv
 

@@ -1,10 +1,10 @@
 import json
 from typing import Literal, Union
 from prompty.tracer import trace
-from api.connection import Connection
+from connection import Connection
 from fastapi import WebSocketDisconnect
 from fastapi.websockets import WebSocketState
-from api.agent.common import create_thread_message
+from agent.common import create_thread_message
 
 from openai.resources.beta.realtime.realtime import (
     AsyncRealtimeConnection,
@@ -64,7 +64,7 @@ from openai.types.beta.realtime import (
     ConversationItemContent,
 )
 
-from api.model import Update
+from model import Update
 
 
 class RealtimeSession:
@@ -248,7 +248,7 @@ class RealtimeSession:
     ):
         if event.transcript is None or len(event.transcript.strip()) == 0:
             return
-
+        print('msg:' + event.transcript)
         await self.connection.send_browser_update(
             Update.message(
                 id=event.item_id,

@@ -10,8 +10,8 @@ import base64
 
 from pathlib import Path
 
-from api.agent.agents import gpt_image_edit, gpt_image_generation, publish_linkedin_post
-from api.model import Content
+from agent.agents import gpt_image_edit, gpt_image_generation, publish_linkedin_post
+from model import Content
 
 
 BASE_PATH = Path(__file__).parent

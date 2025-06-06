@@ -16,8 +16,8 @@ from azure.ai.projects.models import (
 from azure.identity.aio import DefaultAzureCredential
 from prompty.core import Prompty
 
-from api.model import Agent, AgentUpdateEvent, Function
-from api.agent.handler import SustineoAgentEventHandler
+from model import Agent, AgentUpdateEvent, Function
+from agent.handler import SustineoAgentEventHandler
 
 from dotenv import load_dotenv
 

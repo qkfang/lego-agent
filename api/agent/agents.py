@@ -3,15 +3,24 @@ import io
 import base64
 import json
 import aiohttp
+import agenttest
+import shared
 from typing import Annotated
-from api.agent.decorators import agent
-from api.model import AgentUpdateEvent, Content
-from api.agent.storage import save_image_blobs, save_image_binary_blobs
-from api.agent.common import execute_foundry_agent, post_request
-from api.robot.objectdetector import run 
-from api.robot.robotmodel import RobotData, RoboProcessArgs
+from agent.decorators import agent
+from model import AgentUpdateEvent, Content
+from agent.storage import save_image_blobs, save_image_binary_blobs
+from agent.common import execute_foundry_agent, post_request
+from robot.objectdetector import run 
+from agenttest.robotmodel import RobotData, RoboProcessArgs
+from semantic_kernel.agents.strategies import TerminationStrategy
+from semantic_kernel.agents import AgentGroupChat, AzureAIAgent, AzureAIAgentSettings
+from semantic_kernel.contents import AuthorRole
+from agenttest.test_s0_orchestrator import run_step0
+from agenttest.test_s1_observer import run_step1
+from agenttest.test_s2_planner import run_step2
+from agenttest.test_s3_controller import run_step3
+from agenttest.test_s4_judge import run_step4
 from dotenv import load_dotenv
-import datetime
 
 load_dotenv()
 
@@ -20,75 +29,137 @@ AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
 
 
 @agent(
-    name="Observer Agent",
+    name="Robot Agent",
     description='''
-    This agent can analyze a photo of current robot field.  If the user is uploading a file or a photo, set the kind to "FILE", the user will explictly mention an "upload".
+    This robot agent can control robot to perform a goal.
     ''',
 )
-async def agent_observer(
-    description: Annotated[
+async def agent_robot(
+    goal: Annotated[
         str,
-        "The detailed prompt of image to be edited. The more detailed the description, the better the image will be. Make sure to include the style of the image, the colors, and any other details that will help the model generate a better image.",
-    ],
-    image: Annotated[
-        str,
-        "The base64 encoded image to be used as a starting point for the generation. You do not need to include the image itself, you can add a placeholder here since the UI will handle the image upload.",
-    ],
-    kind: Annotated[
-        str,
-        'This can be either a file upload or an image that is captured with the users camera. Choose "FILE" if the image is uploaded from the users device. Choose "CAMERA" if the image should be captured with the users camera.',
+        "The goal that the robot should achieve. This can be a simple task or a complex goal that requires multiple steps to complete.",
     ],
     notify: AgentUpdateEvent,
 ) -> list[str]:
 
-    await notify(
-        id="robot_observer",
-        status="run in_progress",
-        information="Starting image generation",
+    agenttest.test_shared.mcp =  shared.robo_agent_mcp1
+    agenttest.test_shared.thread = None
+    agenttest.test_shared.mcp.connect()
+
+    agentOrchestrator = await run_step0(agentOnly=True)
+    agentObserver = await run_step1(agentOnly=True)
+    agentPlanner = await run_step2(agentOnly=True)
+    agentController = await run_step3(agentOnly=True)
+    agentJudge = await run_step4(agentOnly=True)
+
+    class ApprovalTerminationStrategy(TerminationStrategy):
+        """A strategy for determining when an agent should terminate."""
+
+        async def should_agent_terminate(self, agent, history):
+            """Check if the agent should terminate."""
+            return "goal completed" in history[-1].content.lower()
+
+    # 5. Place the agents in a group chat with a custom termination strategy
+    chat = AgentGroupChat(
+        agents=[agentOrchestrator, agentObserver, agentPlanner, agentController, agentJudge],
+        termination_strategy=ApprovalTerminationStrategy(agents=[agentJudge], maximum_iterations=10),
     )
+    agenttest.test_shared.chat = chat
 
-    if image.startswith("data:image/jpeg;base64,"):
-        image = image.replace("data:image/jpeg;base64,", "")
-    img = io.BytesIO(base64.b64decode(image))
+    try:
 
-    # Save the uploaded image to a file
-    timestamp_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
-    root = "D:/gh-repo/lego-agent/api/temp"
-    temp_img_path = f"{root}/obimg_in_{timestamp_str}.jpg"
-    temp_img_output_path = f"{root}/obimg_out_{timestamp_str}.jpg"
-    temp_json_output_path = f"{root}/obimg_out_{timestamp_str}.json"
+        await chat.add_chat_message(message=goal)
+        print(f"# {AuthorRole.USER}: '{goal}'")
+        async for content in chat.invoke():
+            print("\033[93m \r\n--------------------- agent --------------------- \033[0m")
+            print(f"# {content.role} - {content.name or '*'}: '{content.content}'")
 
-    with open(temp_img_path, "wb") as f:
-        f.write(img.getbuffer())
+            await notify(
+                id=content.name,
+                status="run done",
+                information=content.content,
+            )
+        
 
-    await notify(
-        id="robot_observer",
-        status="run done",
-        information="Completed observing the robot field",
-    )
+    finally:
+        await chat.reset()
+        
+        await agenttest.test_shared.project_client.agents.delete_agent(agentOrchestrator.id)
+        await agenttest.test_shared.project_client.agents.delete_agent(agentObserver.id)
+        await agenttest.test_shared.project_client.agents.delete_agent(agentPlanner.id)
+        await agenttest.test_shared.project_client.agents.delete_agent(agentController.id)
+        await agenttest.test_shared.project_client.agents.delete_agent(agentJudge.id)
 
-    robotData = RobotData()
-    robotData.step0_img_path = temp_img_path
-    data = await processImage(robotData)  
+    return ["Robot actions completed."]
 
-    await notify(
-        id="image_edit",
-        status="step_completed",
-        content=Content(
-            type="image",
-            content=[
-                {
-                    "type": "image",
-                    "description": description,
-                    "image_url": data.blob,
-                    "kind": kind,
-                }
-            ],
-        ),
-        output=True,
-    )
+# @agent(
+#     name="Observer Agent",
+#     description='''
+#     This agent can analyze a photo of current robot field.  If the user is uploading a file or a photo, set the kind to "FILE", the user will explictly mention an "upload".
+#     ''',
+# )
+# async def agent_observer(
+#     description: Annotated[
+#         str,
+#         "The detailed prompt of image to be edited. The more detailed the description, the better the image will be. Make sure to include the style of the image, the colors, and any other details that will help the model generate a better image.",
+#     ],
+#     image: Annotated[
+#         str,
+#         "The base64 encoded image to be used as a starting point for the generation. You do not need to include the image itself, you can add a placeholder here since the UI will handle the image upload.",
+#     ],
+#     kind: Annotated[
+#         str,
+#         'This can be either a file upload or an image that is captured with the users camera. Choose "FILE" if the image is uploaded from the users device. Choose "CAMERA" if the image should be captured with the users camera.',
+#     ],
+#     notify: AgentUpdateEvent,
+# ) -> list[str]:
 
-    return data.detection_result
+#     await notify(
+#         id="robot_observer",
+#         status="run in_progress",
+#         information="Starting image generation",
+#     )
+
+#     if image.startswith("data:image/jpeg;base64,"):
+#         image = image.replace("data:image/jpeg;base64,", "")
+#     img = io.BytesIO(base64.b64decode(image))
+
+#     # Save the uploaded image to a file
+#     timestamp_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+#     root = "D:/gh-repo/lego-agent/api/temp"
+#     temp_img_path = f"{root}/obimg_in_{timestamp_str}.jpg"
+
+#     with open(temp_img_path, "wb") as f:
+#         f.write(img.getbuffer())
+
+#     await notify(
+#         id="robot_observer",
+#         status="run done",
+#         information="Completed observing the robot field",
+#     )
+
+#     robotData = RobotData()
+#     robotData.step0_img_path = temp_img_path
+#     data = await processImage(robotData)  
+
+#     await notify(
+#         id="image_edit",
+#         status="step_completed",
+#         content=Content(
+#             type="image",
+#             content=[
+#                 {
+#                     "type": "image",
+#                     "description": description,
+#                     "image_url": data.blob,
+#                     "kind": kind,
+#                 }
+#             ],
+#         ),
+#         output=True,
+#     )
+
+#     return data.detection_result
 
 
 async def processImage(robotData: RobotData):

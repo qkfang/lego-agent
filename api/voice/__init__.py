@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from fastapi import APIRouter, Response, status
 from azure.cosmos.exceptions import CosmosResourceNotFoundError
 
-from api.model import Configuration
-from api.voice.common import (
+from model import Configuration
+from voice.common import (
     get_cosmos_container,
     load_prompty_config,
     seed_configurations,

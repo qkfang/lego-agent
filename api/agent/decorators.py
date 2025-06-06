@@ -1,4 +1,4 @@
-from api.model import Agent, Function, FunctionParameter
+from model import Agent, Function, FunctionParameter
 from functools import partial
 from prompty.utils import get_json_type
 from typing import Any, Callable, Union, get_type_hints

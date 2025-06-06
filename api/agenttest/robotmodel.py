@@ -6,6 +6,8 @@ class RobotData:
         self.runid = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
         self.field_data = {}
 
+        self.sequence = 0
+
         # step 0
         self.step0_img_path = None
 

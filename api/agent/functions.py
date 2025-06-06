@@ -1,7 +1,7 @@
 import asyncio
 
-from api.model import AgentUpdateEvent
-from api.agent.decorators import function
+from model import AgentUpdateEvent
+from agent.decorators import function
 
 @function
 async def example_function(param1: str, param2: int, notify: AgentUpdateEvent):

@@ -1,4 +1,4 @@
-from api.robot.robotmodel import RobotData
+from agenttest.robotmodel import RobotData
 from azure.ai.projects.aio import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from semantic_kernel.connectors.mcp import MCPStdioPlugin
@@ -12,6 +12,8 @@ project_client = AIProjectClient.from_connection_string(
 )
 
 resource = Resource.create({ResourceAttributes.SERVICE_NAME: "telemetry-console-quickstart"})
+robotData = RobotData()
 mcp = None
 thread = None
-robotData = RobotData()
+chat = None
+

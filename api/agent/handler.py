@@ -15,7 +15,7 @@ from azure.ai.projects.models import (
 
 from azure.ai.projects.aio import AIProjectClient
 
-from api.model import AgentUpdateEvent, Content, Function
+from model import AgentUpdateEvent, Content, Function
 
 
 class SustineoAgentEventHandler(AsyncAgentEventHandler[str]):

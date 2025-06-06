@@ -10,20 +10,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect
 from openai.types.beta.realtime.session_update_event import SessionTool
 
-from api.agent.decorators import function_agents, function_calls
-from api.agent.storage import get_storage_client
-from api.connection import connections
-from api.model import Update
-from api.telemetry import init_tracing
-from api.voice.common import get_default_configuration_data, convert_function_params, convert_mcp_function_params
-from api.voice.session import RealtimeSession
-from api.voice import router as voice_configuration_router
-from api.agent import router as agent_router
-from api.agent.common import get_custom_agents, create_foundry_thread
+from agent.decorators import function_agents, function_calls
+from agent.storage import get_storage_client
+from connection import connections
+from model import Update
+from telemetry import init_tracing
+from voice.common import get_default_configuration_data, convert_function_params, convert_mcp_function_params
+from voice.session import RealtimeSession
+from voice import router as voice_configuration_router
+from agent import router as agent_router
+from agent.common import get_custom_agents, create_foundry_thread
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from semantic_kernel.connectors.mcp import MCPStdioPlugin
-from api.agent.common import foundry_agents, custom_agents, get_foundry_agents, get_custom_agents
-import api.agent
+from agent.common import foundry_agents, custom_agents, get_foundry_agents, get_custom_agents
+import shared
             
 from dotenv import load_dotenv
 
@@ -38,7 +38,6 @@ LOCAL_TRACING_ENABLED = os.getenv("LOCAL_TRACING_ENABLED", "false").lower() == "
 init_tracing(local_tracing=LOCAL_TRACING_ENABLED)
 
 base_path = Path(__file__).parent
-mcptools = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -58,9 +57,8 @@ async def lifespan(app: FastAPI):
                 },
             ) as lego_robot_mcp
         ):
-            api.agent.robo_agent_mcp1 = lego_robot_mcp  # set the value in api.agent
-            global mcptools
-            mcptools = await lego_robot_mcp.session.list_tools()
+            shared.robo_agent_mcp1 = lego_robot_mcp  # set the value in api.agent
+            shared.mcptools = await lego_robot_mcp.session.list_tools()
                 
         yield
     finally:
@@ -180,8 +178,7 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                     prompt_settings.tools.extend(agent.tools)
 
             # mcp actions
-            global mcptools
-            for mcptool in mcptools.tools:
+            for mcptool in shared.mcptools.tools:
                 prompt_settings.tools.append(
                     SessionTool(
                         type="function",
@@ -217,7 +214,7 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                 client=connection,
                 thread_id=thread_id,
             )
-            api.agent.realtime1 = session  # set the session in api.agent
+            shared.realtime1 = session  # set the session in api.agent
 
             detection_type: Literal["semantic_vad", "server_vad"] = (
                 settings["detection_type"]

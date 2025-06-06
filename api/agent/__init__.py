@@ -3,10 +3,10 @@ from typing import Any
 from fastapi import APIRouter
 from fastapi.websockets import WebSocketState
 from pydantic import BaseModel
-from api.agent.common import execute_foundry_agent, post_request
+from agent.common import execute_foundry_agent, post_request
 
-from api.agent.decorators import function_agents, function_calls
-from api.model import Agent, AgentUpdate, AgentUpdateEvent, Content
+from agent.decorators import function_agents, function_calls
+from model import Agent, AgentUpdate, AgentUpdateEvent, Content
 from openai.types.beta.realtime import (
     SessionUpdateEvent,
     InputAudioBufferAppendEvent,
@@ -20,7 +20,7 @@ from openai.types.beta.realtime import (
     # ResponseCancelEvent,
 )
 
-from api.agent.common import (
+from agent.common import (
     get_client_agents,
     get_foundry_agents,
     get_custom_agents,
@@ -29,17 +29,12 @@ from api.agent.common import (
 )
 
 import json
-# load function agents
-import api.agent.agents as agents  # noqa: F401
-
-# load function calls
-import api.agent.functions as functions  # noqa: F401
-
-from api.connection import connections
+import shared
+import agent.agents as agents  # noqa: F401
+import agent.functions as functions  # noqa: F401
+from connection import connections
 from . import robot_mcp_agent
 
-robo_agent_mcp1 = None
-realtime1 = None
 
 # available agents
 router = APIRouter(
@@ -180,10 +175,9 @@ async def execute_agent(id: str, function: FunctionCall):
     
     print(f"Executing agent {id} with function {function.name} and arguments {function.arguments}")
     
-    # global robo_agent_mcp1
     if function.name.startswith("robot_"):
         cmd = "perform below action: " +  function.name + " " + json.dumps(function.arguments) + " "
-        await robot_mcp_agent.run(cmd, robo_agent_mcp1)
+        await robot_mcp_agent.run(cmd, shared.robo_agent_mcp1)
     elif function.name in foundry_agents:
         # execute foundry agent
         foundry_agent = foundry_agents[function.name]
@@ -208,7 +202,7 @@ async def execute_agent(id: str, function: FunctionCall):
             )
             result = await func(**args)
 
-            await realtime1.realtime.send(
+            await shared.realtime1.realtime.send(
                 ConversationItemCreateEvent(
                     type="conversation.item.create",
                     item=ConversationItem(
