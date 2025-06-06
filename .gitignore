@@ -6,6 +6,7 @@ __pycache__/
 
 lego-ble/temp
 lego-api/temp
+**/.runs/
 
 # C extensions
 *.so
