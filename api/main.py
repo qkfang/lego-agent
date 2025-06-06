@@ -134,7 +134,7 @@ async def voice_endpoint(id: str, websocket: WebSocket):
             user_message = await connection.receive_json()
 
             if user_message["type"] != "settings":
-                await connection.send_update(
+                await connection.send_browser_update(
                     Update.exception(
                         id=id,
                         error="Invalid message type",
@@ -163,7 +163,7 @@ async def voice_endpoint(id: str, websocket: WebSocket):
 
             prompt_settings = await get_default_configuration_data(**args)
             if prompt_settings is None:
-                await connection.send_update(
+                await connection.send_browser_update(
                     Update.exception(
                         id=id,
                         error="No default configuration found.",
@@ -268,7 +268,7 @@ FastAPIInstrumentor.instrument_app(app, exclude_spans=["send", "receive"])
 
 
     # except Exception as e:
-    #     await connection.send_update(
+    #     await connection.send_browser_update(
     #         Update.exception(
     #             id=id,
     #             error="Unexpected error",

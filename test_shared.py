@@ -1,29 +1,10 @@
-import datetime
+from api.robot.robotmodel import RobotData
 from azure.ai.projects.aio import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from semantic_kernel.connectors.mcp import MCPStdioPlugin
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.semconv.resource import ResourceAttributes
 
-mcp = None
-
-class RobotData:
-    def __init__(self):
-        self.root = "D:/gh-repo/lego-agent/api/temp"
-        self.runid = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
-
-        # step 0
-        self.step0_img_path = None
-
-        # step 1
-        self.step1_analyze_img = None
-        self.step1_analyze_json = None
-
-        # step 2
-        self.step2_plan_json = None
-
-
-robotData = RobotData()
 
 project_client = AIProjectClient.from_connection_string(
     credential=DefaultAzureCredential(),
@@ -31,3 +12,6 @@ project_client = AIProjectClient.from_connection_string(
 )
 
 resource = Resource.create({ResourceAttributes.SERVICE_NAME: "telemetry-console-quickstart"})
+mcp = None
+thread = None
+robotData = RobotData()

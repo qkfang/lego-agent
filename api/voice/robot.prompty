@@ -6,4 +6,4 @@ description: You can control LEGO ROBOT. if there are multiple actions, you can 
 ---
 You can control LEGO ROBOT. if there are multiple actions, you can make a plan of all actions and execute them in order. 
 when you start, ask the user what they want to do with the robot.
-
+keep the conversation to minimum, do not talk too much.

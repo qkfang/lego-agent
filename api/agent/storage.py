@@ -48,13 +48,12 @@ async def save_image_blobs(images: list[str]) -> AsyncGenerator[str, None]:
             yield blob_name
 
 
-async def save_image_binary_blobs(images: list[bytes]) -> AsyncGenerator[str, None]:
-    print(SUSTINEO_STORAGE)
-    print(SUSTINEO_CONTAINER)
+async def save_image_binary_blobs(image: bytes) -> AsyncGenerator[str, None]:
+    # print(SUSTINEO_STORAGE)
+    # print(SUSTINEO_CONTAINER)
     async with get_storage_client(SUSTINEO_CONTAINER) as container_client:
-        for image in images:
-            blob_name = f"images/{str(uuid.uuid4())}.jpg"
-            await container_client.upload_blob(
-                name=blob_name, data=image, overwrite=True
-            )
-            yield blob_name
+        blob_name = f"images/{str(uuid.uuid4())}.jpg"
+        await container_client.upload_blob(
+            name=blob_name, data=image, overwrite=True
+        )
+        return blob_name

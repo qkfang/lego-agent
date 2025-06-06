@@ -2,15 +2,14 @@ import os
 import io
 import base64
 import json
-from typing import Annotated
-
 import aiohttp
+from typing import Annotated
 from api.agent.decorators import agent
 from api.model import AgentUpdateEvent, Content
 from api.agent.storage import save_image_blobs, save_image_binary_blobs
 from api.agent.common import execute_foundry_agent, post_request
 from api.robot.objectdetector import run 
-
+from api.robot.robotmodel import RobotData, RoboProcessArgs
 from dotenv import load_dotenv
 import datetime
 
@@ -62,60 +61,56 @@ async def agent_observer(
     with open(temp_img_path, "wb") as f:
         f.write(img.getbuffer())
 
-    class Args:
-        def __init__(self):
-            self.image_path = temp_img_path
-            self.method = "color"
-            self.templates = None
-            self.target_objects = ["blue", "red"]
-            self.confidence = 0.5
-            self.output = "image_o.json"
-            self.visualize = "image_v.json"
-            self.pixels_per_unit = 1.0
-            self.no_display = False
-            self.no_preprocessing = False
-
-    args = Args()
-    args.image_path = temp_img_path
-    args.method = "color"
-    args.templates = None
-    args.target_objects = ["blue", "red"]
-    args.confidence = 0.5
-    args.output = temp_json_output_path
-    args.visualize = temp_img_output_path
-    args.pixels_per_unit = 1.0
-    args.no_display = True
-    args.no_preprocessing = True
-    detection_result = run(args)
-
-    img_file = open(temp_img_output_path, "rb")
-
-    async for blob in save_image_binary_blobs([img_file]):
-        await notify(
-            id="image_edit",
-            status="step_completed",
-            content=Content(
-                type="image",
-                content=[
-                    {
-                        "type": "image",
-                        "description": description,
-                        "image_url": blob,
-                        "kind": kind,
-                    }
-                ],
-            ),
-            output=True,
-        )
-
     await notify(
         id="robot_observer",
         status="run done",
         information="Completed observing the robot field",
     )
 
-    return detection_result
+    robotData = RobotData()
+    robotData.step0_img_path = temp_img_path
+    data = await processImage(robotData)  
 
+    await notify(
+        id="image_edit",
+        status="step_completed",
+        content=Content(
+            type="image",
+            content=[
+                {
+                    "type": "image",
+                    "description": description,
+                    "image_url": data.blob,
+                    "kind": kind,
+                }
+            ],
+        ),
+        output=True,
+    )
+
+    return data.detection_result
+
+
+async def processImage(robotData: RobotData):
+    args = RoboProcessArgs()
+    args.image_path = robotData.step0_img_path
+    args.method = "color"
+    args.templates = None
+    args.target_objects = ["blue", "red"]
+    args.confidence = 0.5
+    args.output = robotData.step1_analyze_json()
+    args.visualize = robotData.step1_analyze_img()
+    args.pixels_per_unit = 1.0
+    args.no_display = True
+    args.no_preprocessing = True
+    detection_result = run(args)
+
+    img_file = open(robotData.step1_analyze_img(), "rb")
+    blob = await save_image_binary_blobs(img_file)
+
+    fieldData = { "detection_result": detection_result, "blob": blob }
+    robotData.field_data = fieldData
+    return fieldData
 
 
 @agent(

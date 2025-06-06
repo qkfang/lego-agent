@@ -1,24 +1,13 @@
-#!/usr/bin/env node
-/**
- * Azure AI Agent MCP Server
- *
- * This MCP server integrates with Azure AI Foundry to enable connections to
- * Azure AI Agents, utilizing models and knowledge tools available within Azure AI Foundry.
- */
-
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import * as dotenv from "dotenv";
 import { AIProjectsClient } from "@azure/ai-projects";
 import type { MessageRole, MessageContentOutput } from "@azure/ai-projects";
-// @ts-ignore
 import fetch = require("node-fetch");
 
-// Load environment variables
 dotenv.config();
 
-// Global client instance
 let aiClient: AIProjectsClient | null = null;
 
 /**
@@ -30,18 +19,13 @@ function isTextContent(
   return content.type === "text" && !!(content as any).text?.value;
 }
 
-/**
- * Initialize the LEGO ROBOT client
- */
+
 function initializeServer(): boolean {
 
   return true;
 }
 
-// Initialize server
 const serverInitialized = initializeServer();
-
-// Create MCP server
 const mcp = new McpServer({
   name: "lego-robot",
   version: "1.0.0",
@@ -73,12 +57,12 @@ async function runble(script: string): Promise<void> {
   const timestamp = Date.now();
   const filename = `script_${timestamp}.py`;
   const filepath = path.join("D:/gh-repo/lego-agent/lego-ble/temp", filename);
-  console.log('filepath= ' + filepath);
+  // console.log('filepath= ' + filepath);
   await fs.writeFile(filepath, script, "utf8");
 
   const scriptCmd = `python D:/gh-repo/lego-agent/lego-ble/python/app.py --program ${filepath}`;
 
-  console.log('runble= ' + scriptCmd);
+  // console.log('runble= ' + scriptCmd);
   // const { stdout, stderr } = await execAsync(scriptCmd);
 
   // console.log("Script output:", stdout);
@@ -90,7 +74,7 @@ async function runble(script: string): Promise<void> {
     headers: { "Content-Type": "text/plain" },
     body: script
   });
-  console.log('response.status= ' + response.status);
+  // console.log('response.status= ' + response.status);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }

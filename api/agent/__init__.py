@@ -136,7 +136,7 @@ def send_agent_status(connection_id: str, name: str, call_id: str) -> AgentUpdat
             connection_id in connections
             and connections[connection_id].state == WebSocketState.CONNECTED
         ):
-            await connections[connection_id].send_update(
+            await connections[connection_id].send_browser_update(
                 AgentUpdate(
                     id=id,
                     type="agent",

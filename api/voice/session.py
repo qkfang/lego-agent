@@ -249,7 +249,7 @@ class RealtimeSession:
         if event.transcript is None or len(event.transcript.strip()) == 0:
             return
 
-        await self.connection.send_update(
+        await self.connection.send_browser_update(
             Update.message(
                 id=event.item_id,
                 role="user",
@@ -302,7 +302,7 @@ class RealtimeSession:
     async def _input_audio_buffer_speech_started(
         self, event: InputAudioBufferSpeechStartedEvent
     ):
-        await self.connection.send_update(Update.interrupt())
+        await self.connection.send_browser_update(Update.interrupt())
 
     @trace(name="input_audio_buffer.speech_stopped")
     async def _input_audio_buffer_speech_stopped(
@@ -322,7 +322,7 @@ class RealtimeSession:
                 case "message":
                     if output.content and len(output.content) > 0:
                         content = str(output.content[0].transcript)
-                        await self.connection.send_update(
+                        await self.connection.send_browser_update(
                             Update.message(
                                 id=str(output.id),
                                 role="user" if output.role == "user" else "assistant",
@@ -346,7 +346,7 @@ class RealtimeSession:
                                 },
                             )
                 case "function_call_output":
-                    await self.connection.send_update(
+                    await self.connection.send_browser_update(
                         Update.console(
                             id=str(output.call_id),
                             payload=output.model_dump(exclude={"id", "call_id"}),
@@ -368,7 +368,7 @@ class RealtimeSession:
     @trace(name="response.output_item.done")
     async def _response_output_item_done(self, event: ResponseOutputItemDoneEvent):
         if event.item.type == "function_call":
-            await self.connection.send_update(
+            await self.connection.send_browser_update(
                 Update.function(
                     id=str(event.item.id),
                     call_id=str(event.item.call_id),
@@ -417,7 +417,7 @@ class RealtimeSession:
         pass
 
     async def _response_audio_delta(self, event: ResponseAudioDeltaEvent):
-        await self.connection.send_update(
+        await self.connection.send_browser_update(
             Update.audio(id=event.event_id, data=event.delta)
         )
 
@@ -495,7 +495,7 @@ class RealtimeSession:
                         await self.realtime.response.create()
 
                     case _:
-                        await self.connection.send_update(
+                        await self.connection.send_browser_update(
                             Update.console(
                                 id="unhandled_message",
                                 payload={"message": "Unhandled message"},

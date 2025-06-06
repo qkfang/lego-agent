@@ -15,7 +15,7 @@ class Connection:
     async def receive_json(self) -> dict:
         return await self.websocket.receive_json()
 
-    async def send_update(self, update: Update):
+    async def send_browser_update(self, update: Update):
         await self.websocket.send_json(asdict(update))
 
     async def accept(self):
@@ -48,9 +48,9 @@ class ConnectionManager:
         self.active_connections[id] = Connection(websocket)
         return self.active_connections[id]
 
-    async def send_update(self, id: str, update: Update):
+    async def send_browser_update(self, id: str, update: Update):
         if id in self.active_connections:
-            await self.active_connections[id].send_update(update)
+            await self.active_connections[id].send_browser_update(update)
         else:
             raise ValueError(f"Connection with id {id} not found.")
 

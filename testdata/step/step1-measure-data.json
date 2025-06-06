@@ -1,0 +1,55 @@
+{
+  "image_dimensions": [
+    800,
+    600
+  ],
+  "coordinate_system": "2D with origin at bottom-left, y-axis pointing up",
+  "objects": [
+    {
+      "id": 0,
+      "name": "red",
+      "position_2d": [
+        660,
+        196
+      ],
+      "center_pixels": [
+        660,
+        404
+      ],
+      "area_pixels": 1797.0,
+      "orientation_degrees": 150.89796447753906,
+      "facing_direction": "West"
+    },
+    {
+      "id": 1,
+      "name": "blue",
+      "position_2d": [
+        110,
+        330
+      ],
+      "center_pixels": [
+        110,
+        270
+      ],
+      "area_pixels": 3415.5,
+      "orientation_degrees": 110.93116760253906,
+      "facing_direction": "North"
+    }
+  ],
+  "distances": [
+    {
+      "object1": "red",
+      "object2": "blue",
+      "distance_pixels": 566.0883323298582,
+      "distance_units": 566.0883323298582,
+      "object1_position": [
+        660,
+        196
+      ],
+      "object2_position": [
+        110,
+        330
+      ]
+    }
+  ]
+}

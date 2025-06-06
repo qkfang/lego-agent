@@ -4,6 +4,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+lego-ble/temp
+api/temp
+
 # C extensions
 *.so
 
