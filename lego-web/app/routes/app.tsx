@@ -353,7 +353,7 @@ export default function Home() {
           id="live-stream"
           src="http://192.168.0.50:5000/video_feed"
           alt="Live Stream"
-          style={{ width: '80%', height: '500px', border: '2px solid #333' }}
+          style={{ width: '400px', height: '200px', border: '2px solid #333' }}
           crossOrigin="anonymous"
           onClick={handleLiveStreamClick}
         />

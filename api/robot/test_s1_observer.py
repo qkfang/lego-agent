@@ -1,5 +1,6 @@
 import json
 import shared
+import requests
 from semantic_kernel.agents.azure_ai.azure_ai_agent import AzureAIAgent
 from semantic_kernel.functions import kernel_function
 from shared import robotData
@@ -9,10 +10,9 @@ from agent.storage import save_image_binary_blobs
 from robot.objectdetector import run 
 
 
-
 async def processImage(robotData: RobotData):
     args = RoboProcessArgs()
-    args.image_path = robotData.step0_img_path
+    args.image_path = robotData.step0_img_path()
     args.method = "color"
     args.templates = None
     args.target_objects = ["blue", "red"]
@@ -46,14 +46,11 @@ class FieldStatePlugin:
         Returns analysis data of the current state of the robot field by capturing an image or photo or camera
         """
 
+        url = "http://192.168.0.50:5000/photo"
+        response = requests.get(url)
 
-        if(robotData.sequence == 0):
-            robotData.step0_img_path = 'D:/gh-repo/lego-agent/testdata/r1.jpg'
-        else:
-            robotData.step0_img_path = 'D:/gh-repo/lego-agent/testdata/r6.jpg'
-
-        robotData.sequence += 1
-        print("robotData.step0_img_path:" + robotData.step0_img_path)
+        with open(robotData.step0_img_path(), "wb") as f:
+            f.write(response.content)
 
         data = await processImage(robotData)
         print (f"get_field_state_by_camera: {robotData.field_data}")

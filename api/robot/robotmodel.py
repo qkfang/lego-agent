@@ -8,10 +8,10 @@ class RobotData:
 
         self.sequence = 0
 
-        # step 0
-        self.step0_img_path = None
-
     # step 1
+    def step0_img_path(self):
+        return f"{self.root}/{self.runid}_step0_img_path.jpg"
+
     def step1_analyze_img(self):
         return f"{self.root}/{self.runid}_step1_analyze_img.jpg"
 
