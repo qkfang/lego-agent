@@ -7,7 +7,7 @@ from azure.ai.projects.models import AzureAISearchQueryType, AzureAISearchTool, 
 
 project_client = AIProjectClient.from_connection_string(
     credential=DefaultAzureCredential(),
-    conn_str="eastus2.api.azureml.ms;79b9afaa-2d77-4d1e-b902-98df2bd3b3d6;rg-agent100;mamimezf5xgqov-aiproject" # os.environ["PROJECT_CONNECTION_STRING"]
+    conn_str="" # os.environ["PROJECT_CONNECTION_STRING"]
 )
 
 

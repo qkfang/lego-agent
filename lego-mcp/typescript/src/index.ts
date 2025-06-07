@@ -11,10 +11,18 @@ import * as path from "path";
 dotenv.config();
 
 var basePythonScript = "";
-var isTest = false;
+var isTest = true;
 
 function initializeServer(): boolean {
-  const robotFunctionPath = path.resolve("D:/gh-repo/lego-agent/lego-mcp/typescript/src/robot-function.py");
+  var robotFunctionPath = '';
+    
+  if (!isTest) {
+    robotFunctionPath = path.resolve("D:/gh-repo/lego-agent/lego-mcp/typescript/src/robot-function.py");
+  }
+  else {
+    robotFunctionPath = path.resolve("D:/gh-repo/lego-agent/lego-mcp/typescript/src/robot-function-test.py");
+  }
+
   basePythonScript = fs.readFileSync(robotFunctionPath, "utf8");
   return true;
 }

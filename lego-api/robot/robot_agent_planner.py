@@ -32,7 +32,7 @@ each step should be a json object with "action" and "args" fields. The action is
 follow below example format to output the plan with multiple steps, 
 [   
     {
-        "action": "AIFoundryAgents-robot_move",
+        "action": "robotmcp-robot_move",
         "args": {
             "robot_id": "1",
             "distance": 200

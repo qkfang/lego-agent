@@ -1,6 +1,6 @@
 [
   {
-    "action": "functions.AIFoundryAgents-robot_turn",
+    "action": "functions.robotmcp-robot_turn",
     "args": {
       "robot_id": "1",
       "degree": -115.0
@@ -8,7 +8,7 @@
     "explain": "Turn the robot to face east."
   },
   {
-    "action": "functions.AIFoundryAgents-robot_move",
+    "action": "functions.robotmcp-robot_move",
     "args": {
       "robot_id": "1",
       "distance": 550
@@ -16,7 +16,7 @@
     "explain": "Move the robot 550 units east towards the target's x-coordinate."
   },
   {
-    "action": "functions.AIFoundryAgents-robot_turn",
+    "action": "functions.robotmcp-robot_turn",
     "args": {
       "robot_id": "1",
       "degree": -90.0
@@ -24,7 +24,7 @@
     "explain": "Turn the robot to face south."
   },
   {
-    "action": "functions.AIFoundryAgents-robot_move",
+    "action": "functions.robotmcp-robot_move",
     "args": {
       "robot_id": "1",
       "distance": 134
@@ -32,7 +32,7 @@
     "explain": "Move the robot 134 units south towards the y-coordinate of the target."
   },
   {
-    "action": "functions.AIFoundryAgents-robot_action",
+    "action": "functions.robotmcp-robot_action",
     "args": {
       "robot_id": "1",
       "command": "pick up"

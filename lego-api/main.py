@@ -47,12 +47,12 @@ async def lifespan(app: FastAPI):
 
         async with (
             MCPStdioPlugin(
-                name="AIFoundryAgents",
-                description="Al Foundry Agents and run query, call this plugin.",
+                name="robotmcp",
+                description="Robot MCP Agents and run query, call this plugin.",
                 command="node",
                 args= ["D:\\gh-repo\\lego-agent\\lego-mcp\\typescript\\build\\index.js"],
                 env={
-                    "PROJECT_CONNECTION_STRING": "eastus2.api.azureml.ms;79b9afaa-2d77-4d1e-b902-98df2bd3b3d6;rg-agent100;mamimezf5xgqov-aiproject",
+                    "PROJECT_CONNECTION_STRING": "",
                     "DEFAULT_ROBOT_ID": "robot_b"
                 },
             ) as lego_robot_mcp

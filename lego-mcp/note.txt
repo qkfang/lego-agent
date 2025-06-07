@@ -5,7 +5,7 @@
     ],
     "env": {
         "PYTHONPATH": "D:\\Python313",
-        "PROJECT_CONNECTION_STRING": "eastus2.api.azureml.ms;79b9afaa-2d77-4d1e-b902-98df2bd3b3d6;rg-agent100;mamimezf5xgqov-aiproject",
+        "PROJECT_CONNECTION_STRING": "",
         "DEFAULT_ROBOT_ID": "robot_b"
     }
 }

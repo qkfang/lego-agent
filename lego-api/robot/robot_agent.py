@@ -11,6 +11,30 @@ from robot.robot_agent_judger import run_step4
 from model import AgentUpdateEvent, Content
 import shared
 from shared import robotData
+import os
+import asyncio
+
+async def monitor_temp_folder(temp_folder: str, notify: AgentUpdateEvent, callback=None, poll_interval: float = 2.0):
+    """Monitor the temp folder for new files and call the callback with the new file name."""
+    seen_files = set(os.listdir(temp_folder)) if os.path.exists(temp_folder) else set()
+    while True:
+        await asyncio.sleep(poll_interval)
+        if not os.path.exists(temp_folder):
+            continue
+        current_files = set(os.listdir(temp_folder))
+        new_files = current_files - seen_files
+        if new_files:
+            for f in new_files:
+                await notify(
+                    id="lego-controller",
+                    subagent = "lego-controller",
+                    status="robot actioned",
+                    information= f,
+                )
+
+        seen_files = current_files
+
+
 
 async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
   
@@ -36,10 +60,15 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
     )
     shared.chat = chat
 
+    temp_folder = os.path.join('D:/gh-repo/lego-agent/lego-mcp/temp')
+    monitor_task = asyncio.create_task(monitor_temp_folder(temp_folder, notify))
+
     try:
 
         await chat.add_chat_message(message=goal)
         print(f"# {AuthorRole.USER}: '{goal}'")
+
+
         async for content in chat.invoke():
             print(f"\033[93m \r\n--------------------- {content.role} - {content.name or '*'} --------------------- \033[0m")
             print(f"{content.content}")
@@ -82,10 +111,14 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
         
 
     finally:
+        monitor_task.cancel()
         await chat.reset()
         
+
         await shared.project_client.agents.delete_agent(agentOrchestrator.id)
         await shared.project_client.agents.delete_agent(agentObserver.id)
         await shared.project_client.agents.delete_agent(agentPlanner.id)
         await shared.project_client.agents.delete_agent(agentController.id)
         await shared.project_client.agents.delete_agent(agentJudger.id)
+
+    return "Robot agent run completed."
