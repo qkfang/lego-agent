@@ -94,4 +94,4 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
         await shared.project_client.agents.delete_agent(agentObserver.id)
         await shared.project_client.agents.delete_agent(agentPlanner.id)
         await shared.project_client.agents.delete_agent(agentController.id)
-        await shared.project_client.agents.delete_agent(agentJudge.id)
+        await shared.project_client.agents.delete_agent(agentJudger.id)

@@ -240,7 +240,7 @@ class RealtimeSession:
 
     @trace(name="conversation.item.created")
     async def _conversation_item_created(self, event: ConversationItemCreatedEvent):
-        if event.item is None or len(event.item.content)  == 0 or event.item.content[0].text == None:
+        if event.item is None or event.item.content is None or len(event.item.content)  == 0 or event.item.content[0].text == None:
             return
         print('usermsg:' + event.item.content[0].text.strip())
         await self.connection.send_browser_update(

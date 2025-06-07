@@ -66,7 +66,7 @@ class Streamer(threading.Thread):
                     memfile = BytesIO()
                     memfile.write(data)
                     memfile.seek(0)
-                    frame = numpy.load(memfile)
+                    frame = numpy.load(memfile, allow_pickle=True)
 
                     ret, jpeg = cv2.imencode('.jpg', frame)
                     self.jpeg = jpeg
