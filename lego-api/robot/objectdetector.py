@@ -151,6 +151,11 @@ class ObjectDetector:
                 center_x = x + w // 2
                 center_y = y + h // 2
                 
+                # If robot, shift y and center_y up by 100px (not less than 0)
+                if name.lower() == 'robot':
+                    center_y = center_y + 50
+                    y = y + 50
+
                 # Calculate orientation (angle of the major axis)
                 if len(contour) >= 5:
                     ellipse = cv2.fitEllipse(contour)
