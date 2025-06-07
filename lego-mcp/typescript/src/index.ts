@@ -11,7 +11,7 @@ import * as path from "path";
 dotenv.config();
 
 var basePythonScript = "";
-var isTest = true;
+var isTest = false;
 
 function initializeServer(): boolean {
   var robotFunctionPath = '';

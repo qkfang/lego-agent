@@ -386,7 +386,7 @@ class ObjectDetector:
                 'center_pixels': obj['center'],
                 'area_pixels': obj['area'],
                 'orientation_degrees': obj['orientation_angle'],
-                'facing_direction': self._get_facing_direction(obj['orientation_angle'])
+                # 'facing_direction': self._get_facing_direction(obj['orientation_angle'])
             }
             analysis['objects'].append(obj_info)
         

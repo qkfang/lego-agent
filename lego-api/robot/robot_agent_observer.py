@@ -8,6 +8,7 @@ from semantic_kernel.contents.chat_message_content import ChatMessageContent
 from robot.robotmodel import RobotData, RoboProcessArgs
 from agent.storage import save_image_binary_blobs
 from robot.objectdetector import run 
+from model import AgentUpdateEvent, Content
 
 
 async def processImage(robotData: RobotData):
@@ -46,6 +47,14 @@ class FieldStatePlugin:
         Returns analysis data of the current state of the robot field by capturing an image or photo or camera
         """
 
+        if shared.notify is not None:
+            await shared.notify(
+                id="text_update",
+                subagent = 'lego-observer',
+                status="Field analysis started",
+                information="Executing Model"
+            )
+        
         url = "http://192.168.0.50:5000/photo"
         response = requests.get(url)
 

@@ -203,16 +203,19 @@ async def execute_agent(id: str, function: FunctionCall):
             )
             result = await func(**args)
 
-            # await shared.realtime1.realtime.send(
-            #     ConversationItemCreateEvent(
-            #         type="conversation.item.create",
-            #         item=ConversationItem(
-            #             call_id=function.call_id,
-            #             type="function_call_output",
-            #             output= json.dumps(result , indent=2)
-            #         ),
-            #     )
-            # )
+            await shared.realtime1.realtime.send(
+                ConversationItemCreateEvent(
+                    type="conversation.item.create",
+                    item=ConversationItem(
+                        type="function_call_output",
+                        call_id=function.call_id,
+                        output= "function call is completed. You can ask user to check." #json.dumps(result , indent=2)
+                    ),
+                )
+            )
+            
+            await shared.realtime1.realtime.response.create()
+
         else:
             return {"error": "Function not found"}
     

@@ -59,6 +59,7 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
         termination_strategy=ApprovalTerminationStrategy(agents=[agentJudger], maximum_iterations=10),
     )
     shared.chat = chat
+    shared.notify = notify
 
     temp_folder = os.path.join('D:/gh-repo/lego-agent/lego-mcp/temp')
     monitor_task = asyncio.create_task(monitor_temp_folder(temp_folder, notify))
@@ -78,7 +79,7 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
                     await notify(
                         id="image_update",
                         subagent = content.name,
-                        status="image generated",
+                        status="field analysis completed",
                         content=Content(
                             type="image",
                             content=[

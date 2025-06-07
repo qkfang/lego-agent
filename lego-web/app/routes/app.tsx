@@ -352,6 +352,8 @@ export default function Home() {
     }
   };
 
+  const [showLiveStreamModal, setShowLiveStreamModal] = useState(false);
+
   return (
     <QueryClientProvider client={queryClient}>
       <main className={styles.home}>
@@ -374,17 +376,56 @@ export default function Home() {
             alt="Live Stream"
             style={{ width: '300px', height: '200px', margin:'5px', border: '2px solid #333' }}
             crossOrigin="anonymous"
-            onClick={() => {
-              const img = document.getElementById("live-stream") as HTMLImageElement | null;
-              if (img && img.requestFullscreen) {
-                img.requestFullscreen();
-              } else if (img && (img as any).webkitRequestFullscreen) {
-                (img as any).webkitRequestFullscreen();
-              } else if (img && (img as any).msRequestFullscreen) {
-                (img as any).msRequestFullscreen();
-              }
-            }}
+            onClick={() => setShowLiveStreamModal(true)}
           />
+          {showLiveStreamModal && (
+  <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      background: 'rgba(0,0,0,0.85)',
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+    onClick={() => setShowLiveStreamModal(false)}
+  >
+    <img
+      src="http://192.168.0.50:5000/video_feed"
+      alt="Live Stream Fullscreen"
+      style={{
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+        border: '4px solid #fff',
+        boxShadow: '0 0 32px #000',
+        background: '#222',
+      }}
+      crossOrigin="anonymous"
+      onClick={e => e.stopPropagation()}
+    />
+    <button
+      style={{
+        position: 'absolute',
+        top: 24,
+        right: 32,
+        fontSize: 32,
+        color: '#fff',
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        zIndex: 10000,
+      }}
+      onClick={() => setShowLiveStreamModal(false)}
+      aria-label="Close Fullscreen"
+    >
+      ×
+    </button>
+  </div>
+)}
             <EffortList />
             <input
               type="text"

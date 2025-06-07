@@ -17,6 +17,7 @@ project_client = AIProjectClient.from_connection_string(
 resource = Resource.create({ResourceAttributes.SERVICE_NAME: "telemetry-console-quickstart"})
 robotData = RobotData()
 
+notify: None
 chat = None
 mcp = None
 realtime1 = None
