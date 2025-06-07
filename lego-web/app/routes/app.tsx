@@ -333,6 +333,8 @@ export default function Home() {
     console.log("Base64 Image:", base64Image);
   };
 
+  const [inputValue, setInputValue] = useState("move robot to red object");
+
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       addOutput(
@@ -346,6 +348,7 @@ export default function Home() {
           }
         ]
       );
+      setInputValue(""); // Clear input after sending
     }
   };
 
@@ -360,13 +363,6 @@ export default function Home() {
         />
         <div className={styles.scratch}>
           <div className={styles.output}>
-            <div style={{ margin: "20px" }}>
-            <VideoImagePicker
-              show={showCapture}
-              setShow={setShowCapture}
-              setCurrentImage={setCurrentImage}
-            />
-            </div>
             {output && output.output && output.output.children.length > 0 && (
               <Output data={output.output} />
             )}
@@ -384,9 +380,10 @@ export default function Home() {
               type="text"
               placeholder={"Send a message"}
               className={styles.textInput}
-              style={{ backgroundColor: '#0f0f0f', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}
+              style={{ zIndex: 9999, backgroundColor: '#0f0f0f', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}
               onKeyDown={handleInputKeyDown}
-              value={"move robot to red object"}
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
             />
             <VoiceTool
               onClick={handleVoice}
@@ -528,7 +525,11 @@ export default function Home() {
           )}
         </div>
       </main>
-
+      <VideoImagePicker
+        show={showCapture}
+        setShow={setShowCapture}
+        setCurrentImage={setCurrentImage}
+      />
       <FileImagePicker
         ref={filePickerRef}
         setCurrentImage={setCurrentImage}
