@@ -79,13 +79,15 @@ class ObjectDetector:
             return False
     
     def detect_objects_by_color(self, color_ranges: List[Dict[str, Any]], 
-                               use_preprocessing: bool = True) -> List[Dict[str, Any]]:
+                               use_preprocessing: bool = True, display_mask: bool = False) -> List[Dict[str, Any]]:
         """
         Detect objects in the image based on color ranges with improved noise handling.
+        Optionally display the mask for each color range.
         
         Args:
             color_ranges (List[Dict]): List of color range dictionaries with 'name', 'lower', 'upper' keys
             use_preprocessing (bool): Whether to apply noise reduction preprocessing
+            display_mask (bool): Whether to display the mask for each color range
             
         Returns:
             List[Dict]: List of detected objects with their properties
@@ -118,19 +120,23 @@ class ObjectDetector:
             # Apply morphological operations to reduce noise
             if use_preprocessing:
                 # Remove small noise
-                kernel = np.ones((3, 3), np.uint8)
+                kernel = np.ones((5, 5), np.uint8)
                 mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
                 # Fill holes
                 mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
                 # Smooth edges
                 mask = cv2.medianBlur(mask, 5)
-            
+
+            # Display the mask if requested
+            # if display_mask:
+            # cv2.imshow(f"Mask - {name}", mask)
+
             # Find contours
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             
             for contour in contours:
                 # Filter small contours (adaptive threshold based on image size)
-                min_area = max(500, self.image_width * self.image_height * 0.001)  # At least 0.1% of image
+                min_area = max(800, self.image_width * self.image_height * 0.001)  # At least 0.1% of image
                 area = cv2.contourArea(contour)
                 if area < min_area:
                     continue
@@ -350,6 +356,7 @@ class ObjectDetector:
     def get_object_analysis(self, pixels_per_unit: float = 1.0) -> Dict[str, Any]:
         """
         Get comprehensive analysis of detected objects including distances.
+        Only calculate distances from the 'robot' object to all other objects.
         
         Args:
             pixels_per_unit (float): Conversion factor from pixels to real-world units
@@ -379,24 +386,30 @@ class ObjectDetector:
                 'center_pixels': obj['center'],
                 'area_pixels': obj['area'],
                 'orientation_degrees': obj['orientation_angle'],
-                # 'facing_direction': self._get_facing_direction(obj['orientation_angle'])
+                'facing_direction': self._get_facing_direction(obj['orientation_angle'])
             }
             analysis['objects'].append(obj_info)
         
-        # Calculate all pairwise distances
-        for i in range(len(self.detected_objects)):
-            for j in range(i + 1, len(self.detected_objects)):
-                obj1 = self.detected_objects[i]
-                obj2 = self.detected_objects[j]
-                distance = self.calculate_distance(obj1, obj2, pixels_per_unit)
-                
+        # Find the robot object(s)
+        robot_indices = [i for i, obj in enumerate(self.detected_objects) if obj['name'].lower() == 'robot']
+        if not robot_indices:
+            analysis['error'] = "No object named 'robot' found for distance calculation."
+            return analysis
+        
+        # For each robot, calculate distance to all other objects
+        for robot_idx in robot_indices:
+            robot_obj = self.detected_objects[robot_idx]
+            for j, obj in enumerate(self.detected_objects):
+                if j == robot_idx:
+                    continue
+                distance = self.calculate_distance(robot_obj, obj, pixels_per_unit)
                 distance_info = {
-                    'object1': obj1['name'],
-                    'object2': obj2['name'],
+                    'robot': robot_obj['name'],
+                    'object': obj['name'],
                     'distance_pixels': distance * pixels_per_unit,
                     'distance_units': distance,
-                    'object1_position': obj1['coordinates_2d'],
-                    'object2_position': obj2['coordinates_2d']
+                    'robot_position': robot_obj['coordinates_2d'],
+                    'object_position': obj['coordinates_2d']
                 }
                 analysis['distances'].append(distance_info)
         
@@ -427,6 +440,7 @@ class ObjectDetector:
     def visualize_results(self, save_path: str = None, show_plot: bool = True):
         """
         Visualize the detected objects and their relationships.
+        Only draw distance lines from the 'robot' object(s) to all other objects.
         
         Args:
             save_path (str): Path to save the visualization (optional)
@@ -443,31 +457,31 @@ class ObjectDetector:
         for i, obj in enumerate(self.detected_objects):
             x, y, w, h = obj['bounding_box']
             center = obj['center']
-            
             # Draw bounding box
             cv2.rectangle(vis_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            
             # Draw center point
             cv2.circle(vis_image, center, 5, (0, 0, 255), -1)
-            
             # Draw label
             label = f"{obj['name']} ({center[0]}, {self.image_height - center[1]})"
             cv2.putText(vis_image, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
         
-        # Draw distance lines between objects
-        for i in range(len(self.detected_objects)):
-            for j in range(i + 1, len(self.detected_objects)):
-                pt1 = self.detected_objects[i]['center']
-                pt2 = self.detected_objects[j]['center']
+        # Draw distance lines only from robot(s) to other objects
+        robot_indices = [i for i, obj in enumerate(self.detected_objects) if obj['name'].lower() == 'robot']
+        for robot_idx in robot_indices:
+            robot_obj = self.detected_objects[robot_idx]
+            pt1 = robot_obj['center']
+            for j, obj in enumerate(self.detected_objects):
+                if j == robot_idx:
+                    continue
+                pt2 = obj['center']
                 cv2.line(vis_image, pt1, pt2, (255, 0, 0), 2)
-                
                 # Add distance label
                 mid_x = (pt1[0] + pt2[0]) // 2
                 mid_y = (pt1[1] + pt2[1]) // 2
-                distance = self.calculate_distance(self.detected_objects[i], self.detected_objects[j])
+                distance = self.calculate_distance(robot_obj, obj)
                 cv2.putText(vis_image, f"{distance:.1f}px", (mid_x, mid_y), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0), 1)
-       
+        
         # Convert BGR to RGB for matplotlib
         vis_image_rgb = cv2.cvtColor(vis_image, cv2.COLOR_BGR2RGB)
         cv2.imwrite(save_path, vis_image)
@@ -483,26 +497,26 @@ class ObjectDetector:
         
         # if show_plot:
         #     plt.show()
-        
+
 
 def create_sample_color_ranges():
     """Create sample color ranges for common objects."""
     return [
         {
             'name': 'robot', # blue
-            'lower': [100, 50, 50],   # Lower HSV for blue
-            'upper': [130, 255, 255]  # Upper HSV for blue
+            'lower': [40, 200, 200],   # Lower HSV for #17EDF7 (cyan-blue)
+            'upper': [100, 255, 255]   # Upper HSV for #17EDF7 (cyan-blue)
         },
         {
             'name': 'red',
-            'lower': [0, 50, 50],    # Lower HSV for red
-            'upper': [10, 255, 255]  # Upper HSV for red
+            'lower': [165, 150, 150],    # Lower HSV for #F5497B (pinkish-red)
+            'upper': [175, 255, 255]     # Upper HSV for #F5497B (pinkish-red)
         },
-        {
-            'name': 'yellow',
-            'lower': [40, 50, 50],    # Lower HSV for yellow
-            'upper': [80, 255, 255]   # Upper HSV for yellow
-        }
+        # {
+        #     'name': 'yellow',
+        #     'lower': [40, 50, 50],    # Lower HSV for yellow
+        #     'upper': [80, 255, 255]   # Upper HSV for yellow
+        # }
     ]
 
 
@@ -573,11 +587,11 @@ def run(args):
         
         print(f"\nObjects detected:")
         for obj in analysis['objects']:
-            print(f"  - {obj['name']}: Position {obj['position_2d']} ")
+            print(f"  - {obj['name']}: Position {obj['position_2d']}, Facing {obj['facing_direction']}")
         
         print(f"\nDistances:")
         for dist in analysis['distances']:
-            print(f"  - {dist['object1']} to {dist['object2']}: {dist['distance_units']:.2f} units")
+            print(f"  - {dist['robot']} to {dist['object']}: {dist['distance_units']:.2f} units")
     
     # Save results to JSON if requested
     if args.output:

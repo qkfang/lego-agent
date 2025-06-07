@@ -374,6 +374,16 @@ export default function Home() {
             alt="Live Stream"
             style={{ width: '300px', height: '200px', margin:'5px', border: '2px solid #333' }}
             crossOrigin="anonymous"
+            onClick={() => {
+              const img = document.getElementById("live-stream") as HTMLImageElement | null;
+              if (img && img.requestFullscreen) {
+                img.requestFullscreen();
+              } else if (img && (img as any).webkitRequestFullscreen) {
+                (img as any).webkitRequestFullscreen();
+              } else if (img && (img as any).msRequestFullscreen) {
+                (img as any).msRequestFullscreen();
+              }
+            }}
           />
             <EffortList />
             <input
