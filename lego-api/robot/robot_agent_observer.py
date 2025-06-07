@@ -15,7 +15,7 @@ async def processImage(robotData: RobotData):
     args.image_path = robotData.step0_img_path()
     args.method = "color"
     args.templates = None
-    args.target_objects = ["blue", "red"]
+    args.target_objects = ["robot", "red", "yellow"]
     args.confidence = 0.5
     args.output = robotData.step1_analyze_json()
     args.visualize = robotData.step1_analyze_img()
@@ -78,7 +78,8 @@ You can get field state from the photo each time anytime.
 the robot is facing east. treat the left bottom corner as the origin (0,0)
 the x axis is the east direction, and the y axis is the north direction.
 
-Only return analysis data in json format in your response. dont return any other text or explanation.
+MUST return detection_result in json format exactly as it as, NEVER CHANGE STRUCTURE OR ANY CALCULATION. 
+dont return any other text or explanation.
 '''
     )
 

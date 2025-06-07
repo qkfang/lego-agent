@@ -1,10 +1,10 @@
 from semantic_kernel.connectors.mcp import MCPStdioPlugin
 from test_shared import robotData
-from test_s0_orchestrator import run_step0
-from test_s1_observer import run_step1
-from test_s2_planner import run_step2
-from test_s3_controller import run_step3
-from test_s4_judge import run_step4
+from robot_agent_orchestrator import run_step0
+from robot_agent_observer import run_step1
+from robot_agent_planner import run_step2
+from robot_agent_controller import run_step3
+from robot_agent_judge import run_step4
 import asyncio
 import test_shared
 

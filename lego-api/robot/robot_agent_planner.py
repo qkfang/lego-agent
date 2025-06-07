@@ -26,6 +26,8 @@ you can use the robot mcp plugin to understand what actions what actions are ava
 the robot is facing east. treat the left bottom corner as the origin (0,0), 
 the x axis is the east direction, and the y axis is the north direction. 
 
+when calculating the distance, you must use the following conversion: 10 pixels equal to 1 centimetre in the field data.
+
 each step should be a json object with "action" and "args" fields. The action is the robot action name, and args is the arguments for the action.
 follow below example format to output the plan with multiple steps, 
 [   

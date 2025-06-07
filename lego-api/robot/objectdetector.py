@@ -379,7 +379,7 @@ class ObjectDetector:
                 'center_pixels': obj['center'],
                 'area_pixels': obj['area'],
                 'orientation_degrees': obj['orientation_angle'],
-                'facing_direction': self._get_facing_direction(obj['orientation_angle'])
+                # 'facing_direction': self._get_facing_direction(obj['orientation_angle'])
             }
             analysis['objects'].append(obj_info)
         
@@ -470,7 +470,7 @@ class ObjectDetector:
        
         # Convert BGR to RGB for matplotlib
         vis_image_rgb = cv2.cvtColor(vis_image, cv2.COLOR_BGR2RGB)
-        cv2.imwrite(save_path, vis_image_rgb)
+        cv2.imwrite(save_path, vis_image)
         
         # plt.figure(figsize=(12, 8))
         # plt.imshow(vis_image_rgb)
@@ -489,19 +489,19 @@ def create_sample_color_ranges():
     """Create sample color ranges for common objects."""
     return [
         {
+            'name': 'robot', # blue
+            'lower': [100, 50, 50],   # Lower HSV for blue
+            'upper': [130, 255, 255]  # Upper HSV for blue
+        },
+        {
             'name': 'red',
             'lower': [0, 50, 50],    # Lower HSV for red
             'upper': [10, 255, 255]  # Upper HSV for red
         },
         {
-            'name': 'blue',
-            'lower': [100, 50, 50],   # Lower HSV for blue
-            'upper': [130, 255, 255]  # Upper HSV for blue
-        },
-        {
-            'name': 'green',
-            'lower': [40, 50, 50],    # Lower HSV for green
-            'upper': [80, 255, 255]   # Upper HSV for green
+            'name': 'yellow',
+            'lower': [40, 50, 50],    # Lower HSV for yellow
+            'upper': [80, 255, 255]   # Upper HSV for yellow
         }
     ]
 
@@ -573,7 +573,7 @@ def run(args):
         
         print(f"\nObjects detected:")
         for obj in analysis['objects']:
-            print(f"  - {obj['name']}: Position {obj['position_2d']}, Facing {obj['facing_direction']}")
+            print(f"  - {obj['name']}: Position {obj['position_2d']} ")
         
         print(f"\nDistances:")
         for dist in analysis['distances']:

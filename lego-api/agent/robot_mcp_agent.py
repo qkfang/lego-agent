@@ -39,7 +39,7 @@ def set_up_tracing():
     set_tracer_provider(tracer_provider)
 
 
-async def run(prompt: str, lego_robot_mcp):
+async def run_mcp(prompt: str, lego_robot_mcp):
     set_up_tracing()
     await lego_robot_mcp.connect()
 

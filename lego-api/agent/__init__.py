@@ -176,7 +176,7 @@ async def execute_agent(id: str, function: FunctionCall):
     
     print(f"Executing agent {id} with function {function.name} and arguments {function.arguments}")
     
-    if function.name.startswith("robot_"):
+    if function.name.startswith("xxx"):
         cmd = "perform below action: " +  function.name + " " + json.dumps(function.arguments) + " "
         await robot_mcp_agent.run(cmd, shared.mcp)
     elif function.name in foundry_agents:

@@ -3,11 +3,11 @@ from robot.robotmodel import RobotData, RoboProcessArgs
 from semantic_kernel.agents.strategies import TerminationStrategy
 from semantic_kernel.agents import AgentGroupChat, AzureAIAgent, AzureAIAgentSettings
 from semantic_kernel.contents import AuthorRole
-from robot.test_s0_orchestrator import run_step0
-from robot.test_s1_observer import run_step1
-from robot.test_s2_planner import run_step2
-from robot.test_s3_controller import run_step3
-from robot.test_s4_judger import run_step4
+from robot.robot_agent_orchestrator import run_step0
+from robot.robot_agent_observer import run_step1
+from robot.robot_agent_planner import run_step2
+from robot.robot_agent_controller import run_step3
+from robot.robot_agent_judger import run_step4
 from model import AgentUpdateEvent, Content
 import shared
 from shared import robotData
@@ -41,50 +41,44 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
         await chat.add_chat_message(message=goal)
         print(f"# {AuthorRole.USER}: '{goal}'")
         async for content in chat.invoke():
-            print("\033[93m \r\n--------------------- agent --------------------- \033[0m")
-            print(f"# {content.role} - {content.name or '*'}: '{content.content}'")
+            print(f"\033[93m \r\n--------------------- {content.role} - {content.name or '*'} --------------------- \033[0m")
+            print(f"{content.content}")
 
-            # if notify != None:
-            #     await notify(
-            #         id=content.name,
-            #         status="run done",
-            #         information=content.content,
-            #     )
-
-            if content.name == "lego-observer" and robotData.field_data is not None and "blob" in robotData.field_data :
-                await notify(
-                    id="image_update",
-                    subagent = content.name,
-                    status="image generated",
-                    content=Content(
-                        type="image",
-                        content=[
-                            {
-                                "type": "image",
-                                "description": content.content,
-                                "image_url": robotData.field_data["blob"],
-                                "kind": 'image',
-                            }
-                        ],
-                    ),
-                    output=True,
-                )
-            else:
-                await notify(
-                    id="text_update",
-                    subagent = content.name,
-                    status="responded",
-                    content=Content(
-                        type="text",
-                        content=[
-                            {
-                                "type": "text",
-                                "value": content.content,
-                            }
-                        ],
-                    ),
-                    output=True,
-                )
+            if not notify is None:
+                if content.name == "lego-observer" and robotData.field_data is not None and "blob" in robotData.field_data :
+                    await notify(
+                        id="image_update",
+                        subagent = content.name,
+                        status="image generated",
+                        content=Content(
+                            type="image",
+                            content=[
+                                {
+                                    "type": "image",
+                                    "description": content.content,
+                                    "image_url": robotData.field_data["blob"],
+                                    "kind": 'image',
+                                }
+                            ],
+                        ),
+                        output=True,
+                    )
+                else:
+                    await notify(
+                        id="text_update",
+                        subagent = content.name,
+                        status="responded",
+                        content=Content(
+                            type="text",
+                            content=[
+                                {
+                                    "type": "text",
+                                    "value": content.content,
+                                }
+                            ],
+                        ),
+                        output=True,
+                    )
         
 
     finally:

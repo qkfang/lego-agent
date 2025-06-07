@@ -6,7 +6,7 @@ from agent.agents import robot_agent_run
 
 async def main():
       
-    lego_robot_mcp = MCPStdioPlugin(
+    shared.mcp = MCPStdioPlugin(
             name="AIFoundryAgents",
             description="Al Foundry Agents and run query, call this plugin.",
             command="node",
@@ -16,9 +16,7 @@ async def main():
                 "DEFAULT_ROBOT_ID": "robot_b"
             },
         )
-    await lego_robot_mcp.connect()
     
-    shared.mcp = lego_robot_mcp
     await robot_agent_run('move robot to the red object', None)
 
 

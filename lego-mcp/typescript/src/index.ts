@@ -132,10 +132,10 @@ mcp.tool(
 
 mcp.tool(
   "robot_move",
-  "Move robot forward or backward. positive value in mm means forward, negative value in mm means backward.",
+  "Move robot forward or backward. positive value in centimetre means forward, negative value in centimetre means backward. no decimal value is allowed.",
   {
     robot_id: z.string().describe("robot_id that should perform the action"),
-    distance: z.number().describe("distance in cm that the robot should move")
+    distance: z.number().describe("distance in centimetre that the robot should move")
   },
   async (param) => {
    
