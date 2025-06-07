@@ -376,7 +376,7 @@ export default function Home() {
             id="live-stream"
             src="http://192.168.0.50:5000/video_feed"
             alt="Live Stream"
-            style={{ width: '300px', height: '200px', border: '2px solid #333' }}
+            style={{ width: '300px', height: '200px', margin:'5px', border: '2px solid #333' }}
             crossOrigin="anonymous"
           />
             <EffortList />
@@ -384,6 +384,7 @@ export default function Home() {
               type="text"
               placeholder={"Send a message"}
               className={styles.textInput}
+             style={{ backgroundColor: '#0f0f0f', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}
               onKeyDown={handleInputKeyDown}
             />
             <VoiceTool

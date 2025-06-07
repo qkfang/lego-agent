@@ -5,23 +5,17 @@ import * as dotenv from "dotenv";
 import { AIProjectsClient } from "@azure/ai-projects";
 import type { MessageRole, MessageContentOutput } from "@azure/ai-projects";
 import fetch = require("node-fetch");
+import * as fs from "fs";
+import * as path from "path";
 
 dotenv.config();
 
-let aiClient: AIProjectsClient | null = null;
-
-/**
- * Type guard to check if a content item is text content
- */
-function isTextContent(
-  content: MessageContentOutput
-): content is MessageContentOutput & { type: "text"; text: { value: string } } {
-  return content.type === "text" && !!(content as any).text?.value;
-}
-
+var basePythonScript = "";
+var isTest = false;
 
 function initializeServer(): boolean {
-
+  const robotFunctionPath = path.resolve("D:/gh-repo/lego-agent/lego-mcp/typescript/src/robot-function.py");
+  basePythonScript = fs.readFileSync(robotFunctionPath, "utf8");
   return true;
 }
 
@@ -31,6 +25,8 @@ const mcp = new McpServer({
   version: "1.0.0",
   description: "MCP server for LEGO ROBOT Service integration",
 });
+
+
 
 async function run(scriptname: string): Promise<void> {
   
@@ -45,41 +41,61 @@ async function run(scriptname: string): Promise<void> {
 }
 
 
-async function runble(script: string): Promise<void> {
-  
-  const { exec } = await import("child_process");
-  const { promisify } = await import("util");
-  const execAsync = promisify(exec);
-
-  
+async function runble(code: string): Promise<void> {
   const fs = await import("fs/promises");
   const path = await import("path");
   const timestamp = Date.now();
   const filename = `script_${timestamp}.py`;
-  const filepath = path.join("D:/gh-repo/lego-agent/lego-ble/temp", filename);
-  // console.log('filepath= ' + filepath);
+  const filepath = path.join("D:/gh-repo/lego-agent/lego-mcp/temp", filename);
+  
+  var script = basePythonScript.replace("###placeholder###", code);
   await fs.writeFile(filepath, script, "utf8");
 
-  const scriptCmd = `python D:/gh-repo/lego-agent/lego-ble/python/app.py --program ${filepath}`;
-
-  // console.log('runble= ' + scriptCmd);
-  // const { stdout, stderr } = await execAsync(scriptCmd);
-
-  // console.log("Script output:", stdout);
-  // console.log("Script error:", stderr);
-
-  // Send script to local HTTP server
   const response = await fetch("http://127.0.0.1:8001/exec", {
     method: "POST",
     headers: { "Content-Type": "text/plain" },
     body: script
   });
-  // console.log('response.status= ' + response.status);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  // Optionally, handle response if needed
 }
+
+
+// async function runble(code: string): Promise<void> {
+
+//   const fs = await import("fs/promises");
+//   const path = await import("path");
+//   const timestamp = Date.now();
+//   const filename = `script_${timestamp}.py`;
+//   const filepath = path.join("D:/gh-repo/lego-agent/lego-ble/temp", filename);
+//   // console.log('filepath= ' + filepath);
+
+  
+//   var script = basePythonScript.replace("###placeholder###", code);
+//   await fs.writeFile(filepath, script, "utf8");
+
+//   const scriptCmd = `python D:/gh-repo/lego-agent/lego-ble/python/app.py --program ${filepath}`;
+
+//   // console.log('runble= ' + scriptCmd);
+//   // const { stdout, stderr } = await execAsync(scriptCmd);
+
+//   // console.log("Script output:", stdout);
+//   // console.log("Script error:", stderr);
+
+//   // Send script to local HTTP server
+//   const response = await fetch("http://127.0.0.1:8001/exec", {
+//     method: "POST",
+//     headers: { "Content-Type": "text/plain" },
+//     body: script
+//   });
+//   // console.log('response.status= ' + response.status);
+//   if (!response.ok) {
+//     throw new Error(`HTTP error! status: ${response.status}`);
+//   }
+//   // Optionally, handle response if needed
+// }
+
 
 mcp.tool(
   "robot_list",
@@ -91,7 +107,7 @@ mcp.tool(
     try {
       const robots = [
         { robot_name: "robot k", robot_id: "robot_k" },
-        { robot_name: "robot b", robot_id: "robot_b" }
+        // { robot_name: "robot b", robot_id: "robot_b" }
       ];
       return {
         content: [{
@@ -124,18 +140,24 @@ mcp.tool(
   async (param) => {
    
     try {
-      await runble(`
-import runloop, sys
-from hub import light_matrix
-
-async def main():
+      var code = '';
+      if (!isTest) {
+        code =
+`
+    await move(${param.distance}, Speed.Slow)
+    print("done")
+    sys.exit(0)
+`
+      }
+      else {
+        code =
+`
     await light_matrix.write("mv")
     print("done")
     sys.exit(0)
-
-    
-runloop.run(main())
-          `);
+`
+      };
+      await runble(code);
       return {
         content: [{ type: "text" as const, text: `${param.robot_id} robot turned ${param.distance}` }],
       };
@@ -164,18 +186,24 @@ mcp.tool(
   async (param) => {
    
     try {
-      await runble(`
-import runloop, sys
-from hub import light_matrix
-
-async def main():
+      var code = '';
+      if (!isTest) {
+        code =
+`
+    await turn(${param.degree}, Speed.Slow)
+    print("done")
+    sys.exit(0)
+`
+      }
+      else {
+        code =
+`
     await light_matrix.write("tr")
     print("done")
     sys.exit(0)
-
-    
-runloop.run(main())
-          `);
+`
+      };
+      await runble(code);
       return {
         content: [{ type: "text" as const, text: `${param.robot_id} robot turned ${param.degree}` }],
       };
@@ -203,18 +231,24 @@ mcp.tool(
   async (param) => {
    
     try {
-      await runble(`
-import runloop, sys
-from hub import light_matrix
-
-async def main():
-    await light_matrix.write("beep")
+      var code = '';
+      if (!isTest) {
+        code =
+`
+    await sound.beep(880, 200, 100)
     print("done")
     sys.exit(0)
-
-    
-runloop.run(main())
-          `);
+`
+      }
+      else {
+        code =
+`
+    await light_matrix.write("bp")
+    print("done")
+    sys.exit(0)
+`
+      };
+      await runble(code);
       return {
         content: [{ type: "text" as const, text: `${param.robot_id} robot beeped` }],
       };
@@ -233,6 +267,55 @@ runloop.run(main())
   }
 );
 
+
+mcp.tool(
+  "robot_arm",
+  "Make robot arm open or close.",
+  {
+    robot_id: z.string().describe("robot_id that should perform the action"),
+    openOrClose: z.string().describe("openOrClose, 1=open, 0=close")
+  },
+  async (param) => {
+   
+    try {
+      var openClose = param.openOrClose === "1" ? -100 : 100;
+      var code = '';
+      if (!isTest) {
+        code =
+`
+    await rotateTop(${openClose}, Speed.Slow)
+    print("done")
+    sys.exit(0)
+`
+      }
+      else {
+        code =
+`
+    await light_matrix.write("rt")
+    print("done")
+    sys.exit(0)
+`
+      };
+      await runble(code);
+      return {
+        content: [{ type: "text" as const, text: `${param.robot_id} robot beeped` }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: `Error running command: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+      };
+    }
+  }
+);
+
+
 mcp.tool(
   "robot_action",
   "Make robot do an action that is not movement .",
@@ -243,20 +326,26 @@ mcp.tool(
   async (param) => {
    
     try {
-      await runble(`
-import runloop, sys
-from hub import light_matrix
-
-async def main():
+      var code = '';
+      if (!isTest) {
+        code =
+`
+    ${param.command}
+    print("done")
+    sys.exit(0)
+`
+      }
+      else {
+        code =
+`
     await light_matrix.write("act")
     print("done")
     sys.exit(0)
-
-    
-runloop.run(main())
-          `);
+`
+      };
+      await runble(code);
       return {
-        content: [{ type: "text" as const, text: `${param.robot_id} robot beeped` }],
+        content: [{ type: "text" as const, text: `${param.robot_id} robot: ${param.command}` }],
       };
     } catch (error) {
       return {
