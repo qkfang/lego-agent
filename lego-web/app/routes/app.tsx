@@ -119,21 +119,6 @@ export default function Home() {
           },
           children: [],
         });
-      } else if (item.type === "video") {
-        output?.addOutput(parent, agent, {
-          id: uuidv4(),
-          title: agent,
-          value: 1,
-          data: {
-            id: uuidv4(),
-            type: "video",
-            description: item.description,
-            image_url: item.image_url,
-            size: item.size,
-            quality: item.quality,
-          },
-          children: [],
-        });
       } else if (item.type === "image") {
         // await sendRealtime({
         //   id: uuidv4(),
@@ -155,6 +140,14 @@ export default function Home() {
             quality: item.quality,
           },
           children: [],
+        });
+      } else if (item.type === "prompt") {
+        console.log("Adding user input to output", item.value);
+        await sendRealtime({
+          id: uuidv4(),
+          type: "message",
+          role: "user",
+          content: item.value,
         });
       }
     }
@@ -340,6 +333,22 @@ export default function Home() {
     console.log("Base64 Image:", base64Image);
   };
 
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      addOutput(
+        "user_input",
+        "User Input",
+        "",
+        [
+          {
+            type: "prompt",
+            value: e.currentTarget.value,
+          }
+        ]
+      );
+    }
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <main className={styles.home}>
@@ -363,21 +372,20 @@ export default function Home() {
             )}
           </div>
           <div className={styles.effort}>
-        <img
-          id="live-stream"
-          src="http://192.168.0.50:5000/video_feed"
-          alt="Live Stream"
-          style={{ width: '300px', height: '200px', border: '2px solid #333' }}
-          crossOrigin="anonymous"
-          onClick={handleLiveStreamClick}
-        />
+          <img
+            id="live-stream"
+            src="http://192.168.0.50:5000/video_feed"
+            alt="Live Stream"
+            style={{ width: '300px', height: '200px', border: '2px solid #333' }}
+            crossOrigin="anonymous"
+          />
             <EffortList />
-            {/* <input
+            <input
               type="text"
               placeholder={"Send a message"}
               className={styles.textInput}
-            /> */}
-            
+              onKeyDown={handleInputKeyDown}
+            />
             <VoiceTool
               onClick={handleVoice}
               callState={callState}

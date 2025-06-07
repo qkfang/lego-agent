@@ -84,7 +84,12 @@ export const useRealtime = (
 
   const sendRealtime = async (update: Update) => {
     if (voiceRef.current) {
-      await voiceRef.current.send(update);
+      if( update.type === "message") {
+        await voiceRef.current.sendUserMessage(update.content);
+      }
+      else {
+        await voiceRef.current.send(update);
+      }
     }
   };
 

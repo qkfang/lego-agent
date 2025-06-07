@@ -240,7 +240,30 @@ class RealtimeSession:
 
     @trace(name="conversation.item.created")
     async def _conversation_item_created(self, event: ConversationItemCreatedEvent):
-        pass
+        if event.item is None or len(event.item.content)  == 0 or event.item.content[0].text == None:
+            return
+        print('usermsg:' + event.item.content[0].text.strip())
+        await self.connection.send_browser_update(
+            Update.message(
+                id=event.event_id,
+                role="user",
+                content=event.item.content[0].text.strip(),
+            )
+        )
+
+        if self.thread_id is not None:
+            await create_thread_message(
+                thread_id=self.thread_id,
+                role="user",
+                content=event.item.content[0].text.strip(),
+                metadata={
+                    "id": event.event_id,
+                    "event": "conversation.item.created",
+                    "source": "realtime",
+                },
+            )
+
+        await self.realtime.response.create()
 
     @trace(name="conversation.item.input_audio_transcription.completed")
     async def _conversation_item_input_audio_transcription_completed(
