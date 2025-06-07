@@ -142,7 +142,7 @@ export default function Home() {
           children: [],
         });
       } else if (item.type === "prompt") {
-        console.log("Adding user input to output", item.value);
+        // console.log("Adding user input to output", item.value);
         await sendRealtime({
           id: uuidv4(),
           type: "message",
@@ -384,8 +384,9 @@ export default function Home() {
               type="text"
               placeholder={"Send a message"}
               className={styles.textInput}
-             style={{ backgroundColor: '#0f0f0f', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}
+              style={{ backgroundColor: '#0f0f0f', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}
               onKeyDown={handleInputKeyDown}
+              value={"move robot to red object"}
             />
             <VoiceTool
               onClick={handleVoice}

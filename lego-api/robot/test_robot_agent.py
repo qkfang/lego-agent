@@ -44,18 +44,18 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
             print("\033[93m \r\n--------------------- agent --------------------- \033[0m")
             print(f"# {content.role} - {content.name or '*'}: '{content.content}'")
 
-            if notify != None:
-                await notify(
-                    id=content.name,
-                    status="run done",
-                    information=content.content,
-                )
+            # if notify != None:
+            #     await notify(
+            #         id=content.name,
+            #         status="run done",
+            #         information=content.content,
+            #     )
 
-            if content.name == "lego-observer":
+            if content.name == "lego-observer" and robotData.field_data is not None and "blob" in robotData.field_data :
                 await notify(
-                    id="image_edit",
+                    id="image_update",
                     subagent = content.name,
-                    status="step_completed",
+                    status="image generated",
                     content=Content(
                         type="image",
                         content=[
@@ -73,7 +73,7 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
                 await notify(
                     id="text_update",
                     subagent = content.name,
-                    status="step_completed",
+                    status="responded",
                     content=Content(
                         type="text",
                         content=[
