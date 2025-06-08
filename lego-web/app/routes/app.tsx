@@ -71,11 +71,11 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const flags =
-    queryParams
-      .get("flags")
-      ?.split(",")
-      .map((i) => i.toLocaleLowerCase().trim()) || [];
+  const flags = "tools,debug";
+    // queryParams
+    //   .get("flags")
+    //   ?.split(",")
+    //   .map((i) => i.toLocaleLowerCase().trim()) || [];
 
   const { user, error } = useUser();
   const [showCapture, setShowCapture] = useState(false);
@@ -333,7 +333,7 @@ export default function Home() {
     // console.log("Base64 Image:", base64Image);
   };
 
-  const [inputValue, setInputValue] = useState("robot to grab red object and move back 10 cm");
+  const [inputValue, setInputValue] = useState("robot to grab red object and move back 50 cm");
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {

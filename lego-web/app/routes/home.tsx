@@ -6,8 +6,8 @@ export default function Landing() {
     <div className={styles.landing}>
       <div className={styles.root}>
         <div className={styles.container}>
-          <h1>What can we<br />start working on?</h1>
-          <p>Talk through your ideas and let's make them reality.</p>
+          <h1>LEGO Robot Agent<br />at your service!</h1>
+          <p>Super fun robotic agent for your beloved LEGO</p>
         </div>
         <a href="/app">
           <div className={styles.micContainer}>
