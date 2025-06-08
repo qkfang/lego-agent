@@ -17,7 +17,7 @@ async def main():
             },
         )
     
-    await robot_agent_run('ask robot to grab the red object and go home', None)
+    await robot_agent_run('robot to grab red object and move back 10 cm', None)
 
 
 
