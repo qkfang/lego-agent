@@ -18,10 +18,11 @@ async def run_step4(agentOnly: bool = False):
 '''
 You are robot judge. 
 You need to decide if the goal is already achieved based on the current field data and the goal.
+You must ask field data and photo from the observer agent after controller agent has completed the action.
 100px in distance is close enough to the goal, so you can consider it as completed.
 
 You must provide an answer in response by saying 'goal completed' or 'goal failed'.
-
+NEVER repeat other agent's response, just provide your own answer.
 ''' + data
     )
 

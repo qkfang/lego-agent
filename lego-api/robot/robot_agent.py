@@ -51,7 +51,10 @@ async def robot_agent_run(goal: str, notify: AgentUpdateEvent):
 
         async def should_agent_terminate(self, agent, history):
             """Check if the agent should terminate."""
-            return "goal completed" in history[-1].content.lower()
+            # Check for 'goal completed' in the last 4 history entries
+            return any(
+                "goal completed" in h.content.lower() for h in history[-4:]
+            )
 
     # 5. Place the agents in a group chat with a custom termination strategy
     chat = AgentGroupChat(

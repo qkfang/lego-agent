@@ -330,7 +330,7 @@ export default function Home() {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     const base64Image = canvas.toDataURL("image/png");
     // You can now use base64Image as needed, e.g., save or display it
-    console.log("Base64 Image:", base64Image);
+    // console.log("Base64 Image:", base64Image);
   };
 
   const [inputValue, setInputValue] = useState("move robot to red object");
@@ -387,7 +387,7 @@ export default function Home() {
       width: '100vw',
       height: '100vh',
       background: 'rgba(0,0,0,0.85)',
-      zIndex: 9999,
+      zIndex: 99,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',

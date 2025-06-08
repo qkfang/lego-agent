@@ -52,7 +52,7 @@ class FieldStatePlugin:
                 id="text_update",
                 subagent = 'lego-observer',
                 status="Field analysis started",
-                information="Executing Model"
+                information="Requesting field photo from camera.",
             )
         
         url = "http://192.168.0.50:5000/photo"

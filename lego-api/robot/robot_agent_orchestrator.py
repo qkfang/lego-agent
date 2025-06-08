@@ -18,7 +18,7 @@ Always starting with analyzing the current field data, and decide if the goal is
 
 if the goal is achieved, then you can stop the action and return the result.
 if the goal is failed or not achieved, need to analyze the field data again.
-
+NEVER repeat other agent's response, just provide your own answer.
 '''
     )
 

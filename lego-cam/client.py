@@ -7,6 +7,11 @@ from io import BytesIO
 # Capture frame
 cap = cv2.VideoCapture(0)
 
+# Set desired frame rate (FPS)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
+cap.set(cv2.CAP_PROP_FPS, 30)
+
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(('192.168.0.50', 8080))
 

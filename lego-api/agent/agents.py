@@ -20,7 +20,7 @@ AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
 @agent(
     name="Robot Agent",
     description='''
-    This robot agent can control robot to perform a goal.
+    This robot agent can control robot to perform a goal. while robot is performing the action, you need to wait for the robot to complete the action before continue the conversation.
     ''',
 )
 async def robot_agent(

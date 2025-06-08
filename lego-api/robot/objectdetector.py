@@ -592,7 +592,7 @@ def run(args):
         
         print(f"\nObjects detected:")
         for obj in analysis['objects']:
-            print(f"  - {obj['name']}: Position {obj['position_2d']}, Facing {obj['facing_direction']}")
+            print(f"  - {obj['name']}: Position {obj['position_2d']}")
         
         print(f"\nDistances:")
         for dist in analysis['distances']:
