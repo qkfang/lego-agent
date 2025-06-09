@@ -10,7 +10,6 @@ from agent.storage import save_image_binary_blobs
 from robot.objectdetector import run 
 from model import AgentUpdateEvent, Content
 
-
 async def processImage(robotData: RobotData):
     args = RoboProcessArgs()
     args.image_path = robotData.step0_img_path()
@@ -55,11 +54,26 @@ class FieldStatePlugin:
                 information="Requesting field photo from camera.",
             )
         
-        url = "http://192.168.0.50:5000/photo"
-        response = requests.get(url)
+        # Use local file if istest is True, otherwise use camera
+        if shared.isTest:
+            if(shared.isTestCount == 0):
+                imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
+            if(shared.isTestCount == 1):
+                imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
+            if(shared.isTestCount == 2):
+                imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
+
+            with open(imageFile, "rb") as f:
+                img_data = f.read()
+
+            shared.isTestCount += 1
+        else:
+            url = "http://192.168.0.50:5000/photo"
+            response = requests.get(url)
+            img_data = response.content
 
         with open(robotData.step0_img_path(), "wb") as f:
-            f.write(response.content)
+            f.write(img_data)
 
         data = await processImage(robotData)
         print (f"get_field_state_by_camera: {robotData.field_data}")

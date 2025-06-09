@@ -5,7 +5,7 @@ from agent.agents import robot_agent_run
 
 
 async def main():
-      
+    shared.isTest = True
     shared.mcp = MCPStdioPlugin(
             name="robotmcp",
             description="Al Foundry Agents and run query, call this plugin.",

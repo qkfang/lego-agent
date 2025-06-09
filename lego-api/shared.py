@@ -23,3 +23,6 @@ mcp = None
 realtime1 = None
 mcptools = None
 thread = None
+
+isTest = True
+isTestCount = 1
