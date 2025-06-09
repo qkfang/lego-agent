@@ -7,23 +7,22 @@ import type { MessageRole, MessageContentOutput } from "@azure/ai-projects";
 import fetch = require("node-fetch");
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 dotenv.config();
 
 var basePythonScript = "";
+var basePythonScriptTest = "";
 var isTest = false;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function initializeServer(): boolean {
-  var robotFunctionPath = '';
-    
-  if (!isTest) {
-    robotFunctionPath = path.resolve("D:/gh-repo/lego-agent/lego-mcp/typescript/src/robot-function.py");
-  }
-  else {
-    robotFunctionPath = path.resolve("D:/gh-repo/lego-agent/lego-mcp/typescript/src/robot-function-test.py");
-  }
-
+  var robotFunctionPath = path.resolve(__dirname, "scripts/robot-function.py");
+  var robotFunctionPathTest = path.resolve(__dirname, "scripts/robot-function-test.py");
   basePythonScript = fs.readFileSync(robotFunctionPath, "utf8");
+  basePythonScriptTest = fs.readFileSync(robotFunctionPathTest, "utf8");
   return true;
 }
 
@@ -54,9 +53,12 @@ async function runble(code: string): Promise<void> {
   const path = await import("path");
   const timestamp = Date.now();
   const filename = `script_${timestamp}.py`;
-  const filepath = path.join("D:/gh-repo/lego-agent/lego-mcp/temp", filename);
+  const filepath = path.join(__dirname, "../../temp", filename); // lego-mcp/temp
   
   var script = basePythonScript.replace("###placeholder###", code);
+  if(isTest) {
+    script = basePythonScriptTest.replace("###placeholder###", code); 
+  }
   await fs.writeFile(filepath, script, "utf8");
 
   const response = await fetch("http://127.0.0.1:8001/exec", {
@@ -104,6 +106,51 @@ async function runble(code: string): Promise<void> {
 //   // Optionally, handle response if needed
 // }
 
+mcp.tool(
+  "robot_setting",
+  "Configure robot settings such as running mode. default mode is live, which means the robot will perform actual actions. test mode means the robot will not perform any actions, but will simulate them.",
+  {
+    mode: z.string().describe("running mode of the robot, test or live."),
+  },
+  async (param) => {
+   
+    try {
+      if (param.mode === "test") {
+        isTest = true;
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "Robot is set to test mode. No actual robot actions will be performed.",
+            },
+          ],
+        };
+      } else {
+        isTest = false;
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "Robot is set to live mode. Actual robot actions will be performed.",
+            },
+          ],
+        };
+      }
+      
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: `Error running command: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+      };
+    }
+  }
+);
 
 mcp.tool(
   "robot_list",
