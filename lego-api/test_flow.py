@@ -14,7 +14,7 @@ async def main():
             name="robotmcp",
             description="Al Foundry Agents and run query, call this plugin.",
             command="node",
-            args= ["D:\\gh-repo\\lego-agent\\lego-mcp\\typescript\\build\\index.js"],
+            args= ["D:\\gh-repo\\lego-agent\\lego-mcp\\build\\index.js"],
             env={
                 "PROJECT_CONNECTION_STRING": "",
                 "DEFAULT_ROBOT_ID": "robot_b"
