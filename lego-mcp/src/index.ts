@@ -53,7 +53,7 @@ async function runble(code: string): Promise<void> {
   const path = await import("path");
   const timestamp = Date.now();
   const filename = `script_${timestamp}.py`;
-  const filepath = path.join(__dirname, "../../temp", filename); // lego-mcp/temp
+  const filepath = path.join(__dirname, "../temp", filename); // lego-mcp/temp
   
   var script = basePythonScript.replace("###placeholder###", code);
   if(isTest) {
