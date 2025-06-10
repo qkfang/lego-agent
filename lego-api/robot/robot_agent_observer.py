@@ -58,10 +58,10 @@ class FieldStatePlugin:
         if shared.isTest:
             if(shared.isTestCount == 0):
                 imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
-            if(shared.isTestCount == 1):
-                imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
-            if(shared.isTestCount == 2):
-                imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
+            if(shared.isTestCount >= 1):
+                imageFile = "D://gh-repo//lego-agent//testdata//field-2.jpg"
+            # if(shared.isTestCount == 2):
+            #     imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
 
             with open(imageFile, "rb") as f:
                 img_data = f.read()

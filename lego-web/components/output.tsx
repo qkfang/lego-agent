@@ -42,7 +42,8 @@ const Output: React.FC<Props> = ({ data }: Props) => {
     id: string,
     title: string,
     data: Data,
-    d: Dimensions
+    d: Dimensions,
+    fill: string
   ) => {
     const width = d.x1 - d.x0;
     const height = d.y1 - d.y0;
@@ -56,7 +57,7 @@ const Output: React.FC<Props> = ({ data }: Props) => {
             id={id + "_rect"}
             width={d.x1 - d.x0}
             height={d.y1 - d.y0}
-            fill={"#FFFFFF"}
+            fill={fill}
             rx={8}
             ry={8}
           />
@@ -174,40 +175,44 @@ const Output: React.FC<Props> = ({ data }: Props) => {
                   </text>
                 </g>
                 {d.children &&
-                  d.children.map((child, j) => (
-                    <g
-                      key={child.data.id}
-                      transform={`translate(${child.x0},${child.y0})`}
-                      onClick={() => {
-                        if (child.data.data) {
-                          outputDisplayRef.current?.activateOutputDisplay(
-                            child.data.data
-                          );
-                        }
-                        console.log(d.data);
-                      }}
-                      className={styles.item}
-                    >
-                      {child.data.data ? (
-                        generateContent(
-                          child.data.id,
-                          child.data.title,
-                          child.data.data,
-                          new Dimensions(child.x0, child.y0, child.x1, child.y1)
-                        )
-                      ) : (
-                        <rect
-                          id={child.id + "_rect"}
-                          width={child.x1 - child.x0}
-                          height={child.y1 - d.y0}
-                          fill={"#000000"}
-                          rx={8}
-                          ry={8}
-                          opacity={0.5}
-                        />
-                      )}
-                    </g>
-                  ))}
+                  d.children.map((child, j) => {
+                    const startGray = 255; // white
+                    const grayValue = Math.round(startGray - j * 30);
+                    const fillColor = `#${grayValue.toString(16).padStart(2, '0')}${grayValue.toString(16).padStart(2, '0')}${grayValue.toString(16).padStart(2, '0')}`;
+                    return (
+                      <g
+                        key={child.data.id}
+                        transform={`translate(${child.x0},${child.y0})`}
+                        onClick={() => {
+                          if (child.data.data) {
+                            outputDisplayRef.current?.activateOutputDisplay(child.data.data);
+                          }
+                          console.log(d.data);
+                        }}
+                        className={styles.item}
+                      >
+                        {child.data.data ? (
+                          generateContent(
+                            child.data.id,
+                            child.data.title,
+                            child.data.data,
+                            new Dimensions(child.x0, child.y0, child.x1, child.y1),
+                            fillColor
+                          )
+                        ) : (
+                          <rect
+                            id={child.id + "_rect"}
+                            width={child.x1 - child.x0}
+                            height={child.y1 - d.y0}
+                            fill={fillColor}
+                            rx={8}
+                            ry={8}
+                            opacity={0.5}
+                          />
+                        )}
+                      </g>
+                    );
+                  })}
               </g>
             ))}
           </g>

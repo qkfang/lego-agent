@@ -333,7 +333,7 @@ export default function Home() {
     // console.log("Base64 Image:", base64Image);
   };
 
-  const [inputValue, setInputValue] = useState("robot to grab red object and move back 50 cm");
+  const [inputValue, setInputValue] = useState("robot to grab red object and move back 50 cm in mock mode");
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -387,7 +387,7 @@ export default function Home() {
       width: '100vw',
       height: '100vh',
       background: 'rgba(0,0,0,0.85)',
-      zIndex: 99,
+      zIndex: 200,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -431,7 +431,7 @@ export default function Home() {
               type="text"
               placeholder={"Send a message"}
               className={styles.textInput}
-              style={{ zIndex: 9999, backgroundColor: '#0f0f0f', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}
+              style={{ zIndex: 101, backgroundColor: '#0f0f0f', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}
               onKeyDown={handleInputKeyDown}
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
