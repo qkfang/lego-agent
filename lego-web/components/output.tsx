@@ -93,10 +93,7 @@ const Output: React.FC<Props> = ({ data }: Props) => {
       const url = data.image_url.startsWith("http")
         ? data.image_url
         : `${API_ENDPOINT}/${data.image_url}`;
-
-      const max_size = Math.max(width, height);
-      const new_x = (width - max_size) / 2;
-      const new_y = (height - max_size) / 2;
+      // Fit image to container, keep aspect ratio, center
       return (
         <>
           <clipPath id={`clip-${id}`}>
@@ -109,11 +106,12 @@ const Output: React.FC<Props> = ({ data }: Props) => {
           </clipPath>
           <g clipPath={`url(#clip-${id})`}>
             <image
-              x={new_x}
-              y={new_y}
-              width={max_size}
-              height={max_size}
+              x={0}
+              y={0}
+              width={width}
+              height={height}
               href={url}
+              preserveAspectRatio="xMidYMid meet"
             />
           </g>
         </>

@@ -66,7 +66,7 @@ const OutputDisplay = React.forwardRef<OuptutDisplayHandle, {}>((_, ref) => {
             <img
               src={data.image_url}
               alt={data.description}
-              style={{ width: "auto", height: "960px" }}
+              style={{ width: "100%" }}
             />
           );
         } else {
@@ -74,7 +74,7 @@ const OutputDisplay = React.forwardRef<OuptutDisplayHandle, {}>((_, ref) => {
             <img
               src={`${API_ENDPOINT}/${data.image_url}`}
               alt={data.description}
-              style={{ width: "auto", height: "960px" }}
+              style={{ width: "100%" }}
             />
           );
         }

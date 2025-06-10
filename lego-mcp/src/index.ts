@@ -13,6 +13,7 @@ dotenv.config();
 var basePythonScript = "";
 var basePythonScriptTest = "";
 var isTest = false;
+var isMock = false;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -47,6 +48,10 @@ async function run(scriptname: string): Promise<void> {
 
 
 async function runble(code: string): Promise<void> {
+  if(isMock){
+    return;
+  }
+
   const fs = await import("fs/promises");
   const path = await import("path");
   const timestamp = Date.now();
@@ -108,7 +113,7 @@ mcp.tool(
   "robot_setting",
   "Configure robot settings such as running mode. default mode is live, which means the robot will perform actual actions. test mode means the robot will not perform any actions, but will simulate them.",
   {
-    mode: z.string().describe("running mode of the robot, test or live."),
+    mode: z.string().describe("running mode of the robot: test or mock or live."),
   },
   async (param) => {
    
@@ -123,7 +128,18 @@ mcp.tool(
             },
           ],
         };
-      } else {
+      } else if (param.mode === "mock") {
+        isMock = true;
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "Robot is set to mock mode. No actual robot actions will be performed.",
+            },
+          ],
+        };
+      }
+      else {
         isTest = false;
         return {
           content: [
