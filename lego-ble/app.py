@@ -211,7 +211,7 @@ async def main():
     # await client.disconnect()
 
 
-async def runprogram(programScript: str = PROGRAM_TO_UPLOAD):
+async def runProgram(programScript: str = PROGRAM_TO_UPLOAD):
     global stop_event
     stop_event = asyncio.Event()
 
@@ -255,40 +255,3 @@ async def runprogram(programScript: str = PROGRAM_TO_UPLOAD):
         sys.exit(1)
     
     await stop_event.wait()
-
-
-import asyncio
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-
-
-app = FastAPI()
-
-@app.post("/exec")
-async def exec_script(request: Request):
-    script = await request.body()
-    print(script)
-    if script:
-        await runprogram(script)
-    return {"status": "done"}
-
-@app.get("/status")
-async def status():
-    return {"scan": "aaa"}
-
-
-if __name__ == "__main__":
-    from uvicorn import Config, Server
-
-    async def run_uvicorn():
-        config = Config(app, host="0.0.0.0", port=8001, loop="asyncio")
-        server = Server(config)
-        await server.serve()
-
-    async def main_concurrent():
-        await asyncio.gather(
-            main(),
-            run_uvicorn()
-        )
-
-    asyncio.run(main_concurrent())
-

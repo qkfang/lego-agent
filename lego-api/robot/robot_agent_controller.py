@@ -38,7 +38,7 @@ NEVER repeat other agent's response, just provide your own answer.
         response = await self.agent.get_response(
         messages=
 '''
-Follow the plan to make robot action.
+Follow the plan to make robot action in mock mode.
 
 ''' + data,
             thread=shared.thread,

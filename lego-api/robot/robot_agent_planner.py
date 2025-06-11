@@ -62,7 +62,7 @@ this is the current field data, the blue object stands for the robot, the red ob
 
     async def run_step2(self):
 
-        data = robotData.step1_analyze_json_data()
+        data = shared.robotData.step1_analyze_json_data()
 
         response = await self.agent.get_response(
             messages=

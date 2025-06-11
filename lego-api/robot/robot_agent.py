@@ -60,7 +60,6 @@ class LegoAgent:
     
         await shared.mcp.connect()
 
-
         class ApprovalTerminationStrategy(TerminationStrategy):
             """A strategy for determining when an agent should terminate."""
 

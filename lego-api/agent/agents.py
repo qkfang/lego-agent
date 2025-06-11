@@ -11,11 +11,12 @@ from util.storage import save_image_blobs, save_image_binary_blobs
 from agent.common import execute_foundry_agent, post_request
 from dotenv import load_dotenv
 from robot.robotmodel import RobotData, RoboProcessArgs
+from robot.robot_agent import LegoAgent
 load_dotenv()
 
 AZURE_IMAGE_ENDPOINT = os.environ.get("AZURE_IMAGE_ENDPOINT", "EMPTY").rstrip("/")
 AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
-
+legoAgent = LegoAgent()
 
 @agent(
     name="Robot Agent",
@@ -32,7 +33,6 @@ async def robot_agent(
 ) -> list[str]:
     
     shared.notify = notify
-    await shared.legoAgent.init()
     await shared.legoAgent.robot_agent_run(goal)
         
     return ["Robot actions completed."]
