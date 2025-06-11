@@ -2,20 +2,24 @@ import json
 import shared
 import re
 from semantic_kernel.agents.azure_ai.azure_ai_agent import AzureAIAgent, AzureAIAgentSettings
-from shared import robotData
 
 
-async def run_step2(agentOnly: bool = False):
+class LegoPlannerAgent:
+    agent = None
+    agentName = "lego-planner"
 
-    data = ''
-    if not agentOnly:
-        data = robotData.step1_analyze_json_data()
+    def __init__(self):
+        self.agent = None
 
-    agentdef = await shared.project_client.agents.create_agent(
-        model="gpt-4o" ,
-        name="lego-planner",
-        temperature=0.2,
-        instructions=
+    async def init(self):
+
+        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.agentName), None)
+        if agentdef is None:
+            agentdef = await shared.project_client.agents.create_agent(
+                model="gpt-4o" ,
+                name=self.agentName,
+                temperature=0.2,
+                instructions=
 '''
 You are robot action planner. 
 
@@ -46,33 +50,40 @@ follow below example format to output the plan with multiple steps,
 ]  
 
 this is the current field data, the blue object stands for the robot, the red object stands for the goal. 
-''' + data
-    )
+'''
+        )
 
-    agent = AzureAIAgent(
-        client=shared.project_client,
-        definition=agentdef,
-        plugins=[shared.mcp],
-    )
+        self.agent = AzureAIAgent(
+            client=shared.project_client,
+            definition=agentdef,
+            plugins=[shared.mcp],
+        )
 
-    if(agentOnly):
-        return agent
-    
-#     response = await agent.get_response(
-#         messages=
-# '''
-# Now make a plan to move robot to the red object and pick it up. output the plan in json format, each step should be a json object with "action" and "args" fields. The action is the robot action name, and args is the arguments for the action.
-# ''',
-#         thread=shared.thread,
-#     )
-#     print(f"# {response.name}: {response}")
 
-#     match = re.search(r'(\[\s*{.*?}\s*\])', str(response), re.DOTALL)
-#     if match:
-#         plan_json = match.group(1)
-#         plan = json.loads(plan_json)    
-        
-#         with open(robotData.step2_plan_json(), "w", encoding="utf-8") as f:
-#             json.dump(plan, f, indent=2)
+    async def run_step2(self):
+
+        data = robotData.step1_analyze_json_data()
+
+        response = await self.agent.get_response(
+            messages=
+'''
+Now make a plan to move robot to the red object and pick it up. output the plan in json format, each step should be a json object with "action" and "args" fields. 
+The action is the robot action name, and args is the arguments for the action.
+''' + data,
+            thread=shared.thread,
+        )
+        print(f"# {response.name}: {response}")
+
+        match = re.search(r'(\[\s*{.*?}\s*\])', str(response), re.DOTALL)
+        if match:
+            plan_json = match.group(1)
+            plan = json.loads(plan_json)    
+            
+            with open(shared.robotData.step2_plan_json(), "w", encoding="utf-8") as f:
+                json.dump(plan, f, indent=2)
+
+
+
+
 
 

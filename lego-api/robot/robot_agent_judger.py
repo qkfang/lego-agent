@@ -1,20 +1,24 @@
-import json
 import shared
 from semantic_kernel.agents.azure_ai.azure_ai_agent import AzureAIAgent
-from shared import robotData
 
 
-async def run_step4(agentOnly: bool = False):
+class LegoJudgerAgent:
+    agent = None
+    agentName = "lego-judger"
 
-    data = ''
-    if not agentOnly:
-        data = robotData.step1_analyze_json_data()
+    def __init__(self):
+        self.agent = None
 
-    agentdef = await shared.project_client.agents.create_agent(
-        model="gpt-4o",
-        name="lego-judger",
-        temperature=0,
-        instructions=
+        
+    async def init(self):
+
+        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.agentName), None)
+        if agentdef is None:
+            agentdef = await shared.project_client.agents.create_agent(
+                model="gpt-4o",
+                name=self.agentName,
+                temperature=0,
+                instructions=
 '''
 You are robot judge. 
 You need to decide if the goal is already achieved based on the current field data and the goal.
@@ -23,24 +27,28 @@ You must ask field data and photo from the observer agent after controller agent
 
 You must provide an answer in response by saying 'goal completed' or 'goal failed'.
 NEVER repeat other agent's response, just provide your own answer.
-''' + data
-    )
+'''
+        )
 
-    agent = AzureAIAgent(
-        client=shared.project_client,
-        definition=agentdef,
-        plugins=[],
-    )
+        self.agent = AzureAIAgent(
+            client=shared.project_client,
+            definition=agentdef,
+            plugins=[],
+        )
 
-    if(agentOnly):
-        return agent
 
-#     response = await agent.get_response(
-#         messages=
-# '''
-# goal meet? 
-# ''',
-#         thread=shared.thread,
-#     )
-#     print(f"# {response.name}: {response}")
+
+    async def run_step4(self):
+
+        data = shared.robotData.step1_analyze_json_data()
+        response = await self.agent.get_response(
+            messages=
+'''
+goal meet? 
+
+''' + data,
+            thread=shared.thread,
+        )
+        print(f"# {response.name}: {response}")
+
 

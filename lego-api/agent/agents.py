@@ -3,13 +3,13 @@ import io
 import base64
 import json
 import aiohttp
+import shared
 from typing import Annotated
 from agent.decorators import agent
 from model import AgentUpdateEvent, Content
-from agent.storage import save_image_blobs, save_image_binary_blobs
+from util.storage import save_image_blobs, save_image_binary_blobs
 from agent.common import execute_foundry_agent, post_request
 from dotenv import load_dotenv
-from robot.robot_agent import robot_agent_run
 from robot.robotmodel import RobotData, RoboProcessArgs
 load_dotenv()
 
@@ -31,8 +31,10 @@ async def robot_agent(
     notify: AgentUpdateEvent,
 ) -> list[str]:
     
-    await robot_agent_run(goal, notify)
-
+    shared.notify = notify
+    await shared.legoAgent.init()
+    await shared.legoAgent.robot_agent_run(goal)
+        
     return ["Robot actions completed."]
 
 # @agent(

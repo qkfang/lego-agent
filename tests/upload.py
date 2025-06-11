@@ -1,4 +1,4 @@
-from agent.storage import save_image_blobs, save_image_binary_blobs
+from util.storage import save_image_blobs, save_image_binary_blobs
 import asyncio
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient

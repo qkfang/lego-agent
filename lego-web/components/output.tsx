@@ -177,7 +177,7 @@ const Output: React.FC<Props> = ({ data }: Props) => {
                 {d.children &&
                   d.children.map((child, j) => {
                     const startGray = 255; // white
-                    const grayValue = Math.round(startGray - j * 30);
+                    const grayValue = Math.round(startGray - j % 8 * 30);
                     const fillColor = `#${grayValue.toString(16).padStart(2, '0')}${grayValue.toString(16).padStart(2, '0')}${grayValue.toString(16).padStart(2, '0')}`;
                     return (
                       <g

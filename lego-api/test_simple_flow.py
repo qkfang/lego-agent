@@ -1,13 +1,10 @@
+from semantic_kernel.connectors.mcp import MCPStdioPlugin
 import asyncio
 import shared
-from semantic_kernel.connectors.mcp import MCPStdioPlugin
-from robot.robot_agent import LegoAgent
+from robot.robot_simple import robot_agent_run_simple
 
 async def main():
-
-    shared.foundryAgents = (await shared.project_client.agents.list_agents(limit=100)).data
     shared.isTest = True
-
     shared.mcp = MCPStdioPlugin(
             name="robotmcp",
             description="Al Foundry Agents and run query, call this plugin.",
@@ -18,17 +15,12 @@ async def main():
                 "DEFAULT_ROBOT_ID": "robot_b"
             },
         )
+    await shared.mcp.connect()
     
-    legoAgent = LegoAgent()
-
-    await legoAgent.init()
-    await legoAgent.robot_agent_run('robot to grab red object and move back 10 cm')
+    await robot_agent_run_simple('robot to grab red object and move back 10 cm', None)
     
     await shared.mcp.close()
 
-
-
 if __name__ == "__main__":
     asyncio.run(main())
-
 

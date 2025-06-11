@@ -11,7 +11,7 @@ from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect
 from openai.types.beta.realtime.session_update_event import SessionTool
 
 from agent.decorators import function_agents, function_calls
-from agent.storage import get_storage_client
+from util.storage import get_storage_client
 from connection import connections
 from model import Update
 from telemetry import init_tracing
@@ -44,7 +44,8 @@ async def lifespan(app: FastAPI):
     try:
         # Load agents from prompty files in directory
         await get_custom_agents()
-
+        shared.foundryAgents = (await shared.project_client.agents.list_agents(limit=100)).data
+        
         async with (
             MCPStdioPlugin(
                 name="robotmcp",
