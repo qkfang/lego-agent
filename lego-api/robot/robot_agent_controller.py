@@ -29,22 +29,16 @@ NEVER repeat other agent's response, just provide your own answer.
         self.agent = AzureAIAgent(
             client=shared.project_client,
             definition=agentdef,
-            plugins=[shared.mcp],
+            plugins=[shared.mcprobot],
         )
 
 
-    async def run_step3(self):
-        data = shared.robotData.step2_plan_json_data()
+    async def exec(self, message: str):
         response = await self.agent.get_response(
-        messages=
-'''
-Follow the plan to make robot action in mock mode.
-
-''' + data,
-            thread=shared.thread,
-        )
-
-        print(f"# {response.name}: {response}")
-
+                                        messages= message, 
+                                        thread=shared.thread
+                                    )
+        print(f"# {response.name}: {response.content}")
+        return str(response)
 
 

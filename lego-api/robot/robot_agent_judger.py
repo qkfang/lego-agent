@@ -38,17 +38,10 @@ NEVER repeat other agent's response, just provide your own answer.
 
 
 
-    async def run_step4(self):
-
-        data = shared.robotData.step1_analyze_json_data()
+    async def exec(self, message: str):
         response = await self.agent.get_response(
-            messages=
-'''
-goal meet? 
-
-''' + data,
-            thread=shared.thread,
-        )
-        print(f"# {response.name}: {response}")
-
-
+                                        messages= message, 
+                                        thread=shared.thread
+                                    )
+        print(f"# {response.name}: {response.content}")
+        return str(response)

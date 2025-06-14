@@ -1,5 +1,3 @@
-from robot.objectdetector import run 
-from robot.robotmodel import RobotData, RoboProcessArgs
 from semantic_kernel.agents.strategies import TerminationStrategy
 from semantic_kernel.agents import AgentGroupChat, AzureAIAgent, AzureAIAgentSettings
 from semantic_kernel.contents import AuthorRole
@@ -23,7 +21,7 @@ class LegoAgent:
     legoJudgerAgent = LegoJudgerAgent()
     init_done = False
 
-    
+
     async def init(self):
         if(not self.init_done):
             await self.legoOrchestratorAgent.init()
@@ -57,8 +55,7 @@ class LegoAgent:
 
 
     async def robot_agent_run(self, goal: str):
-    
-        await shared.mcp.connect()
+        await shared.mcprobot.connect()
 
         class ApprovalTerminationStrategy(TerminationStrategy):
             """A strategy for determining when an agent should terminate."""
@@ -70,23 +67,22 @@ class LegoAgent:
                     "goal completed" in h.content.lower() for h in history[-4:]
                 )
 
-        # 5. Place the agents in a group chat with a custom termination strategy
-        chat = AgentGroupChat(
-            agents=[self.legoControllerAgent.agent, self.legoObserverAgent.agent, self.legoPlannerAgent.agent, self.legoControllerAgent.agent, self.legoJudgerAgent.agent],
+        shared.chat = AgentGroupChat(
+            agents=[self.legoOrchestratorAgent.agent, self.legoObserverAgent.agent, self.legoPlannerAgent.agent, self.legoControllerAgent.agent, self.legoJudgerAgent.agent],
+
             termination_strategy=ApprovalTerminationStrategy(agents=[self.legoJudgerAgent.agent], maximum_iterations=10),
         )
-        shared.chat = chat
 
+        
         temp_folder = os.path.join('D:/gh-repo/lego-agent/lego-mcp/temp')
         monitor_task = asyncio.create_task(self.monitor_temp_folder(temp_folder))
 
         try:
 
-            await chat.add_chat_message(message=goal)
+            await shared.chat.add_chat_message(message=goal)
             print(f"# {AuthorRole.USER}: '{goal}'")
 
-
-            async for content in chat.invoke():
+            async for content in shared.chat.invoke():
                 print(f"\033[93m \r\n--------------------- {content.role} - {content.name or '*'} --------------------- \033[0m")
                 print(f"{content.content}")
 
@@ -129,6 +125,6 @@ class LegoAgent:
 
         finally:
             monitor_task.cancel()
-            await chat.reset()
+            await shared.chat.reset()
         
         return "Robot agent run completed."

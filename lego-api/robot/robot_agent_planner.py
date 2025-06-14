@@ -56,34 +56,14 @@ this is the current field data, the blue object stands for the robot, the red ob
         self.agent = AzureAIAgent(
             client=shared.project_client,
             definition=agentdef,
-            plugins=[shared.mcp],
+            plugins=[shared.mcprobot],
         )
 
 
-    async def run_step2(self):
-
-        data = shared.robotData.step1_analyze_json_data()
-
+    async def exec(self, message: str):
         response = await self.agent.get_response(
-            messages=
-'''
-Now make a plan to move robot to the red object and pick it up. output the plan in json format, each step should be a json object with "action" and "args" fields. 
-The action is the robot action name, and args is the arguments for the action.
-''' + data,
-            thread=shared.thread,
-        )
-        print(f"# {response.name}: {response}")
-
-        match = re.search(r'(\[\s*{.*?}\s*\])', str(response), re.DOTALL)
-        if match:
-            plan_json = match.group(1)
-            plan = json.loads(plan_json)    
-            
-            with open(shared.robotData.step2_plan_json(), "w", encoding="utf-8") as f:
-                json.dump(plan, f, indent=2)
-
-
-
-
-
-
+                                        messages= message, 
+                                        thread=shared.thread
+                                    )
+        print(f"# {response.name}: {response.message}")
+        return str(response)

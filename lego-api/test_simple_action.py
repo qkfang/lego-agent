@@ -1,33 +1,27 @@
+from semantic_kernel.connectors.mcp import MCPStdioPlugin
+from robot.robot_agent_controller import LegoControllerAgent
 import asyncio
 import shared
-from semantic_kernel.connectors.mcp import MCPStdioPlugin
-from robot.robot_agent import LegoAgent
 
 async def main():
-
-    shared.isTest = True
+    shared.isTest = False
     shared.foundryAgents = (await shared.project_client.agents.list_agents(limit=100)).data
     shared.mcprobot = MCPStdioPlugin(
             name="robotmcp",
             description="LEGO Robot Control Service",
             command="node",
             args= ["D:\\gh-repo\\lego-agent\\lego-mcp\\build\\index.js"],
-            env={
-                "PROJECT_CONNECTION_STRING": "",
-                "DEFAULT_ROBOT_ID": "robot_b"
-            },
+            env={},
         )
-    
-    legoAgent = LegoAgent()
+    await shared.mcprobot.connect()
 
-    await legoAgent.init()
-    await legoAgent.robot_agent_run('robot to grab red object and move back 10 cm in mock')
+    legoControllerAgent = LegoControllerAgent()
+    
+    await legoControllerAgent.init()
+    await legoControllerAgent.exec('move robot forward 30 cm')
     
     await shared.mcprobot.close()
 
-
-
 if __name__ == "__main__":
     asyncio.run(main())
-
 

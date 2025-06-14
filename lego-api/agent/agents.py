@@ -33,7 +33,8 @@ async def robot_agent(
 ) -> list[str]:
     
     shared.notify = notify
-    await shared.legoAgent.robot_agent_run(goal)
+    await legoAgent.init()
+    await legoAgent.robot_agent_run(goal)
         
     return ["Robot actions completed."]
 

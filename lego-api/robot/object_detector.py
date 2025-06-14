@@ -507,15 +507,25 @@ class ObjectDetector:
 def create_sample_color_ranges():
     """Create sample color ranges for common objects."""
     return [
+        # {
+        #     'name': 'robot', # blue
+        #     'lower': [40, 200, 200],   # Lower HSV for #17EDF7 (cyan-blue)
+        #     'upper': [100, 255, 255]   # Upper HSV for #17EDF7 (cyan-blue)
+        # },
+        # {
+        #     'name': 'red',
+        #     'lower': [165, 150, 150],    # Lower HSV for #F5497B (pinkish-red)
+        #     'upper': [175, 255, 255]     # Upper HSV for #F5497B (pinkish-red)
+        # },
         {
             'name': 'robot', # blue
-            'lower': [40, 200, 200],   # Lower HSV for #17EDF7 (cyan-blue)
-            'upper': [100, 255, 255]   # Upper HSV for #17EDF7 (cyan-blue)
+            'lower': [95, 180, 180],   # Lower HSV for #11A0EE (blue)
+            'upper': [105, 255, 255]   # Upper HSV for #11A0EE (blue)
         },
         {
             'name': 'red',
-            'lower': [165, 150, 150],    # Lower HSV for #F5497B (pinkish-red)
-            'upper': [175, 255, 255]     # Upper HSV for #F5497B (pinkish-red)
+            'lower': [175, 150, 150],    # Lower HSV for #C92428 (red)
+            'upper': [180, 255, 255]     # Upper HSV for #C92428 (red)
         },
         # {
         #     'name': 'yellow',

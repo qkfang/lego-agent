@@ -19,9 +19,9 @@ foundryAgents = []
 
 notify = None
 chat = None
-mcp = None
-realtime1 = None
-mcptools = None
+robotmcp = None
+robotmcptools = None
+sessionrt = None
 thread = None
 
 isTest = True

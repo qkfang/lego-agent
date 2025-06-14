@@ -37,6 +37,15 @@ NEVER repeat other agent's response, just provide your own answer.
         )
 
 
+    async def exec(self, message: str):
+        response = await self.agent.get_response(
+                                        messages= message, 
+                                        thread=shared.thread
+                                    )
+        print(f"# {response.name}: {response.content}")
+        return str(response)
+
+
     async def run_step0(self):
         
         response = await self.agent.get_response(

@@ -6,7 +6,7 @@ from semantic_kernel.functions import kernel_function
 from semantic_kernel.contents.chat_message_content import ChatMessageContent
 from robot.robotmodel import RobotData, RoboProcessArgs
 from util.storage import save_image_binary_blobs
-from robot.objectdetector import run 
+from robot.object_detector import run 
 
 
 async def processImage(robotData: RobotData):
@@ -23,6 +23,7 @@ async def processImage(robotData: RobotData):
     args.no_preprocessing = True
     detection_result = run(args)
 
+    print(f"Image: " + robotData.step1_analyze_img())
     img_file = open(robotData.step1_analyze_img(), "rb")
     blob = await save_image_binary_blobs(img_file)
 
@@ -76,9 +77,7 @@ class FieldStatePlugin:
             f.write(img_data)
 
         data = await processImage(shared.robotData)
-        print (f"get_field_state_by_camera: {shared.robotData.field_data}")
-
-        # await test_shared.chat.add_chat_message(message=ChatMessageContent(role="assistant", content=json.dumps(robotData.field_data, indent=2)))
+        # print (f"get_field_state_by_camera: {shared.robotData.field_data}")
 
         return data
 
@@ -119,17 +118,16 @@ dont return any other text or explanation.
             client=shared.project_client,
             definition=agentdef,
             plugins=[FieldStatePlugin],
+            
         )
 
 
-    async def run_step1(self):
+    async def exec(self, message: str):
         response = await self.agent.get_response(
-        messages=
-'''
-describe the current field data, the blue object stands for the robot, the red object stands for the goal. 
-''',
-            thread=shared.thread,
-        )
-        print(f"# {response.name}: {response}")
-        shared.thread = response.thread
+                                        messages= message, 
+                                        thread=shared.thread
+                                    )
+        print(f"# {response.name}: {response.content}")
+        return str(response)
+
 

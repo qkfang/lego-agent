@@ -6,52 +6,50 @@ from robot.robot_agent_controller import LegoControllerAgent
 from robot.robot_agent_judger import LegoJudgerAgent
 import asyncio
 import shared
+import json
 
 async def main():
-    shared.isTest = True
+
+    shared.isTest = False
     shared.foundryAgents = (await shared.project_client.agents.list_agents(limit=100)).data
-    shared.mcp = MCPStdioPlugin(
+    shared.mcprobot = MCPStdioPlugin(
             name="robotmcp",
-            description="Al Foundry Agents and run query, call this plugin.",
+            description="LEGO Robot Control Service",
             command="node",
             args= ["D:\\gh-repo\\lego-agent\\lego-mcp\\build\\index.js"],
-            env={
-                "PROJECT_CONNECTION_STRING": "",
-                "DEFAULT_ROBOT_ID": "robot_b"
-            },
+            env={},
         )
-    await shared.mcp.connect()
+    await shared.mcprobot.connect()
 
-    legoOrchestratorAgent = LegoOrchestratorAgent()
-    legoControllerAgent = LegoControllerAgent()
-    legoJudgerAgent = LegoJudgerAgent()
     legoObserverAgent = LegoObserverAgent()
+    legoControllerAgent = LegoControllerAgent()
     legoPlannerAgent = LegoPlannerAgent()
-    
-    await legoOrchestratorAgent.init()
     await legoObserverAgent.init()
     await legoPlannerAgent.init()
     await legoControllerAgent.init()
-    await legoJudgerAgent.init()
 
-    print("\033[93m \r\n--------------------- run_step1 --------------------- \033[0m")
-    await legoObserverAgent.run_step1()
+    print("\033[93m \r\n-------- run_step1 -------- \033[0m")
+    await legoObserverAgent.exec(
+'''
+describe the current field. blue object is robot, red object is target.
+'''
+    )
 
-    print("\033[93m \r\n--------------------- run_step2 --------------------- \033[0m")
-    await legoPlannerAgent.run_step2()
+    print("\033[93m \r\n-------- run_step2 -------- \033[0m")
+    fielddata = shared.robotData.step1_analyze_json_data()
+    controlldata = await legoPlannerAgent.exec(
+'''
+move robot to the red object.
+''' + fielddata
+    )
+    print("\033[93m \r\n-------- run_step3 -------- \033[0m")
+    await legoControllerAgent.exec(
+'''
+Follow the plan to make robot action in mock mode.
+''' + controlldata
+    )
     
-    print("\033[93m \r\n--------------------- run_step3 --------------------- \033[0m")
-    await legoControllerAgent.run_step3()
-
-    # print("\033[93m \r\n--------------------- run_step1 --------------------- \033[0m")
-    # await run_step1()
-    # await run_step4()
-
-    # print("\033[93m \r\n--------------------- run_step1 --------------------- \033[0m")
-    # await run_step1()
-    # await run_step4()
-    
-    await shared.mcp.close()
+    await shared.mcprobot.close()
 
 if __name__ == "__main__":
     asyncio.run(main())

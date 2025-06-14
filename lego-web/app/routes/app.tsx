@@ -333,7 +333,8 @@ export default function Home() {
     // console.log("Base64 Image:", base64Image);
   };
 
-  const [inputValue, setInputValue] = useState("robot to grab red object and move back 50 cm in mock mode");
+  // const [inputValue, setInputValue] = useState("robot to grab red object and move back 50 cm in mock mode");
+  const [inputValue, setInputValue] = useState("grab red object and return to base.");
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {

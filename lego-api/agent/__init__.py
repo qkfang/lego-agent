@@ -178,7 +178,7 @@ async def execute_agent(id: str, function: FunctionCall):
     
     if function.name.startswith("xxx"):
         cmd = "perform below action: " +  function.name + " " + json.dumps(function.arguments) + " "
-        await robot_mcp_agent.run(cmd, shared.mcp)
+        await robot_mcp_agent.run(cmd, shared.mcprobot)
     elif function.name in foundry_agents:
         # execute foundry agent
         foundry_agent = foundry_agents[function.name]
@@ -203,7 +203,7 @@ async def execute_agent(id: str, function: FunctionCall):
             )
             result = await func(**args)
 
-            await shared.realtime1.realtime.send(
+            await shared.sessionrt.realtime.send(
                 ConversationItemCreateEvent(
                     type="conversation.item.create",
                     item=ConversationItem(
@@ -214,7 +214,7 @@ async def execute_agent(id: str, function: FunctionCall):
                 )
             )
             
-            await shared.realtime1.realtime.response.create()
+            await shared.sessionrt.realtime.response.create()
 
         else:
             return {"error": "Function not found"}

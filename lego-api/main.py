@@ -58,8 +58,8 @@ async def lifespan(app: FastAPI):
                 },
             ) as lego_robot_mcp
         ):
-            shared.mcp = lego_robot_mcp  # set the value in api.agent
-            shared.mcptools = await lego_robot_mcp.session.list_tools()
+            shared.mcprobot = lego_robot_mcp  # set the value in api.agent
+            shared.mcprobottools = await lego_robot_mcp.session.list_tools()
                 
         yield
     finally:
@@ -179,7 +179,7 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                     prompt_settings.tools.extend(agent.tools)
 
             # mcp actions
-            # for mcptool in shared.mcptools.tools:
+            # for mcptool in shared.mcprobottools.tools:
             #     prompt_settings.tools.append(
             #         SessionTool(
             #             type="function",
@@ -215,7 +215,7 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                 client=connection,
                 thread_id=thread_id,
             )
-            shared.realtime1 = session  # set the session in api.agent
+            shared.sessionrt = session  # set the session in api.agent
 
             detection_type: Literal["semantic_vad", "server_vad"] = (
                 settings["detection_type"]

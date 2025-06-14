@@ -32,21 +32,6 @@ const mcp = new McpServer({
   description: "MCP server for LEGO ROBOT Service integration",
 });
 
-
-
-async function run(scriptname: string): Promise<void> {
-  
-  const { exec } = await import("child_process");
-  const { promisify } = await import("util");
-  const execAsync = promisify(exec);
-
-  const scriptPath = "ampy --port COM6 run c:/Temp/code.py";
-  const { stdout, stderr } = await execAsync(scriptPath);
-
-  // console.log("Script output:", stdout);
-}
-
-
 async function runble(code: string): Promise<void> {
   if(isMock){
     return;
@@ -73,41 +58,6 @@ async function runble(code: string): Promise<void> {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
-
-// async function runble(code: string): Promise<void> {
-
-//   const fs = await import("fs/promises");
-//   const path = await import("path");
-//   const timestamp = Date.now();
-//   const filename = `script_${timestamp}.py`;
-//   const filepath = path.join("D:/gh-repo/lego-agent/lego-ble/temp", filename);
-//   // console.log('filepath= ' + filepath);
-
-  
-//   var script = basePythonScript.replace("###placeholder###", code);
-//   await fs.writeFile(filepath, script, "utf8");
-
-//   const scriptCmd = `python D:/gh-repo/lego-agent/lego-ble/python/app.py --program ${filepath}`;
-
-//   // console.log('runble= ' + scriptCmd);
-//   // const { stdout, stderr } = await execAsync(scriptCmd);
-
-//   // console.log("Script output:", stdout);
-//   // console.log("Script error:", stderr);
-
-//   // Send script to local HTTP server
-//   const response = await fetch("http://127.0.0.1:8001/exec", {
-//     method: "POST",
-//     headers: { "Content-Type": "text/plain" },
-//     body: script
-//   });
-//   // console.log('response.status= ' + response.status);
-//   if (!response.ok) {
-//     throw new Error(`HTTP error! status: ${response.status}`);
-//   }
-//   // Optionally, handle response if needed
-// }
 
 mcp.tool(
   "robot_setting",
@@ -431,7 +381,6 @@ mcp.tool(
   }
 );
 
-// Main function
 async function main() {
   console.error("\n==================================================");
   console.error(
