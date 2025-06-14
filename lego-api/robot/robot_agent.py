@@ -65,6 +65,8 @@ class LegoAgent:
                 # Check for 'goal completed' in the last 4 history entries
                 return any(
                     "goal completed" in h.content.lower() for h in history[-4:]
+                ) or  any(
+                    "task completed" in h.content.lower() for h in history[-4:]
                 )
 
         shared.chat = AgentGroupChat(
@@ -72,7 +74,7 @@ class LegoAgent:
 
             termination_strategy=ApprovalTerminationStrategy(agents=[self.legoJudgerAgent.agent], maximum_iterations=10),
         )
-
+        
         
         temp_folder = os.path.join('D:/gh-repo/lego-agent/lego-mcp/temp')
         monitor_task = asyncio.create_task(self.monitor_temp_folder(temp_folder))

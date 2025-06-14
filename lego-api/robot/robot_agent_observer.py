@@ -14,13 +14,14 @@ async def processImage(robotData: RobotData):
     args.image_path = robotData.step0_img_path()
     args.method = "color"
     args.templates = None
-    args.target_objects = ["robot", "red", "yellow"]
+    args.target_objects = []
     args.confidence = 0.5
     args.output = robotData.step1_analyze_json()
     args.visualize = robotData.step1_analyze_img()
     args.pixels_per_unit = 1.0
     args.no_display = True
-    args.no_preprocessing = True
+    args.no_preprocessing = False
+
     detection_result = run(args)
 
     print(f"Image: " + robotData.step1_analyze_img())
@@ -100,11 +101,13 @@ class LegoObserverAgent:
                 temperature=0,
                 instructions=
 '''
-You are robot field observer. 
-never ask for an photo, you must get it yourself.
+You are robot field observer agent. 
+Each time you are asked for an photo, you must get it yourself.
+if you are asked to 'provide the current field data', you must take a photo and analyze it to return detection_result.
 
-EVERY SINGLE TIME, you must use a camera to capture field photo.
-You can get field state from the photo each time anytime.
+EVERY SINGLE TIME, you must use a camera to capture new field photo.
+You can get field data and photo of the field each time anytime.
+never return previous or existing detection_result from past conversations, need to take a new photo each time.
 
 the robot is facing east. treat the left bottom corner as the origin (0,0)
 the x axis is the east direction, and the y axis is the north direction.

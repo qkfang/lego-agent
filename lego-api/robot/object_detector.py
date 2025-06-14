@@ -120,7 +120,7 @@ class ObjectDetector:
             # Apply morphological operations to reduce noise
             if use_preprocessing:
                 # Remove small noise
-                kernel = np.ones((5, 5), np.uint8)
+                kernel = np.ones((20, 20), np.uint8)
                 mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
                 # Fill holes
                 mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
@@ -130,6 +130,7 @@ class ObjectDetector:
             # Display the mask if requested
             # if display_mask:
             # cv2.imshow(f"Mask - {name}", mask)
+            # cv2.waitKey(2000)
 
             # Find contours
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -524,8 +525,8 @@ def create_sample_color_ranges():
         },
         {
             'name': 'red',
-            'lower': [175, 150, 150],    # Lower HSV for #C92428 (red)
-            'upper': [180, 255, 255]     # Upper HSV for #C92428 (red)
+            'lower': [170, 70, 50],  # Lower HSV for red (high end)
+            'upper': [180, 255, 255] # Upper HSV for red (high end)
         },
         # {
         #     'name': 'yellow',

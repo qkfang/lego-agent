@@ -5,7 +5,7 @@ from robot.robot_agent import LegoAgent
 
 async def main():
 
-    shared.isTest = True
+    shared.isTest = False
     shared.foundryAgents = (await shared.project_client.agents.list_agents(limit=100)).data
     shared.mcprobot = MCPStdioPlugin(
             name="robotmcp",
@@ -17,11 +17,12 @@ async def main():
                 "DEFAULT_ROBOT_ID": "robot_b"
             },
         )
+    await shared.mcprobot.connect()
     
     legoAgent = LegoAgent()
 
     await legoAgent.init()
-    await legoAgent.robot_agent_run('robot to grab red object and move back 10 cm in mock')
+    await legoAgent.robot_agent_run('robot to grab red object and go home')
     
     await shared.mcprobot.close()
 

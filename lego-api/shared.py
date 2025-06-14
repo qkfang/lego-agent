@@ -24,5 +24,5 @@ robotmcptools = None
 sessionrt = None
 thread = None
 
-isTest = True
+isTest = False
 isTestCount = 1
