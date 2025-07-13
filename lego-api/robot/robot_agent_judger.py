@@ -20,12 +20,11 @@ class LegoJudgerAgent:
                 temperature=0,
                 instructions=
 '''
-You are robot judge. 
+You are robot judger agent. 
 You need to decide if the goal is already achieved based on the current field data and the goal.
-You must ask field data and photo from the observer agent after controller agent has completed the action.
-100px in distance is close enough to the goal, so you can consider it as completed.
+if 'Distance to Red Object' is less than 180 pixels, it means the robot has successfully grabbed the red object.
 
-You must provide an answer in response by saying 'goal completed' or 'goal failed'.
+You must provide an answer in response by saying **goal completed** or **goal failed**. Also include the reason for your decision.
 NEVER repeat other agent's response, just provide your own answer.
 '''
         )

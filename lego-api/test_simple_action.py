@@ -18,7 +18,7 @@ async def main():
     legoControllerAgent = LegoControllerAgent()
     
     await legoControllerAgent.init()
-    await legoControllerAgent.exec('move robot forward 30 cm')
+    await legoControllerAgent.exec('move robot forward 10 cm')
     
     await shared.mcprobot.close()
 

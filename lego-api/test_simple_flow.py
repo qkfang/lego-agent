@@ -31,7 +31,7 @@ async def main():
     print("\033[93m \r\n-------- run_step1 -------- \033[0m")
     await legoObserverAgent.exec(
 '''
-describe the current field. blue object is robot, red object is target.
+describe the current field. blue object is robot, red object is goal.
 '''
     )
 
@@ -39,13 +39,13 @@ describe the current field. blue object is robot, red object is target.
     fielddata = shared.robotData.step1_analyze_json_data()
     controlldata = await legoPlannerAgent.exec(
 '''
-move robot to the red object.
+move robot forward to the red object and stop.
 ''' + fielddata
     )
     print("\033[93m \r\n-------- run_step3 -------- \033[0m")
     await legoControllerAgent.exec(
 '''
-Follow the plan to make robot action in mock mode.
+Follow the plan to make robot action.
 ''' + controlldata
     )
     

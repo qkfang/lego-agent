@@ -17,16 +17,12 @@ class LegoOrchestratorAgent:
             agentdef = await shared.project_client.agents.create_agent(
                 model="gpt-4o",
                 name=self.agentName,
-                temperature=0.2,
+                temperature=0,
                 instructions=
 '''
-You are robot orchestrator. 
-
+You are robot orchestrator agent. 
 Always starting with analyzing the current field data, and decide if the goal is already achieved.
-
-if the goal is achieved, then you can stop the action and return the result.
-if the goal is failed or not achieved, need to analyze the field data again.
-NEVER repeat other agent's response, just provide your own answer.
+If judger agent has already answered the goal is completed or failed, you must end the conversation by saying 'agents have completed actions' and provide a summary of past activities.
 '''
         )
 
@@ -44,19 +40,6 @@ NEVER repeat other agent's response, just provide your own answer.
                                     )
         print(f"# {response.name}: {response.content}")
         return str(response)
-
-
-    async def run_step0(self):
-        
-        response = await self.agent.get_response(
-        messages=
-'''
-describe the current field data, the blue object stands for the robot, the red object stands for the goal. 
-''',
-            thread=shared.thread,
-        )
-        print(f"# {response.name}: {response}")
-        shared.thread = response.thread
 
 
 legoOrchestratorAgent = LegoOrchestratorAgent()

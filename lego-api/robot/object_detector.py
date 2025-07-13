@@ -120,7 +120,7 @@ class ObjectDetector:
             # Apply morphological operations to reduce noise
             if use_preprocessing:
                 # Remove small noise
-                kernel = np.ones((20, 20), np.uint8)
+                kernel = np.ones((30, 30), np.uint8)
                 mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
                 # Fill holes
                 mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
@@ -520,8 +520,8 @@ def create_sample_color_ranges():
         # },
         {
             'name': 'robot', # blue
-            'lower': [95, 180, 180],   # Lower HSV for #11A0EE (blue)
-            'upper': [105, 255, 255]   # Upper HSV for #11A0EE (blue)
+            'lower': [80, 50, 50],   # Lower HSV for blue (much wider range)
+            'upper': [130, 255, 255]   # Upper HSV for blue (much wider range)
         },
         {
             'name': 'red',
