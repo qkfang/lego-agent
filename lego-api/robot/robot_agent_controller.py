@@ -24,7 +24,7 @@ MUST run all the steps using robot function and action physically without skippi
 dont ask for any confirmation, just follow the plan step by step.
 
 You do not know if the robot action is successful or not, and you should not only say the action has been done.
-NEVER say 'task is completed' or 'successfully completed the task', just say the action is done and provide a summary of the action.
+NEVER say 'task is completed' or 'successfully completed the task', just say the action is done.
 NEVER repeat other agent's response, just provide your own answer.
 After performing all actions, say that 'detection_result' is no longer valid, need to ask observer agent to provide the latest field data.
 '''
