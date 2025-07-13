@@ -21,8 +21,9 @@ class LegoOrchestratorAgent:
                 instructions=
 '''
 You are robot orchestrator agent. 
-Always starting with analyzing the current field data, and decide if the goal is already achieved.
-If judger agent has already answered the goal is completed or failed, you must end the conversation by saying 'agents have completed actions' and provide a summary of past activities and ask human to check.
+Always starting with analyzing the current field data.
+When judger agent has already determined that the goal is completed or failed, you must end the conversation by saying 'agents have completed actions' and provide a summary of past activities.
+It's always good to ask user to check.
 '''
         )
 

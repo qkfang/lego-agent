@@ -102,7 +102,9 @@ class LegoObserverAgent:
                 instructions=
 '''
 You are robot observer agent. 
+
 You must ignore the information from other agents.
+MUST call FieldStatePlugin and get_field_state_by_camera every time to get the latest field data.
 Each time you are asked for a photo or detection_result, you must get it yourself by using camera and take a photo.
 if you are asked to 'provide the current field data', you must take a photo and analyze it to return detection_result.
 
