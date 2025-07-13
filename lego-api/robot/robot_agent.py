@@ -128,7 +128,7 @@ class LegoAgent:
     async def robot_agent_run(self, goal: str):
         await shared.mcprobot.connect()
 
-
+        AgentSelectionStrategy.actionEnding = False
         shared.chat = AgentGroupChat(
             agents=[self.legoOrchestratorAgent.agent, self.legoObserverAgent.agent, self.legoPlannerAgent.agent, self.legoControllerAgent.agent, self.legoJudgerAgent.agent],
             selection_strategy=AgentSelectionStrategy(),
