@@ -178,22 +178,6 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                 if hasattr(agent, "tools") and agent.tools:
                     prompt_settings.tools.extend(agent.tools)
 
-            # mcp actions
-            # for mcptool in shared.mcprobottools.tools:
-            #     prompt_settings.tools.append(
-            #         SessionTool(
-            #             type="function",
-            #             name=mcptool.name,
-            #             description=mcptool.description,
-            #             parameters=convert_mcp_function_params(mcptool.inputSchema['properties']) if mcptool.inputSchema and len(mcptool.inputSchema['properties'])>=0 else None,
-            #         )
-            #     )
-
-            # fagents = await get_foundry_agents()
-            # for agent in foundry_agents:
-            #     if hasattr(agent, "tools") and agent.tools:
-            #         prompt_settings.tools.extend(agent.tools)
-
             for agent_id, agent in function_agents.items():
                 stool = SessionTool(
                         type="function",
@@ -263,15 +247,3 @@ async def voice_endpoint(id: str, websocket: WebSocket):
 
 
 FastAPIInstrumentor.instrument_app(app, exclude_spans=["send", "receive"])
-
-
-    # except Exception as e:
-    #     await connection.send_browser_update(
-    #         Update.exception(
-    #             id=id,
-    #             error="Unexpected error",
-    #             content=str(e),
-    #         )
-    #     )
-    # finally:
-    #     await connections.disconnect(id)

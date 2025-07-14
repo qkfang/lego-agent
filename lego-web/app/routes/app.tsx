@@ -64,7 +64,7 @@ interface ImageFunctionCall {
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Robotics Agents by Dad" },
-    { name: "description", content: "Making Things Happen since 1935" },
+    { name: "description", content: "Making Things Happen since 2023" },
   ];
 }
 
@@ -101,12 +101,6 @@ export default function Home() {
     console.log("Adding output", parent, agent, call_id, content);
     for (const item of content) {
       if (item.type === "text") {
-        // await sendRealtime({
-        //   id: uuidv4(),
-        //   type: "function_completion",
-        //   call_id: call_id,
-        //   output: item.value,
-        // });
         output?.addOutput(parent, agent, {
           id: uuidv4(),
           title: agent,
@@ -120,13 +114,6 @@ export default function Home() {
           children: [],
         });
       } else if (item.type === "image") {
-        // await sendRealtime({
-        //   id: uuidv4(),
-        //   type: "function_completion",
-        //   call_id: call_id,
-        //   output: `Generated image as described by ${item.description}. It is ${item.size} and ${item.quality}. It has been saved and is currently being displayed to ${user.name}.`,
-        // });
-
         output?.addOutput(parent, agent, {
           id: uuidv4(),
           title: agent,
@@ -333,8 +320,8 @@ export default function Home() {
     // console.log("Base64 Image:", base64Image);
   };
 
-  // const [inputValue, setInputValue] = useState("robot to grab red object and move back 50 cm in mock mode");
-  const [inputValue, setInputValue] = useState("grab red object and return to base.");
+  // const [inputValue, setInputValue] = useState("grab red object and return to base.");
+  const [inputValue, setInputValue] = useState("");
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -485,24 +472,6 @@ export default function Home() {
                 }
                 onClick={() => {
                   setShowCapture((prev) => !prev);
-                  // output?.addOutput("gpt-image-1_agent", "video", {
-                  //   id: uuidv4(),
-                  //   title: "vide",
-                  //   value: 1,
-                  //   data: videoData,
-                  //   children: [],
-                  // });
-                  //  output?.addOutput(
-                  //   "content_writer_agent",
-                  //   "Content Writer Agent",
-                  //   {
-                  //     id: uuidv4(),
-                  //     title: "Content Writer Agent",
-                  //     value: 1,
-                  //     data: videoData,
-                  //     children: [],
-                  //   }
-                  // );
                 }}
                 title={"Capture Image 2"}
               />
