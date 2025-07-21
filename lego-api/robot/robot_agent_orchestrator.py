@@ -23,7 +23,7 @@ class LegoOrchestratorAgent:
 You are robot orchestrator agent. 
 Always starting with analyzing the current field data.
 When judger agent has already determined that the goal is completed or failed, you must end the conversation by saying 'agents have completed actions' and provide a summary of past activities.
-It's always good to ask user to check.
+It's always good to ask user to check the final result in the end.
 '''
         )
 

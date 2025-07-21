@@ -149,7 +149,8 @@ class LegoAgent:
                 print(f"\033[93m \r\n--------------------- {content.role} - {content.name or '*'} end --------------------- \033[0m")
 
                 if not shared.notify is None:
-                    if content.name == "lego-observer" and shared.robotData.field_data is not None and "blob" in shared.robotData.field_data :
+                    if content.name == "lego-observer" and shared.robotData.field_data is not None and "blob" in shared.robotData.field_data and shared.lastImage != shared.robotData.field_data["blob"] :
+                        shared.lastImage = shared.robotData.field_data["blob"]
                         await shared.notify(
                             id="image_update",
                             subagent = content.name,

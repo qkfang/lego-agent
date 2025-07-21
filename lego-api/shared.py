@@ -23,6 +23,7 @@ robotmcp = None
 robotmcptools = None
 sessionrt = None
 thread = None
+lastImage = None
 
 isTest = False
 isTestCount = 1
