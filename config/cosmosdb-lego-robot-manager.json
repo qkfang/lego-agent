@@ -1,0 +1,11 @@
+{
+    "id": "lego-robot-manager",
+    "name": "LEGO ROBOT Manager",
+    "default": true,
+    "content": "---\nid: lego-robot-manager\nname: LEGO ROBOT Manager\ndescription: You can control LEGO ROBOT movements. if there are multiple actions, you can make a plan of all actions and execute them in order.\ntools:\n  - id: move\n    description: Move the LEGO robot forward or backward by a specified distance in centimeters.\n    type: function\n    parameters:\n      - name: agent_id\n        type: string\n        description: agent id\n        required: true\n      - name: distance\n        type: number\n        description: Distance in centimeters.\n        required: true\n\n  - id: turn\n    description: Turn the LEGO robot left or right by a specified angle in degrees.\n    type: function\n    parameters:\n      - name: agent_id\n        type: string\n        description: agent id\n        required: true\n      - name: degree\n        type: number\n        description: Angle in degrees.\n        required: true\n---\ncontrol lego robot to move and turn\n\n",
+    "_rid": "SeFAAJndB74RAAAAAAAAAA==",
+    "_self": "dbs/SeFAAA==/colls/SeFAAJndB74=/docs/SeFAAJndB74RAAAAAAAAAA==/",
+    "_etag": "\"7a0060b1-0000-0200-0000-683ebc270000\"",
+    "_attachments": "attachments/",
+    "_ts": 1748941863
+}

@@ -42,6 +42,7 @@ describe the current field. blue object is robot, red object is goal.
 move robot forward to the red object and stop.
 ''' + fielddata
     )
+    
     print("\033[93m \r\n-------- run_step3 -------- \033[0m")
     await legoControllerAgent.exec(
 '''
