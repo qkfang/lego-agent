@@ -1,5 +1,5 @@
 import asyncio
-from app import main, runProgram
+from app import main, runProgram, main_with_continuous_connection, run_program_with_auto_reconnect, is_connected
 from uvicorn import Config, Server
 from fastapi import FastAPI, Request
 
@@ -10,13 +10,19 @@ async def exec_script(request: Request):
     script = await request.body()
     # print(script)
     if script:
-        await runProgram(script)
-    return {"status": "done"}
+        # Use the auto-reconnect version for better reliability
+        success = await run_program_with_auto_reconnect(script)
+        return {"status": "done" if success else "failed"}
+    return {"status": "no_script"}
 
 
 @app.get("/status")
 async def status():
-    return {"scan": "ok"}
+    return {
+        "scan": "ok",
+        "connected": is_connected(),
+        "status": "connected" if is_connected() else "searching"
+    }
 
 
 async def run_uvicorn():
@@ -26,7 +32,7 @@ async def run_uvicorn():
 
 async def main_concurrent():
     await asyncio.gather(
-        main(),
+        main_with_continuous_connection(),
         run_uvicorn()
     )
 

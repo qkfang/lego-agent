@@ -17,7 +17,7 @@ from pydantic import BaseModel
 from fastapi import Request
 
 
-SCAN_TIMEOUT = 130.0
+SCAN_TIMEOUT = 180.0
 """How long to scan for devices before giving up (in seconds)"""
 
 SERVICE = "0000fd02-0000-1000-8000-00805f9b34fb"
@@ -59,6 +59,7 @@ runloop.run(main())
 #     sys.exit(0)
 
 stop_event = None
+connection_lost_event = None
  
 
 
@@ -131,7 +132,11 @@ def on_data(_: BleakGATTCharacteristic, data: bytearray) -> None:
 
 def on_disconnect(client: BleakClient) -> None:
     print("Connection lost.")
-    stop_event.set()
+    global connection_lost_event
+    if connection_lost_event:
+        connection_lost_event.set()
+    if stop_event:
+        stop_event.set()
 
 def match_service_uuid(device: BLEDevice, adv: AdvertisementData) -> bool:
     # print(list(adv.service_uuids) + list(adv.manufacturer_data.items()))
@@ -159,8 +164,8 @@ else:
 class ScriptRequest(BaseModel):
     script: str
 
-async def main():
-
+async def connect_to_device():
+    """Connect to a LEGO device and return the client, or None if failed"""
     print(f"\nScanning for {SCAN_TIMEOUT} seconds, please wait...")
     device = await BleakScanner.find_device_by_filter(
         filterfunc=match_service_uuid, timeout=SCAN_TIMEOUT
@@ -170,7 +175,7 @@ async def main():
         print(
             "No hubs detected. Ensure that a hub is within range, turned on, and awaiting connection."
         )
-        sys.exit(1)
+        return None
 
     device = cast(BLEDevice, device)
     print(f"Hub detected! {device}")
@@ -178,8 +183,13 @@ async def main():
     print("Connecting...")
     global client, rx_char, tx_char, info_response
     client = BleakClient(device, disconnected_callback=on_disconnect)
-    await client.connect()
-    print("Connected!\n")
+    
+    try:
+        await client.connect()
+        print("Connected!\n")
+    except Exception as e:
+        print(f"Failed to connect: {e}")
+        return None
 
     service = client.services.get_service(SERVICE)
 
@@ -192,23 +202,27 @@ async def main():
     # first message should always be an info request
     # as the response contains important information about the hub
     # and how to communicate with it
-    info_response = await send_request(InfoRequest(), InfoResponse)
+    try:
+        info_response = await send_request(InfoRequest(), InfoResponse)
 
-    # enable device notifications
-    notification_response = await send_request(
-        DeviceNotificationRequest(DEVICE_NOTIFICATION_INTERVAL_MS),
-        DeviceNotificationResponse,
-    )
-    if not notification_response.success:
-        print("Error: failed to enable notifications")
-        sys.exit(1)
-    
-    print("p1")
-
-    # await runprogram()
-    # await runprogram()
-    
-    # await client.disconnect()
+        # enable device notifications
+        notification_response = await send_request(
+            DeviceNotificationRequest(DEVICE_NOTIFICATION_INTERVAL_MS),
+            DeviceNotificationResponse,
+        )
+        if not notification_response.success:
+            print("Error: failed to enable notifications")
+            return None
+            
+        return client
+        
+    except Exception as e:
+        print(f"Failed to initialize device communication: {e}")
+        try:
+            await client.disconnect()
+        except:
+            pass
+        return None
 
 
 async def runProgram(programScript: str = PROGRAM_TO_UPLOAD):
@@ -255,3 +269,117 @@ async def runProgram(programScript: str = PROGRAM_TO_UPLOAD):
         sys.exit(1)
     
     await stop_event.wait()
+
+    
+def is_connected():
+    """Check if there's an active connection to a LEGO device"""
+    global client
+    return client is not None and client.is_connected
+
+
+async def wait_for_connection(timeout: float = 30.0):
+    """Wait for a connection to be established, with timeout"""
+    start_time = asyncio.get_event_loop().time()
+    
+    while not is_connected():
+        if asyncio.get_event_loop().time() - start_time > timeout:
+            return False
+        await asyncio.sleep(0.5)
+    
+    return True
+
+
+async def run_program_with_auto_reconnect(programScript: str = PROGRAM_TO_UPLOAD, max_retries: int = 3):
+    """Run a program with automatic reconnection if the device disconnects"""
+    global client, connection_lost_event
+    
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            # Ensure we have a connection
+            if not client or not client.is_connected:
+                print("No active connection. Attempting to connect...")
+                connected_client = await connect_to_device()
+                if connected_client is None:
+                    retry_count += 1
+                    print(f"Connection failed. Retry {retry_count}/{max_retries}")
+                    if retry_count < max_retries:
+                        await asyncio.sleep(5)
+                    continue
+                    
+            # Try to run the program
+            await runProgram(programScript)
+            print("Program completed successfully!")
+            return True
+            
+        except Exception as e:
+            print(f"Error running program: {e}")
+            retry_count += 1
+            if retry_count < max_retries:
+                print(f"Retrying... {retry_count}/{max_retries}")
+                await asyncio.sleep(3)
+            
+    print(f"Failed to run program after {max_retries} attempts")
+    return False
+
+
+async def main_with_continuous_connection():
+    """Main function that continuously tries to connect and reconnect to devices"""
+    global connection_lost_event, client
+    
+    while True:
+        print("=" * 50)
+        print("Attempting to connect to LEGO device...")
+        
+        # Try to connect to a device
+        connected_client = await connect_to_device()
+        
+        if connected_client is None:
+            print("Failed to connect. Retrying in 5 seconds...")
+            await asyncio.sleep(5)
+            continue
+            
+        print("Successfully connected! Device is ready.")
+        
+        # Set up connection lost event for this connection
+        connection_lost_event = asyncio.Event()
+        
+        try:
+            # Wait for disconnection
+            await connection_lost_event.wait()
+            print("Device disconnected. Attempting to reconnect...")
+            
+        except KeyboardInterrupt:
+            print("\nShutting down...")
+            break
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            
+        finally:
+            # Clean up the connection
+            if client and client.is_connected:
+                try:
+                    await client.disconnect()
+                except:
+                    pass
+            
+        # Wait a bit before trying to reconnect
+        print("Waiting 3 seconds before reconnection attempt...")
+        await asyncio.sleep(3)
+
+async def main():
+    """Legacy main function for backward compatibility"""
+    connected_client = await connect_to_device()
+    if connected_client is None:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main_with_continuous_connection())
+    except KeyboardInterrupt:
+        print("\nProgram interrupted by user")
+    except Exception as e:
+        print(f"Program error: {e}")
+    finally:
+        print("Program ended")
