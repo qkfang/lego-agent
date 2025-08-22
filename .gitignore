@@ -52,7 +52,7 @@ env.bak/
 venv.bak/
 
 # VS Code
-.vscode/
+# .vscode/
 
 # Node.js / TypeScript
 node_modules/
