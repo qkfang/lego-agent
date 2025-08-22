@@ -12,6 +12,48 @@ import type {
   RobotSettingParams 
 } from "./types.js";
 
+// Reusable error handling utility
+function createErrorResponse(error: unknown): McpResponse {
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text: `Error running command: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      },
+    ],
+  };
+}
+
+// Reusable success response utility
+function createSuccessResponse(message: string): McpResponse {
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text: message,
+      },
+    ],
+  };
+}
+
+// Wrapper function for safe execution with error handling
+async function safeExecute<T>(
+  operation: () => Promise<T> | T,
+  successMessage: string | ((result: T) => string)
+): Promise<McpResponse> {
+  try {
+    const result = await operation();
+    const message = typeof successMessage === 'function' 
+      ? successMessage(result) 
+      : successMessage;
+    return createSuccessResponse(message);
+  } catch (error) {
+    return createErrorResponse(error);
+  }
+}
+
 export function registerRobotTools(mcp: McpServer): void {
   // Robot Settings
   mcp.tool(
@@ -21,51 +63,22 @@ export function registerRobotTools(mcp: McpServer): void {
       mode: z.string().describe("running mode of the robot: test or mock or live."),
     },
     async (param: RobotSettingParams): Promise<McpResponse> => {
-      try {
-        if (param.mode === "test") {
-          setTestMode(true);
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: "Robot is set to test mode. No actual robot actions will be performed.",
-              },
-            ],
-          };
-        } else if (param.mode === "mock") {
-          setMockMode(true);
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: "Robot is set to mock mode. No actual robot actions will be performed.",
-              },
-            ],
-          };
-        } else {
-          setTestMode(false);
-          setMockMode(false);
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: "Robot is set to live mode. Actual robot actions will be performed.",
-              },
-            ],
-          };
-        }
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error running command: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-            },
-          ],
-        };
-      }
+      return safeExecute(
+        () => {
+          if (param.mode === "test") {
+            setTestMode(true);
+            return "Robot is set to test mode. No actual robot actions will be performed.";
+          } else if (param.mode === "mock") {
+            setMockMode(true);
+            return "Robot is set to mock mode. No actual robot actions will be performed.";
+          } else {
+            setTestMode(false);
+            setMockMode(false);
+            return "Robot is set to live mode. Actual robot actions will be performed.";
+          }
+        },
+        (result) => result
+      );
     }
   );
 
@@ -75,29 +88,16 @@ export function registerRobotTools(mcp: McpServer): void {
     "Get all the available robots",
     {},
     async (): Promise<McpResponse> => {
-      try {
-        const robots: Robot[] = [
-          { robot_name: "robot k", robot_id: "robot_k" },
-          // { robot_name: "robot b", robot_id: "robot_b" }
-        ];
-        return {
-          content: [{
-            type: "text" as const,
-            text: robots.map(r => `${r.robot_name} (ID: ${r.robot_id})`).join('\n')
-          }]
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error running command: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-            },
-          ],
-        };
-      }
+      return safeExecute(
+        () => {
+          const robots: Robot[] = [
+            { robot_name: "robot k", robot_id: "robot_k" },
+            // { robot_name: "robot b", robot_id: "robot_b" }
+          ];
+          return robots.map(r => `${r.robot_name} (ID: ${r.robot_id})`).join('\n');
+        },
+        (result) => result
+      );
     }
   );
 
@@ -110,37 +110,27 @@ export function registerRobotTools(mcp: McpServer): void {
       distance: z.number().describe("distance in centimetre that the robot should move")
     },
     async (param: RobotMoveParams): Promise<McpResponse> => {
-      try {
-        let code = '';
-        if (!isTest) {
-          code = `
+      return safeExecute(
+        async () => {
+          let code = '';
+          if (!isTest) {
+            code = `
     await move(${param.distance}, Speed.Slow)
     print("done")
     sys.exit(0)
 `;
-        } else {
-          code = `
+          } else {
+            code = `
     await light_matrix.write("mv")
     print("done")
     sys.exit(0)
 `;
-        }
-        await runble(code);
-        return {
-          content: [{ type: "text" as const, text: `${param.robot_id} robot moved ${param.distance}cm` }],
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error running command: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-            },
-          ],
-        };
-      }
+          }
+          await runble(code);
+          return `${param.robot_id} robot moved ${param.distance}cm`;
+        },
+        (result) => result
+      );
     }
   );
 
@@ -153,37 +143,27 @@ export function registerRobotTools(mcp: McpServer): void {
       degree: z.number().describe("degree that the robot should turn")
     },
     async (param: RobotTurnParams): Promise<McpResponse> => {
-      try {
-        let code = '';
-        if (!isTest) {
-          code = `
+      return safeExecute(
+        async () => {
+          let code = '';
+          if (!isTest) {
+            code = `
     await turn(${param.degree}, Speed.Slow)
     print("done")
     sys.exit(0)
 `;
-        } else {
-          code = `
+          } else {
+            code = `
     await light_matrix.write("tr")
     print("done")
     sys.exit(0)
 `;
-        }
-        await runble(code);
-        return {
-          content: [{ type: "text" as const, text: `${param.robot_id} robot turned ${param.degree} degrees` }],
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error running command: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-            },
-          ],
-        };
-      }
+          }
+          await runble(code);
+          return `${param.robot_id} robot turned ${param.degree} degrees`;
+        },
+        (result) => result
+      );
     }
   );
 
@@ -195,37 +175,27 @@ export function registerRobotTools(mcp: McpServer): void {
       robot_id: z.string().describe("robot_id that should perform the action")
     },
     async (param: RobotBeepParams): Promise<McpResponse> => {
-      try {
-        let code = '';
-        if (!isTest) {
-          code = `
+      return safeExecute(
+        async () => {
+          let code = '';
+          if (!isTest) {
+            code = `
     await sound.beep(880, 200, 100)
     print("done")
     sys.exit(0)
 `;
-        } else {
-          code = `
+          } else {
+            code = `
     await light_matrix.write("bp")
     print("done")
     sys.exit(0)
 `;
-        }
-        await runble(code);
-        return {
-          content: [{ type: "text" as const, text: `${param.robot_id} robot beeped` }],
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error running command: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-            },
-          ],
-        };
-      }
+          }
+          await runble(code);
+          return `${param.robot_id} robot beeped`;
+        },
+        (result) => result
+      );
     }
   );
 
@@ -238,38 +208,28 @@ export function registerRobotTools(mcp: McpServer): void {
       openOrClose: z.string().describe("openOrClose, 1=open, 0=close")
     },
     async (param: RobotArmParams): Promise<McpResponse> => {
-      try {
-        const openClose = param.openOrClose === "1" ? -100 : 100;
-        let code = '';
-        if (!isTest) {
-          code = `
+      return safeExecute(
+        async () => {
+          const openClose = param.openOrClose === "1" ? -100 : 100;
+          let code = '';
+          if (!isTest) {
+            code = `
     await rotateTop(${openClose}, Speed.Slow)
     print("done")
     sys.exit(0)
 `;
-        } else {
-          code = `
+          } else {
+            code = `
     await light_matrix.write("rt")
     print("done")
     sys.exit(0)
 `;
-        }
-        await runble(code);
-        return {
-          content: [{ type: "text" as const, text: `${param.robot_id} robot arm ${param.openOrClose === "1" ? "opened" : "closed"}` }],
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error running command: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-            },
-          ],
-        };
-      }
+          }
+          await runble(code);
+          return `${param.robot_id} robot arm ${param.openOrClose === "1" ? "opened" : "closed"}`;
+        },
+        (result) => result
+      );
     }
   );
 
@@ -282,37 +242,27 @@ export function registerRobotTools(mcp: McpServer): void {
       command: z.string().describe("command name that the robot should perform")
     },
     async (param: RobotActionParams): Promise<McpResponse> => {
-      try {
-        let code = '';
-        if (!isTest) {
-          code = `
+      return safeExecute(
+        async () => {
+          let code = '';
+          if (!isTest) {
+            code = `
     ${param.command}
     print("done")
     sys.exit(0)
 `;
-        } else {
-          code = `
+          } else {
+            code = `
     await light_matrix.write("act")
     print("done")
     sys.exit(0)
 `;
-        }
-        await runble(code);
-        return {
-          content: [{ type: "text" as const, text: `${param.robot_id} robot executed: ${param.command}` }],
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error running command: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-            },
-          ],
-        };
-      }
+          }
+          await runble(code);
+          return `${param.robot_id} robot executed: ${param.command}`;
+        },
+        (result) => result
+      );
     }
   );
 }
