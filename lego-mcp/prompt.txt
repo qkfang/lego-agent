@@ -11,6 +11,5 @@ open arm and close
 
 move forward 30cm, turn left, open arm, turn around and move forward 30cm, finally close arm
 
-buzz
+say gday, beep, turn around, and open/close arm, 
 
-say
