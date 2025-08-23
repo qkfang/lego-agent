@@ -38,6 +38,11 @@ export interface RobotActionParams {
   command: string;
 }
 
+export interface RobotTalkParams {
+  robot_id: string;
+  sentence: string;
+}
+
 export interface RobotSettingParams {
   mode: string;
 }

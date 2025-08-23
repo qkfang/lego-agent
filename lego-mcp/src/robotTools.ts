@@ -9,6 +9,7 @@ import type {
   RobotBeepParams, 
   RobotArmParams, 
   RobotActionParams, 
+  RobotTalkParams, 
   RobotSettingParams 
 } from "./types.js";
 
@@ -91,7 +92,7 @@ export function registerRobotTools(mcp: McpServer): void {
       return safeExecute(
         () => {
           const robots: Robot[] = [
-            { robot_name: "robot k", robot_id: "robot_k" },
+            { robot_name: "Agent K", robot_id: "Robot_K" },
             // { robot_name: "robot b", robot_id: "robot_b" }
           ];
           return robots.map(r => `${r.robot_name} (ID: ${r.robot_id})`).join('\n');
@@ -180,7 +181,7 @@ export function registerRobotTools(mcp: McpServer): void {
           let code = '';
           if (!isTest) {
             code = `
-    await sound.beep(880, 200, 100)
+    buzz()
     print("done")
     sys.exit(0)
 `;
@@ -232,7 +233,7 @@ export function registerRobotTools(mcp: McpServer): void {
       );
     }
   );
-
+  
   // Robot Action
   mcp.tool(
     "robot_action",
@@ -260,6 +261,39 @@ export function registerRobotTools(mcp: McpServer): void {
           }
           await runble(code);
           return `${param.robot_id} robot executed: ${param.command}`;
+        },
+        (result) => result
+      );
+    }
+  );
+
+  // Robot Talk
+  mcp.tool(
+    "robot_talk",
+    "Make robot talk by displaying a text on screen",
+    {
+      robot_id: z.string().describe("robot_id that should perform the action"),
+      sentence: z.string().describe("sentence that the robot would like to say or display or express")
+    },
+    async (param: RobotTalkParams): Promise<McpResponse> => {
+      return safeExecute(
+        async () => {
+          let code = '';
+          if (!isTest) {
+            code = `
+    await light_matrix.write(${param.sentence})
+    print("done")
+    sys.exit(0)
+`;
+          } else {
+            code = `
+    await light_matrix.write("com")
+    print("done")
+    sys.exit(0)
+`;
+          }
+          await runble(code);
+          return `${param.robot_id} robot executed: ${param.sentence}`;
         },
         (result) => result
       );

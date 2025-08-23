@@ -1,0 +1,16 @@
+
+which robots are online?
+
+move forward 30 cm
+
+make 3 beeps
+
+turn left 90 degrees
+
+open arm and close
+
+move forward 30cm, turn left, open arm, turn around and move forward 30cm, finally close arm
+
+buzz
+
+say
