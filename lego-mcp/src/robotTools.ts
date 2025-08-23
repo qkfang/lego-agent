@@ -181,7 +181,7 @@ export function registerRobotTools(mcp: McpServer): void {
           let code = '';
           if (!isTest) {
             code = `
-    buzz()
+    await buzz()
     print("done")
     sys.exit(0)
 `;
@@ -279,9 +279,10 @@ export function registerRobotTools(mcp: McpServer): void {
       return safeExecute(
         async () => {
           let code = '';
+          let word = param.sentence.replace(/'/g,'');
           if (!isTest) {
             code = `
-    await light_matrix.write(${param.sentence})
+    await light_matrix.write('${word}')
     print("done")
     sys.exit(0)
 `;

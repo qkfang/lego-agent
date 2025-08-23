@@ -8,6 +8,7 @@ import sys
 import time
 from hub import port, motion_sensor
 from hub import light_matrix
+from hub import sound
 
 
 ################### modify code below
@@ -542,8 +543,8 @@ async def timerEnd():
     return math.ceil(diff / 1000)
 
 
-def buzz():
-    sound.beep(880, 200, 100)
+async def buzz():
+    await sound.beep(880, 200, 100)
 
 
 ### setting
