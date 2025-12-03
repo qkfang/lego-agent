@@ -95,24 +95,3 @@ pre {
     transform: translateY(-10px);
   }
 }
-
-@keyframes colorShift {
-  0% {
-    filter: hue-rotate(0deg);
-  }
-  50% {
-    filter: hue-rotate(20deg);
-  }
-  100% {
-    filter: hue-rotate(0deg);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
