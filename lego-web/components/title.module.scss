@@ -92,9 +92,9 @@
 }
 
 .userIcon {
-  background-color: $color-zinc-100;
+  background: linear-gradient(135deg, $color-lego-yellow 0%, $color-lego-orange 100%);
   color: $color-zinc-800;
-  border: solid 1px $color-zinc-300;
+  border: solid 2px $color-lego-blue;
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -105,4 +105,14 @@
   cursor: pointer;
   user-select: none;
   margin-right: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(255, 213, 0, 0.4);
+
+  &:hover {
+    background: linear-gradient(135deg, $color-lego-blue 0%, $color-lego-purple 100%);
+    color: $color-zinc-50;
+    border-color: $color-lego-yellow;
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 5px 12px rgba(0, 85, 191, 0.6);
+  }
 }

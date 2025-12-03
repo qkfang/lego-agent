@@ -65,12 +65,14 @@
   bottom: 115px;
   box-shadow: 0 8px 25px rgba(0, 85, 191, 0.5);
   transition: all 0.3s ease;
+  animation: float 3s ease-in-out infinite;
 
   &:hover {
     background: linear-gradient(135deg, $color-lego-blue-light 0%, $color-lego-purple-light 100%);
     border-color: $color-lego-yellow;
     transform: scale(1.1);
     box-shadow: 0 12px 35px rgba(255, 213, 0, 0.7);
+    animation: none;
   }
 }
 
