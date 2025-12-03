@@ -1,9 +1,9 @@
 @use "../app/defaults.scss" as *;
 
 .button {
-  background-color: $color-zinc-50;
+  background: linear-gradient(135deg, $color-lego-yellow 0%, $color-lego-orange 100%);
   color: $color-zinc-800;
-  border: solid 3px $color-zinc-100;
+  border: solid 3px $color-zinc-50;
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -13,9 +13,14 @@
   align-items: center;
   cursor: pointer;
   user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(255, 213, 0, 0.4);
 }
 
 .button:hover {
-  background-color: $color-zinc-300;
-  border-color: $color-zinc-600;
+  background: linear-gradient(135deg, $color-lego-blue 0%, $color-lego-purple 100%);
+  color: $color-zinc-50;
+  border-color: $color-lego-yellow;
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 5px 12px rgba(0, 85, 191, 0.6);
 }

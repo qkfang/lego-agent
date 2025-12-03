@@ -1,3 +1,5 @@
+@use "../defaults.scss" as *;
+
 .landing {
   display: flex;
   flex-direction: column;
@@ -22,11 +24,16 @@
     right: 0;
     bottom: 0;
     background-image: url('/images/background.png');
-    background-color: rgba(39, 39, 42, 0.75);
+    background: linear-gradient(135deg, 
+      rgba(0, 85, 191, 0.3) 0%,    /* LEGO blue */
+      rgba(255, 213, 0, 0.2) 25%,   /* LEGO yellow */
+      rgba(217, 44, 44, 0.2) 50%,   /* LEGO red */
+      rgba(0, 166, 81, 0.2) 75%,    /* LEGO green */
+      rgba(155, 95, 184, 0.3) 100%  /* LEGO purple */
+    ), url('/images/background.png');
     background-position: top left;
     background-repeat: no-repeat;
     background-size: cover;
-    background-blend-mode: darken;
     z-index: -1;
   }
 }
@@ -45,12 +52,28 @@
     margin-bottom: 1.5rem;
     line-height: 1.2;
     color: white;
+    text-shadow: 
+      3px 3px 0 $color-lego-blue,
+      -1px -1px 0 $color-lego-red,
+      2px 2px 10px rgba(0, 0, 0, 0.5);
+    animation: titlePulse 3s ease-in-out infinite;
   }
 
   p {
     font-size: 1.25rem;
     line-height: 1.5;
-    opacity: 0.9;
+    color: $color-lego-yellow;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  }
+}
+
+@keyframes titlePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
   }
 }
 
@@ -60,15 +83,26 @@
   left: 50%;
   transform: translateX(-50%);
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 0 20px rgba(255, 213, 0, 0.6));
+  animation: micGlow 2s ease-in-out infinite;
 
   &:hover {
-    transform: translateX(-50%) scale(1.05);
+    transform: translateX(-50%) scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 30px rgba(33, 150, 243, 0.8));
+  }
+}
+
+@keyframes micGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px rgba(255, 213, 0, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(217, 44, 44, 0.8));
   }
 }
 
 .micIcon {
   width: 142px;
   height: 142px;
-  filter: drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.1));
 }

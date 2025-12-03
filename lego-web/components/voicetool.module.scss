@@ -11,9 +11,9 @@
 }
 
 .button {
-  background-color: $color-zinc-50;
+  background: linear-gradient(135deg, $color-lego-yellow 0%, $color-lego-orange 100%);
   color: $color-zinc-800;
-  border: solid 8px $color-zinc-300;
+  border: solid 8px $color-zinc-50;
   border-radius: 50%;
   width: 6rem;
   height: 6rem;
@@ -26,10 +26,14 @@
   z-index: 100;
   position: absolute;
   bottom: 56px;
+  box-shadow: 0 8px 25px rgba(255, 213, 0, 0.5);
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: $color-zinc-300;
-    border-color: $color-zinc-600;
+    background: linear-gradient(135deg, $color-lego-orange 0%, $color-lego-red 100%);
+    border-color: $color-lego-blue-light;
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 12px 35px rgba(33, 150, 243, 0.7);
   }
 }
 
@@ -44,45 +48,8 @@
 }
 
 .idle {
-  background-color: $color-zinc-50;
-  color: $color-zinc-800;
-  border: solid 8px $color-zinc-300;
-  border-radius: 50%;
-  width: 6rem;
-  height: 6rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  z-index: 100;
-  position: absolute;
-  bottom: 115px;
-
-  &:hover {
-    background-color: $color-zinc-300;
-    border-color: $color-zinc-600;
-  }
-}
-
-@keyframes blink {
-  0% {
-    fill: $color-zinc-800;
-  }
-
-  50% {
-    fill: $color-zinc-600;
-  }
-
-  100% {
-    fill: $color-zinc-800;
-  }
-}
-
-.call {
-  background-color: $color-orange-200;
-  color: $color-zinc-800;
+  background: linear-gradient(135deg, $color-lego-blue 0%, $color-lego-purple 100%);
+  color: $color-zinc-50;
   border: solid 8px $color-zinc-50;
   border-radius: 50%;
   width: 6rem;
@@ -96,17 +63,70 @@
   z-index: 100;
   position: absolute;
   bottom: 115px;
-  
+  box-shadow: 0 8px 25px rgba(0, 85, 191, 0.5);
+  transition: all 0.3s ease;
 
+  &:hover {
+    background: linear-gradient(135deg, $color-lego-blue-light 0%, $color-lego-purple-light 100%);
+    border-color: $color-lego-yellow;
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(255, 213, 0, 0.7);
+  }
+}
+
+@keyframes blink {
+  0% {
+    fill: $color-lego-yellow;
+  }
+
+  50% {
+    fill: $color-lego-red;
+  }
+
+  100% {
+    fill: $color-lego-yellow;
+  }
+}
+
+.call {
+  background: linear-gradient(135deg, $color-lego-red 0%, $color-lego-orange 100%);
+  color: $color-zinc-50;
+  border: solid 8px $color-lego-yellow;
+  border-radius: 50%;
+  width: 6rem;
+  height: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  z-index: 100;
+  position: absolute;
+  bottom: 115px;
+  box-shadow: 0 8px 25px rgba(217, 44, 44, 0.7);
+  animation: callPulse 1.5s ease-in-out infinite;
+  
   & svg {
-   
-    fill: $color-zinc-50;
+    fill: $color-lego-yellow;
     animation: blink 2s linear infinite;
   }
 
-
   &:hover {
-    background-color: $color-zinc-300;
-    border-color: $color-zinc-50;
+    background: linear-gradient(135deg, $color-lego-red-dark 0%, $color-lego-orange-dark 100%);
+    border-color: $color-lego-blue-light;
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(33, 150, 243, 0.8);
+  }
+}
+
+@keyframes callPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 25px rgba(217, 44, 44, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(255, 213, 0, 0.9);
   }
 }

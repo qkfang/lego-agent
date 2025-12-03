@@ -362,9 +362,28 @@ export default function Home() {
             id="live-stream"
             src="http://192.168.0.50:5000/video_feed"
             alt="Live Stream"
-            style={{ width: '300px', height: '200px', margin:'5px', border: '2px solid #333' }}
+            style={{ 
+              width: '300px', 
+              height: '200px', 
+              margin:'5px', 
+              border: '3px solid #FFD500', 
+              borderRadius: '8px',
+              boxShadow: '0 4px 15px rgba(0, 85, 191, 0.4)',
+              transition: 'all 0.3s ease',
+              cursor: 'pointer'
+            }}
             crossOrigin="anonymous"
             onClick={() => setShowLiveStreamModal(true)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.border = '3px solid #2196F3';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 213, 0, 0.6)';
+              e.currentTarget.style.transform = 'scale(1.02)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.border = '3px solid #FFD500';
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 85, 191, 0.4)';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
           />
           {showLiveStreamModal && (
   <div
@@ -388,8 +407,9 @@ export default function Home() {
       style={{
         maxWidth: '90vw',
         maxHeight: '90vh',
-        border: '4px solid #fff',
-        boxShadow: '0 0 32px #000',
+        border: '4px solid #FFD500',
+        borderRadius: '8px',
+        boxShadow: '0 0 40px rgba(0, 85, 191, 0.8)',
         background: '#222',
       }}
       crossOrigin="anonymous"
@@ -400,14 +420,33 @@ export default function Home() {
         position: 'absolute',
         top: 24,
         right: 32,
-        fontSize: 32,
-        color: '#fff',
-        background: 'transparent',
-        border: 'none',
+        fontSize: 42,
+        fontWeight: 'bold',
+        color: '#FFD500',
+        background: 'linear-gradient(135deg, rgba(217, 44, 44, 0.9), rgba(255, 140, 0, 0.9))',
+        border: '3px solid #FFD500',
+        borderRadius: '50%',
+        width: '56px',
+        height: '56px',
         cursor: 'pointer',
         zIndex: 10000,
+        transition: 'all 0.3s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 4px 15px rgba(255, 213, 0, 0.5)',
       }}
       onClick={() => setShowLiveStreamModal(false)}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0, 85, 191, 0.9), rgba(155, 95, 184, 0.9))';
+        e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
+        e.currentTarget.style.boxShadow = '0 6px 20px rgba(33, 150, 243, 0.7)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(217, 44, 44, 0.9), rgba(255, 140, 0, 0.9))';
+        e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
+        e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 213, 0, 0.5)';
+      }}
       aria-label="Close Fullscreen"
     >
       ×
@@ -419,7 +458,6 @@ export default function Home() {
               type="text"
               placeholder={"Send a message"}
               className={styles.textInput}
-              style={{ zIndex: 101, backgroundColor: '#0f0f0f', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}
               onKeyDown={handleInputKeyDown}
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}

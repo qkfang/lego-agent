@@ -15,9 +15,15 @@
   bottom: 0;
   right: 0;
   margin-bottom: 4rem;
-  background-color: white;
-  border: solid 1px $color-zinc-300;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 240, 255, 0.95) 100%
+  );
+  backdrop-filter: blur(10px);
+  border: solid 2px $color-lego-blue;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 85, 191, 0.2),
+    0 2px 4px -1px rgba(255, 213, 0, 0.15),
+    0 0 20px rgba(0, 85, 191, 0.1);
 }

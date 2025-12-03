@@ -3,12 +3,24 @@
 
 
 .message {
-  border: solid 1px color.change($color-zinc-100, $alpha: 0.2);
+  border: solid 2px color.change($color-lego-blue, $alpha: 0.6);
   border-radius: 10px;
   color: $color-zinc-100;
-  background-color: white;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 250, 255, 0.95) 100%
+  );
+  backdrop-filter: blur(5px);
   padding: 10px;
   font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 85, 191, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $color-lego-yellow;
+    box-shadow: 0 6px 15px rgba(255, 213, 0, 0.3);
+    transform: translateY(-2px);
+  }
 
   & h1,
   h2,
@@ -39,7 +51,7 @@
 
   & strong {
     font-weight: 400;
-    color: $color-orange-300;
+    color: $color-lego-orange;
   }
 
   & h1,
@@ -67,5 +79,9 @@
 
 .user {
   margin-left: 25px;
-  background-color:burlywood;
+  background: linear-gradient(135deg, 
+    rgba(255, 213, 0, 0.3) 0%,
+    rgba(255, 140, 0, 0.3) 100%
+  );
+  border-color: $color-lego-yellow;
 }
