@@ -173,8 +173,12 @@ class ObjectDetector:
                 
                 # If robot, shift y and center_y up by 100px (not less than 0)
                 if name.lower() == 'robot':
-                    center_y = center_y + 50
-                    y = y + 50
+                    center_y = center_y + 10
+                    y = y + 10
+
+                if name.lower() == 'bowser':
+                    center_x = center_x - 15
+                    x = x - 15
 
                 # Calculate orientation (angle of the major axis)
                 if len(contour) >= 5:
@@ -471,22 +475,56 @@ class ObjectDetector:
             analysis['error'] = "No object named 'robot' found for distance calculation."
             return analysis
         
-        # For each robot, calculate distance to all other objects
-        for robot_idx in robot_indices:
-            robot_obj = self.detected_objects[robot_idx]
-            for j, obj in enumerate(self.detected_objects):
-                if j == robot_idx:
-                    continue
-                distance = self.calculate_distance(robot_obj, obj, pixels_per_unit)
-                distance_info = {
-                    'robot': robot_obj['name'],
-                    'object': obj['name'],
-                    'distance_pixels': distance * pixels_per_unit,
-                    'distance_units': distance,
-                    'robot_position': robot_obj['coordinates_2d'],
-                    'object_position': obj['coordinates_2d']
-                }
-                analysis['distances'].append(distance_info)
+        # Calculate specific distances: robot-coke, robot-bowser, coke-bowser
+        robot_obj = None
+        coke_obj = None
+        bowser_obj = None
+        
+        # Find the specific objects
+        for obj in self.detected_objects:
+            if obj['name'].lower() == 'robot':
+                robot_obj = obj
+            elif obj['name'].lower() == 'coke':
+                coke_obj = obj
+            elif obj['name'].lower() == 'bowser':
+                bowser_obj = obj
+        
+        # Calculate distances between the three specific objects
+        if robot_obj and coke_obj:
+            distance = self.calculate_distance(robot_obj, coke_obj, pixels_per_unit)
+            distance_info = {
+                'from': robot_obj['name'],
+                'to': coke_obj['name'],
+                'distance_pixels': distance * pixels_per_unit,
+                'distance_units': distance,
+                'from_position': robot_obj['coordinates_2d'],
+                'to_position': coke_obj['coordinates_2d']
+            }
+            analysis['distances'].append(distance_info)
+        
+        if robot_obj and bowser_obj:
+            distance = self.calculate_distance(robot_obj, bowser_obj, pixels_per_unit)
+            distance_info = {
+                'from': robot_obj['name'],
+                'to': bowser_obj['name'],
+                'distance_pixels': distance * pixels_per_unit,
+                'distance_units': distance,
+                'from_position': robot_obj['coordinates_2d'],
+                'to_position': bowser_obj['coordinates_2d']
+            }
+            analysis['distances'].append(distance_info)
+        
+        if coke_obj and bowser_obj:
+            distance = self.calculate_distance(coke_obj, bowser_obj, pixels_per_unit)
+            distance_info = {
+                'from': coke_obj['name'],
+                'to': bowser_obj['name'],
+                'distance_pixels': distance * pixels_per_unit,
+                'distance_units': distance,
+                'from_position': coke_obj['coordinates_2d'],
+                'to_position': bowser_obj['coordinates_2d']
+            }
+            analysis['distances'].append(distance_info)
         
         return analysis
     
@@ -611,11 +649,11 @@ def create_sample_color_ranges():
         },
         {
             'name': 'bowser',  # Yellow-green colored objects (e.g., Bowser LEGO figures)
-            'lower': [24, 25, 45],      # Lower HSV for yellow-green
-            'upper': [42, 200, 255]     # Upper HSV for yellow-green
+            'lower': [24, 50, 50],      # Lower HSV for yellow-green
+            'upper': [42, 255, 255]     # Upper HSV for yellow-green
             # Hue 24-42 covers yellow to yellow-green range for Bowser figures
-            # Saturation 25-200 captures both muted and vibrant colors
-            # Value 45-255 includes various lighting conditions
+            # Saturation 50-255 captures both muted and vibrant colors
+            # Value 50-255 includes various lighting conditions
         }
     ]
 
@@ -691,7 +729,7 @@ def run(args):
         
         print(f"\nDistances:")
         for dist in analysis['distances']:
-            print(f"  - {dist['robot']} to {dist['object']}: {dist['distance_units']:.2f} units")
+            print(f"  - {dist['from']} to {dist['to']}: {dist['distance_units']:.2f} units")
     
     # Save results to JSON if requested
     if args.output:

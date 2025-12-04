@@ -108,7 +108,7 @@ export function registerRobotTools(mcp: McpServer): void {
     "Move robot forward or backward. positive value in centimetre means forward, negative value in centimetre means backward. no decimal value is allowed.",
     {
       robot_id: z.string().describe("robot_id that should perform the action"),
-      distance: z.number().describe("distance in centimetre that the robot should move")
+      distance_in_cm: z.number().describe("distance in centimetre that the robot should move")
     },
     async (param: RobotMoveParams): Promise<McpResponse> => {
       return safeExecute(
@@ -116,7 +116,7 @@ export function registerRobotTools(mcp: McpServer): void {
           let code = '';
           if (!isTest) {
             code = `
-    await move(${param.distance}, Speed.Slow)
+    await move(${param.distance_in_cm}, Speed.Slow)
     print("done")
     sys.exit(0)
 `;
@@ -128,7 +128,7 @@ export function registerRobotTools(mcp: McpServer): void {
 `;
           }
           await runble(code);
-          return `${param.robot_id} robot moved ${param.distance}cm`;
+          return `${param.robot_id} robot moved ${param.distance_in_cm} cm`;
         },
         (result) => result
       );

@@ -39,7 +39,7 @@ describe the current field. blue object is robot, red object is goal.
     fielddata = shared.robotData.step1_analyze_json_data()
     controlldata = await legoPlannerAgent.exec(
 '''
-move robot forward to the red object and stop.
+move robot forward to the coke, and grab it.
 ''' + fielddata
     )
     

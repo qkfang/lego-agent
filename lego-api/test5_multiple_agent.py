@@ -22,7 +22,7 @@ async def main():
     legoAgent = LegoAgent()
 
     await legoAgent.init()
-    await legoAgent.robot_agent_run('robot to grab red object and go home')
+    await legoAgent.robot_agent_run('grab bowser a coke and go back.')
     
     await shared.mcprobot.close()
 

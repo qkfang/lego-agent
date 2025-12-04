@@ -16,7 +16,7 @@ export interface McpResponse {
 
 export interface RobotMoveParams {
   robot_id: string;
-  distance: number;
+  distance_in_cm: number;
 }
 
 export interface RobotTurnParams {
