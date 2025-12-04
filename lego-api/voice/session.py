@@ -125,6 +125,7 @@ class RealtimeSession:
                 turn_detection=vad,
                 input_audio_transcription=SessionInputAudioTranscription(
                     model=transcription_model,
+                    language="en",
                 ),
                 voice=voice,
                 instructions=instructions,

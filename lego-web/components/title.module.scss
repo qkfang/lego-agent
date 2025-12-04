@@ -99,7 +99,9 @@
 .name {
   font-weight: 600;
   text-align: right;
-  color: $color-zinc-100;
+  color: #f3451c;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.1);
 }
 
 .email {
