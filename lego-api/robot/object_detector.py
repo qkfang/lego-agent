@@ -523,6 +523,11 @@ def create_sample_color_ranges():
     These ranges are designed to be flexible enough to handle various lighting
     conditions and camera settings while being specific enough to avoid
     false positives from background objects.
+    
+    Note: Red color requires two separate ranges because red wraps around
+    the HSV hue scale (appears at both 0 and 180 degrees). Both ranges use
+    the same 'name' value and are processed as separate detection passes,
+    which allows detection of red objects with varying hue values.
     """
     return [
         {

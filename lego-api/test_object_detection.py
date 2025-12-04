@@ -38,8 +38,10 @@ def test_color_ranges():
 
 def test_detection_on_sample_image():
     """Test object detection on a sample image"""
-    # Use a test image from the testdata directory
-    test_image = "/home/runner/work/lego-agent/lego-agent/testdata/raw/20250603_135447.jpg"
+    # Use a test image from the testdata directory (relative to repository root)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(script_dir)  # Go up one level from lego-api
+    test_image = os.path.join(repo_root, "testdata", "raw", "20250603_135447.jpg")
     
     if not os.path.exists(test_image):
         print(f"⚠ Warning: Test image not found at {test_image}, skipping detection test")
