@@ -36,10 +36,12 @@
 }
 
 .agentName {
-  color: color.change($color-orange-300, $alpha: 0.75);
+  color: $color-lego-orange;
+  font-weight: 600;
 }
 
 .tool {
-  color: color.change($color-orange-300, $alpha: 0.75);
+  color: $color-lego-blue-light;
   font-size: 0.75rem;
+  font-weight: 600;
 }

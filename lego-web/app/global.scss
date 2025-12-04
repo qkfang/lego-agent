@@ -44,28 +44,32 @@ p {
   border-radius: 0.375rem;
   border-width: 0px;
   border-style: solid;
-  outline: 2px solid $color-zinc-300;
+  outline: 2px solid $color-lego-blue;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: $color-zinc-200;
+  background: linear-gradient(135deg, $color-lego-blue 0%, $color-lego-purple 100%);
   cursor: pointer;
   user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 85, 191, 0.3);
 }
 
 .button:hover {
-  outline: 2px solid $color-sky-600;
-  background-color: $color-sky-200;
+  outline: 2px solid $color-lego-yellow;
+  background: linear-gradient(135deg, $color-lego-blue-light 0%, $color-lego-purple-light 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 213, 0, 0.5);
 }
 
 .buttonIcon {
   width: 24px;
   height: 24px;
-  stroke: $color-sky-800;
+  stroke: $color-lego-yellow;
 }
 
 .buttonIcon:hover {
-  stroke: $color-sky-600;
+  stroke: $color-lego-orange;
 }
 
 
@@ -80,4 +84,14 @@ pre {
   height: 100%;
   white-space: pre-wrap; /* CSS3 */
   word-wrap: break-word; /* IE 5.5+ */
+}
+
+// Fun LEGO-inspired animations
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }

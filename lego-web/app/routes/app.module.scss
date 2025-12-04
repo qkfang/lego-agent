@@ -4,12 +4,16 @@
 .home {
   width: 100wv;
   height: 100vh;
-  background-image: url('/images/background.png');
-  background-color: color.change($color-zinc-800, $alpha: 0.75);
+  background: linear-gradient(135deg, 
+    rgba(0, 85, 191, 0.15) 0%,    /* LEGO blue */
+    rgba(255, 213, 0, 0.1) 25%,   /* LEGO yellow */
+    rgba(217, 44, 44, 0.1) 50%,   /* LEGO red */
+    rgba(0, 166, 81, 0.1) 75%,    /* LEGO green */
+    rgba(155, 95, 184, 0.15) 100%  /* LEGO purple */
+  ), url('/images/background.png');
   background-position: top left;
   background-repeat: no-repeat;
   background-size: cover;
-  background-blend-mode: darken;
 }
 
 .scratch {
@@ -69,20 +73,32 @@
   display: block;
   padding: 0.5rem;
   border-radius: 0.375rem;
-  border: 0px;
+  border: 2px solid $color-lego-blue;
   color: $color-zinc-50;
-  //border: solid 1px color.change($color-zinc-100, $alpha: 0.2);
-  outline: 2px solid color.change($color-zinc-100, $alpha: 0.2);
+  outline: 2px solid color.change($color-lego-yellow, $alpha: 0.4);
   font-size: large;
-  background-color: transparent;
+  background: linear-gradient(135deg, 
+    rgba(0, 85, 191, 0.2),
+    rgba(155, 95, 184, 0.2)
+  );
+  backdrop-filter: blur(10px);
   width: calc(100% - 32px);
   margin: 0px auto;
   margin-top: 16px;
   margin-bottom: 16px;
-  //transition: outline-color 0.2s ease-in-out;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 213, 0, 0.3);
+  z-index: 101;
 
   &::placeholder {
-    color: color.change($color-zinc-100, $alpha: 0.2);
+    color: color.change($color-lego-yellow, $alpha: 0.6);
+  }
+
+  &:focus {
+    outline: 2px solid $color-lego-yellow;
+    border-color: $color-lego-blue-light;
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.5);
+    transform: translateY(-2px);
   }
 }
 
@@ -93,22 +109,48 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  border: solid 1px $color-zinc-100;
+  border: solid 2px $color-lego-yellow;
   display: flex;
   justify-content: center;
   align-items: center;
   user-select: none;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(255, 213, 0, 0.3);
 }
 
 .muted {
-  background-color: $color-zinc-800;
-  border: solid 1px color.change($color-zinc-100, $alpha: 0.5);
-  color: $color-zinc-100;
+  background: linear-gradient(135deg, $color-zinc-700 0%, $color-zinc-800 100%);
+  border: solid 2px color.change($color-lego-blue, $alpha: 0.8);
+  color: $color-lego-blue-light;
+
+  &:hover {
+    background: linear-gradient(135deg, $color-zinc-600 0%, $color-zinc-700 100%);
+    border-color: $color-lego-yellow;
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(33, 150, 243, 0.5);
+  }
 }
 
 .unmuted {
-  background-color: $color-red-800;
-  border: solid 1px color.change($color-zinc-100, $alpha: 0.5);
+  background: linear-gradient(135deg, $color-lego-red 0%, $color-lego-red-dark 100%);
+  border: solid 2px $color-lego-yellow;
   color: $color-zinc-100;
+  animation: unmutedPulse 1.5s ease-in-out infinite;
+
+  &:hover {
+    background: linear-gradient(135deg, $color-lego-red-light 0%, $color-lego-red 100%);
+    border-color: $color-lego-orange;
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(217, 44, 44, 0.7);
+  }
+}
+
+@keyframes unmutedPulse {
+  0%, 100% {
+    box-shadow: 0 4px 10px rgba(217, 44, 44, 0.5);
+  }
+  50% {
+    box-shadow: 0 6px 15px rgba(255, 213, 0, 0.7);
+  }
 }
