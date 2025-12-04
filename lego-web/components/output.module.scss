@@ -13,4 +13,10 @@
 
 .item {
   cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    filter: brightness(1.05);
+    transform: scale(1.01);
+  }
 }

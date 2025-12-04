@@ -4,16 +4,16 @@
 
 .message {
   border: solid 2px color.change($color-lego-blue, $alpha: 0.6);
-  border-radius: 10px;
+  border-radius: 12px;
   color: $color-zinc-100;
   background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(240, 250, 255, 0.95) 100%
+    rgba(173, 216, 230, 0.25) 0%,
+    rgba(135, 206, 250, 0.25) 100%
   );
-  backdrop-filter: blur(5px);
-  padding: 10px;
+  backdrop-filter: blur(8px);
+  padding: 12px;
   font-size: 1rem;
-  box-shadow: 0 4px 10px rgba(0, 85, 191, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 85, 191, 0.15);
   transition: all 0.3s ease;
 
   &:hover {
@@ -32,11 +32,10 @@
   ol,
   ul,
   li {
-    // color: $color-zinc-100;
-    color: black;
+    color: #1a1a1a;
     font-family: $font-family-sans;
     font-weight: 300;
-    line-height: 1.25;
+    line-height: 1.35;
   }
 
   & h1,
@@ -45,13 +44,14 @@
   h4,
   h5,
   h6 {
-    //margin: 0 0 4px;
+    margin: 0 0 6px;
     font-weight: 600;
+    color: $color-lego-blue-dark;
   }
 
   & strong {
-    font-weight: 400;
-    color: $color-lego-orange;
+    font-weight: 500;
+    color: $color-lego-orange-dark;
   }
 
   & h1,
@@ -69,19 +69,55 @@
     text-indent: 0;
     padding-left: 0;
   }
+
+  & code {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: $color-lego-purple-dark;
+    border: 1px solid rgba(155, 95, 184, 0.2);
+  }
+
+  & pre {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 10px;
+    border-radius: 6px;
+    overflow-x: auto;
+    border: 1px solid rgba(0, 85, 191, 0.2);
+    
+    & code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      color: #2c3e50;
+    }
+  }
 }
 
 
 
 .assistant {
   margin-right: 25px;
+  background: linear-gradient(135deg, 
+    rgba(173, 216, 230, 0.25) 0%,
+    rgba(135, 206, 250, 0.25) 100%
+  );
+  border-color: $color-lego-blue;
 }
 
 .user {
   margin-left: 25px;
   background: linear-gradient(135deg, 
-    rgba(255, 213, 0, 0.3) 0%,
-    rgba(255, 140, 0, 0.3) 100%
+    rgba(255, 213, 0, 0.25) 0%,
+    rgba(255, 165, 0, 0.25) 100%
   );
-  border-color: $color-lego-yellow;
+  border-color: $color-lego-orange;
+  
+  &:hover {
+    border-color: $color-lego-orange-dark;
+    box-shadow: 0 6px 15px rgba(255, 140, 0, 0.3);
+  }
 }
