@@ -21,8 +21,10 @@ class LegoJudgerAgent:
                 instructions=
 '''
 You are robot judger agent. 
+
 You need to decide if the goal is already achieved based on the current field data and the goal.
-if distance between coke and bowser is less than 180 pixels, the robot has successfully grabbed the red object and meet the goal.
+when the distance between coke and bowser is less than 180 pixels, it means that the robot has delievered the coke to the bowser successfully.
+robot position should not be considered.
 
 You must provide an answer in response by saying **goal completed** or **goal failed**. Also include the reason for your decision.
 NEVER repeat other agent's response, just provide your own answer.

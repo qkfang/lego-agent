@@ -665,11 +665,11 @@ def create_sample_color_ranges():
         },
         {
             'name': 'bowser',  # Yellow-green colored objects (e.g., Bowser LEGO figures)
-            'lower': [0, 100, 100],     # Lower BGR for yellow-green
-            'upper': [100, 255, 255]    # Upper BGR for yellow-green
-            # Low blue channel (0-100)
-            # High green channel (100-255)
-            # High red channel (100-255) - yellow has both red and green
+            'lower': [0, 120, 120],     # Lower BGR for yellow-green
+            'upper': [80, 240, 240]    # Upper BGR for yellow-green
+            # Low blue channel (0-80)
+            # High green channel (120-240)
+            # High red channel (120-240) - yellow has both red and green
         }
     ]
 
