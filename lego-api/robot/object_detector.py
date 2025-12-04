@@ -142,8 +142,8 @@ class ObjectDetector:
             
             for contour in contours:
                 # Filter small contours with adaptive threshold based on image size
-                # Use a lower threshold to detect smaller objects
-                min_area = max(500, self.image_width * self.image_height * 0.0005)  # At least 0.05% of image
+                # Use a higher threshold to reduce false positives from small objects
+                min_area = max(1000, self.image_width * self.image_height * 0.001)  # At least 0.1% of image
                 area = cv2.contourArea(contour)
                 if area < min_area:
                     continue
@@ -532,34 +532,34 @@ def create_sample_color_ranges():
     return [
         {
             'name': 'robot',  # Blue colored robot with cyan/blue parts
-            'lower': [85, 60, 80],      # Lower HSV for blue range
-            'upper': [125, 255, 255]    # Upper HSV for blue range
-            # Hue 85-125 covers cyan to blue
-            # Saturation 60+ ensures we capture vibrant blues
-            # Value 80+ avoids very dark areas
+            'lower': [90, 120, 100],    # Lower HSV for blue range
+            'upper': [120, 255, 255]    # Upper HSV for blue range
+            # Hue 90-120 covers cyan to blue (tightened range)
+            # Saturation 120+ ensures we capture only vibrant blues
+            # Value 100+ avoids very dark areas
         },
         {
             'name': 'red',  # Red colored objects (e.g., Coca-Cola bottle)
-            'lower': [0, 100, 100],     # Lower HSV for red (low end)
-            'upper': [10, 255, 255]     # Upper HSV for red (low end)
+            'lower': [0, 120, 80],      # Lower HSV for red (low end)
+            'upper': [8, 255, 255]      # Upper HSV for red (low end)
             # Red wraps around in HSV, so we need two ranges
-            # This captures the low end (0-10)
-            # Higher saturation (100+) to avoid pink/orange backgrounds
+            # This captures the low end (0-8)
+            # Higher saturation (120+) to avoid pink/orange backgrounds
         },
         {
             'name': 'red',  # Red colored objects (high hue range)
-            'lower': [170, 100, 100],   # Lower HSV for red (high end)
+            'lower': [172, 120, 80],    # Lower HSV for red (high end)
             'upper': [180, 255, 255]    # Upper HSV for red (high end)
-            # This captures the high end (170-180)
+            # This captures the high end (172-180)
             # Together with the previous range, covers full red spectrum
         },
         {
             'name': 'yellow',  # Yellow/orange colored objects (e.g., Bowser figure)
-            'lower': [15, 80, 100],     # Lower HSV for yellow/orange
-            'upper': [35, 255, 255]     # Upper HSV for yellow/orange
-            # Hue 15-35 covers orange to yellow
-            # Saturation 80+ ensures vibrant colors
-            # Value 100+ avoids dark areas
+            'lower': [10, 140, 120],    # Lower HSV for yellow/orange
+            'upper': [25, 255, 255]     # Upper HSV for yellow/orange
+            # Hue 10-25 covers orange to yellow (narrowed to avoid brown)
+            # Saturation 140+ ensures very vibrant colors only
+            # Value 120+ avoids dark areas and brown tones
         }
     ]
 
