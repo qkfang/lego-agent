@@ -96,12 +96,13 @@
 
 .assistant {
   margin-right: 30px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .user {
   margin-left: 30px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(232, 170, 28, 0.8);
+  
   
   &:hover {
     box-shadow: 0 6px 15px rgba(255, 140, 0, 0.3);

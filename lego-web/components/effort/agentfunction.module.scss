@@ -4,10 +4,10 @@
 .function {
   font-weight: 200;
   font-size: 1rem;
-  color: $color-zinc-300;
+  color: $color-zinc-700;
   margin-top: 2px;
   margin-bottom: 2px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.4);
   padding: 1px;
   border-radius: 8px;
   transition: all 0.3s ease;
@@ -20,7 +20,7 @@
 
 .functionCall {
   font-weight: 400;
-  color: $color-zinc-700;
+  color: $color-zinc-900;
   font-size: 0.9rem;
   background: rgba(0, 0, 0, 0.05);
   padding: 6px 10px;
@@ -29,7 +29,7 @@
 
 .functionName {
   font-weight: 600;
-  color: $color-lego-green-light;
+  color: $color-lego-green-dark;
 }
 
 .functionArgs {

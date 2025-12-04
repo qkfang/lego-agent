@@ -4,13 +4,14 @@
 .agent {
   font-size: 0.95rem;
   color: $color-zinc-300;
-  background: rgba(255, 255, 255, 0.3);
-  padding: 3px;
+  // background: rgba(255, 255, 255, 0.5);
+  padding: 3px 4px;
   border-radius: 6px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
 
   &:hover {
+    background: rgba(255, 255, 255, 0.4);
     box-shadow: 0 4px 12px rgba(155, 95, 184, 0.2);
     transform: translateY(-1px);
   }
@@ -49,8 +50,11 @@
 }
 
 .agentName {
-  color: $color-zinc-800;
-  font-weight: 700;
+  color: $color-zinc-900;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
 }
 
 .tool {

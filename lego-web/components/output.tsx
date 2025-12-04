@@ -9,16 +9,16 @@ import OutputDisplay, { type OuptutDisplayHandle } from "./output/outputdisplay"
 
 import VideoImagePicker from "components/videoimagepicker";
 
-// LEGO-inspired pastel colors for treemap items
+// Balanced muted colors for treemap items
 const TREEMAP_COLORS = [
-  { r: 173, g: 216, b: 230 }, // Light blue
-  { r: 255, g: 228, b: 181 }, // Light peach
-  { r: 221, g: 160, b: 221 }, // Light plum
-  { r: 144, g: 238, b: 144 }, // Light green
-  { r: 255, g: 218, b: 185 }, // Light coral
-  { r: 176, g: 224, b: 230 }, // Powder blue
-  { r: 255, g: 239, b: 213 }, // Papaya whip
-  { r: 230, g: 230, b: 250 }, // Lavender
+  { r: 220, g: 220, b: 210 }, // Warm gray
+  { r: 210, g: 220, b: 235 }, // Cool blue-gray
+  { r: 235, g: 220, b: 220 }, // Warm pink-gray
+  { r: 220, g: 235, b: 220 }, // Soft green
+  { r: 235, g: 235, b: 210 }, // Pale yellow
+  { r: 225, g: 210, b: 235 }, // Soft lavender
+  { r: 210, g: 235, b: 225 }, // Mint green
+  { r: 235, g: 210, b: 225 }, // Dusty rose
 ];
 
 type Props = {
