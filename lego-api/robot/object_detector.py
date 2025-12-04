@@ -119,13 +119,18 @@ class ObjectDetector:
             
             # Apply morphological operations to reduce noise
             if use_preprocessing:
-                # Remove small noise
-                kernel = np.ones((30, 30), np.uint8)
+                # Remove small noise - adaptive kernel size based on image dimensions
+                # Use smaller kernel to preserve smaller objects
+                kernel_size = max(3, min(15, int(min(self.image_width, self.image_height) * 0.01)))
+                kernel = np.ones((kernel_size, kernel_size), np.uint8)
                 mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
                 # Fill holes
                 mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-                # Smooth edges
-                mask = cv2.medianBlur(mask, 5)
+                # Smooth edges with adaptive median blur
+                blur_size = max(3, min(7, kernel_size // 2))
+                if blur_size % 2 == 0:  # Ensure odd number for medianBlur
+                    blur_size += 1
+                mask = cv2.medianBlur(mask, blur_size)
 
             # Display the mask if requested
             # if display_mask:
@@ -136,8 +141,9 @@ class ObjectDetector:
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             
             for contour in contours:
-                # Filter small contours (adaptive threshold based on image size)
-                min_area = max(800, self.image_width * self.image_height * 0.001)  # At least 0.1% of image
+                # Filter small contours with adaptive threshold based on image size
+                # Use a higher threshold to reduce false positives from small objects
+                min_area = max(1000, self.image_width * self.image_height * 0.001)  # At least 0.1% of image
                 area = cv2.contourArea(contour)
                 if area < min_area:
                     continue
@@ -506,33 +512,55 @@ class ObjectDetector:
 
 
 def create_sample_color_ranges():
-    """Create sample color ranges for common objects."""
+    """
+    Create sample color ranges for common objects.
+    
+    Color ranges are defined in HSV color space:
+    - H (Hue): 0-180 in OpenCV (represents color type)
+    - S (Saturation): 0-255 (color intensity)
+    - V (Value): 0-255 (brightness)
+    
+    These ranges are designed to be flexible enough to handle various lighting
+    conditions and camera settings while being specific enough to avoid
+    false positives from background objects.
+    
+    Note: Red color requires two separate ranges because red wraps around
+    the HSV hue scale (appears at both 0 and 180 degrees). Both ranges use
+    the same 'name' value and are processed as separate detection passes,
+    which allows detection of red objects with varying hue values.
+    """
     return [
-        # {
-        #     'name': 'robot', # blue
-        #     'lower': [40, 200, 200],   # Lower HSV for #17EDF7 (cyan-blue)
-        #     'upper': [100, 255, 255]   # Upper HSV for #17EDF7 (cyan-blue)
-        # },
-        # {
-        #     'name': 'red',
-        #     'lower': [165, 150, 150],    # Lower HSV for #F5497B (pinkish-red)
-        #     'upper': [175, 255, 255]     # Upper HSV for #F5497B (pinkish-red)
-        # },
         {
-            'name': 'robot', # blue
-            'lower': [80, 50, 50],   # Lower HSV for blue (much wider range)
-            'upper': [130, 255, 255]   # Upper HSV for blue (much wider range)
+            'name': 'robot',  # Blue colored robot with cyan/blue parts
+            'lower': [90, 120, 100],    # Lower HSV for blue range
+            'upper': [120, 255, 255]    # Upper HSV for blue range
+            # Hue 90-120 covers cyan to blue (tightened range)
+            # Saturation 120+ ensures we capture only vibrant blues
+            # Value 100+ avoids very dark areas
         },
         {
-            'name': 'red',
-            'lower': [170, 70, 50],  # Lower HSV for red (high end)
-            'upper': [180, 255, 255] # Upper HSV for red (high end)
+            'name': 'red',  # Red colored objects (e.g., Coca-Cola bottle)
+            'lower': [0, 120, 80],      # Lower HSV for red (low end)
+            'upper': [8, 255, 255]      # Upper HSV for red (low end)
+            # Red wraps around in HSV, so we need two ranges
+            # This captures the low end (0-8)
+            # Higher saturation (120+) to avoid pink/orange backgrounds
         },
-        # {
-        #     'name': 'yellow',
-        #     'lower': [40, 50, 50],    # Lower HSV for yellow
-        #     'upper': [80, 255, 255]   # Upper HSV for yellow
-        # }
+        {
+            'name': 'red',  # Red colored objects (high hue range)
+            'lower': [172, 120, 80],    # Lower HSV for red (high end)
+            'upper': [180, 255, 255]    # Upper HSV for red (high end)
+            # This captures the high end (172-180)
+            # Together with the previous range, covers full red spectrum
+        },
+        {
+            'name': 'yellow',  # Yellow/orange colored objects (e.g., Bowser figure)
+            'lower': [10, 140, 120],    # Lower HSV for yellow/orange
+            'upper': [25, 255, 255]     # Upper HSV for yellow/orange
+            # Hue 10-25 covers orange to yellow (narrowed to avoid brown)
+            # Saturation 140+ ensures very vibrant colors only
+            # Value 120+ avoids dark areas and brown tones
+        }
     ]
 
 
