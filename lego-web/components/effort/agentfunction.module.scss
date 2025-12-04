@@ -5,19 +5,14 @@
   font-weight: 200;
   font-size: 1rem;
   color: $color-zinc-300;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  background: linear-gradient(135deg, 
-    color.change($color-lego-green, $alpha: 0.15) 0%,
-    color.change($color-lego-green-light, $alpha: 0.15) 100%
-  );
-  padding: 10px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px;
   border-radius: 8px;
-  border: 2px solid color.change($color-lego-green, $alpha: 0.4);
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: $color-lego-green;
     box-shadow: 0 4px 10px rgba(0, 166, 81, 0.2);
     transform: translateY(-1px);
   }
@@ -25,9 +20,9 @@
 
 .functionCall {
   font-weight: 400;
-  color: $color-zinc-100;
+  color: $color-zinc-700;
   font-size: 0.9rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   padding: 6px 10px;
   border-radius: 6px;
 }
@@ -51,13 +46,13 @@
 
 .functionArgKey {
   font-weight: 400;
-  color: $color-zinc-200;
+  color: $color-zinc-600;
   font-size: 0.8rem;
 }
 
 .functionArgValue {
   font-weight: 400;
-  color: $color-zinc-200;
+  color: $color-zinc-600;
   font-size: 0.8rem;
   user-select: none;
   cursor: pointer;

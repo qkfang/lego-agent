@@ -2,20 +2,15 @@
 @use 'sass:color';
 
 .agent {
-  font-weight: 200;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: $color-zinc-300;
-  background: linear-gradient(135deg, 
-    color.change($color-lego-purple, $alpha: 0.15) 0%,
-    color.change($color-lego-purple-light, $alpha: 0.15) 100%
-  );
-  padding: 10px;
-  border-radius: 10px;
-  border: 2px solid color.change($color-lego-purple, $alpha: 0.4);
+  background: rgba(255, 255, 255, 0.3);
+  padding: 3px;
+  border-radius: 6px;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    border-color: $color-lego-purple-light;
     box-shadow: 0 4px 12px rgba(155, 95, 184, 0.2);
     transform: translateY(-1px);
   }
@@ -24,33 +19,29 @@
 .title {
   display: flex;
   flex-direction: row;
-  gap: 0.3rem;
-  font-weight: 400;
+  gap: 0.1rem;
   justify-items: center;
-  font-size: 0.85rem;
-  margin-right: 0.75rem;
-  color: color.change($color-zinc-100, $alpha: 0.7);
+  font-size: 0.9rem;
+  margin-right: 0.25rem;
+  color: $color-zinc-800;
   user-select: none;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px 8px;
-  border-radius: 6px;
-  margin-bottom: 4px;
+  padding: 1px 3px;
+  border-radius: 3px;
+  margin-bottom: 1px;
 }
 
 .status {
-  font-weight: 400;
-  font-size: 0.8rem;
-  color: color.change($color-zinc-100, $alpha: 0.65);
+  font-size: 0.82rem;
+  color: $color-zinc-700;
   display: flex;
   flex-direction: row;
-  gap: 0.3rem;
+  gap: 0.1rem;
   user-select: none;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 4px 8px;
-  border-radius: 5px;
-  margin-top: 4px;
+  padding: 1px 3px;
+  border-radius: 3px;
+  margin-top: 1px;
 }
 
 .grow {
@@ -58,12 +49,12 @@
 }
 
 .agentName {
-  color: $color-lego-orange-light;
+  color: $color-zinc-800;
   font-weight: 700;
 }
 
 .tool {
   color: $color-lego-green-light;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
 }

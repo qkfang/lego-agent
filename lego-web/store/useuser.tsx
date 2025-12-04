@@ -14,7 +14,7 @@ const availableUsers: { [key: string]: string } = {
 
 const defaultUser: User = {
   key: "agent-bagel",
-  name: "Agent Bagel",
+  name: "LEGO Agent",
   email: "bagel@legoai.net",
   avatar: "/images/people/agent-bagel.png",
 };
