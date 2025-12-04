@@ -79,8 +79,7 @@ class ObjectDetector:
             return False
     
     def detect_objects_by_color(self, color_ranges: List[Dict[str, Any]], 
-                               use_preprocessing: bool = True, display_mask: bool = False, 
-                               save_mask_path: str = None) -> List[Dict[str, Any]]:
+                               use_preprocessing: bool = True, display_mask: bool = False) -> List[Dict[str, Any]]:
         """
         Detect objects in the image based on color ranges with improved noise handling.
         Optionally display the mask for each color range.
@@ -89,7 +88,6 @@ class ObjectDetector:
             color_ranges (List[Dict]): List of color range dictionaries with 'name', 'lower', 'upper' keys
             use_preprocessing (bool): Whether to apply noise reduction preprocessing
             display_mask (bool): Whether to display the mask for each color range
-            save_mask_path (str): Base path to save masked images (will append _<name>.png for each object)
             
         Returns:
             List[Dict]: List of detected objects with their properties
@@ -107,9 +105,8 @@ class ObjectDetector:
             # Apply bilateral filter to reduce noise while keeping edges sharp
             processed_image = cv2.bilateralFilter(processed_image, 9, 75, 75)
         
-        # Use RGB color space directly (OpenCV uses BGR, so no conversion needed)
-        # Note: processed_image is already in BGR format from OpenCV
-        rgb_image = processed_image
+        # Convert BGR to HSV for better color detection
+        hsv = cv2.cvtColor(processed_image, cv2.COLOR_BGR2HSV)
         detected_objects = []
         
         for color_range in color_ranges:
@@ -117,8 +114,8 @@ class ObjectDetector:
             lower = np.array(color_range['lower'])
             upper = np.array(color_range['upper'])
             
-            # Create mask for the color range in RGB (BGR) space
-            mask = cv2.inRange(rgb_image, lower, upper)
+            # Create mask for the color range
+            mask = cv2.inRange(hsv, lower, upper)
             
             # Apply morphological operations to reduce noise
             if use_preprocessing:
@@ -135,25 +132,10 @@ class ObjectDetector:
                     blur_size += 1
                 mask = cv2.medianBlur(mask, blur_size)
 
-            # Display and/or save the masked image if requested
-            if display_mask or save_mask_path:
-                # Apply mask to original image to show only detected color regions
-                masked_image = cv2.bitwise_and(self.image, self.image, mask=mask)
-                
-                if display_mask:
-                    cv2.imshow(f"Mask - {name}", mask)
-                    cv2.imshow(f"Masked Image - {name}", masked_image)
-                    cv2.waitKey(2000)
-                
-                if save_mask_path:
-                    # Save both mask and masked image
-                    base_path = os.path.splitext(save_mask_path)[0]
-                    mask_save_path = f"{base_path}_{name}_mask.png"
-                    masked_save_path = f"{base_path}_{name}_masked.png"
-                    cv2.imwrite(mask_save_path, mask)
-                    cv2.imwrite(masked_save_path, masked_image)
-                    print(f"Saved mask to: {mask_save_path}")
-                    print(f"Saved masked image to: {masked_save_path}")
+            # Display the mask if requested
+            # if display_mask:
+            # cv2.imshow(f"Mask - {name}", mask)
+            # cv2.waitKey(2000)
 
             # Find contours
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -634,42 +616,44 @@ def create_sample_color_ranges():
     """
     Create sample color ranges for common objects.
     
-    Color ranges are defined in RGB (BGR in OpenCV) color space:
-    - B (Blue): 0-255
-    - G (Green): 0-255
-    - R (Red): 0-255
+    Color ranges are defined in HSV color space:
+    - H (Hue): 0-180 in OpenCV (represents color type)
+    - S (Saturation): 0-255 (color intensity)
+    - V (Value): 0-255 (brightness)
     
     These ranges are designed to be flexible enough to handle various lighting
     conditions and camera settings while being specific enough to avoid
     false positives from background objects.
     
-    Note: OpenCV uses BGR format, so the order is [B, G, R].
-    Adjust these ranges based on your specific objects and lighting conditions.
+    Note: Red color requires two separate ranges because red wraps around
+    the HSV hue scale (appears at both 0 and 180 degrees). Both ranges use
+    the same 'name' value and are processed as separate detection passes,
+    which allows detection of red objects with varying hue values.
     """
     return [
         {
-            'name': 'robot',  # Cyan colored robot (averaged from actual image)
-            'lower': [100, 140, 0],      # Lower BGR for cyan range
-            'upper': [255, 240, 120]    # Upper BGR for cyan range
-            # Blue:  100-255 - strong blue component (exclude gray/brown)
-            # Green: 140-240 - medium-high green (exclude gray/brown)
-            # Red:   0-120   - low red component (exclude gray/brown tones)
+            'name': 'robot',  # Blue colored robot with cyan/blue parts
+            'lower': [90, 120, 100],    # Lower HSV for blue range
+            'upper': [120, 255, 255]    # Upper HSV for blue range
+            # Hue 90-120 covers cyan to blue (tightened range)
+            # Saturation 120+ ensures we capture only vibrant blues
+            # Value 100+ avoids very dark areas
         },
         {
             'name': 'coke',  # Red colored objects (e.g., Coca-Cola bottle)
-            'lower': [0, 0, 100],       # Lower BGR for red
-            'upper': [80, 80, 255]      # Upper BGR for red
-            # Low blue channel (0-80)
-            # Low green channel (0-80)
-            # High red channel (100-255)
+            'lower': [0, 120, 80],      # Lower HSV for red (low end)
+            'upper': [8, 255, 255]      # Upper HSV for red (low end)
+            # Red wraps around in HSV, so we need two ranges
+            # This captures the low end (0-8)
+            # Higher saturation (120+) to avoid pink/orange backgrounds
         },
         {
             'name': 'bowser',  # Yellow-green colored objects (e.g., Bowser LEGO figures)
-            'lower': [0, 100, 100],     # Lower BGR for yellow-green
-            'upper': [100, 255, 255]    # Upper BGR for yellow-green
-            # Low blue channel (0-100)
-            # High green channel (100-255)
-            # High red channel (100-255) - yellow has both red and green
+            'lower': [24, 50, 50],      # Lower HSV for yellow-green
+            'upper': [42, 255, 255]     # Upper HSV for yellow-green
+            # Hue 24-42 covers yellow to yellow-green range for Bowser figures
+            # Saturation 50-255 captures both muted and vibrant colors
+            # Value 50-255 includes various lighting conditions
         }
     ]
 
@@ -692,7 +676,6 @@ def main():
     parser.add_argument('--no-display', action='store_true', help='Don\'t display visualization')
     parser.add_argument('--no-preprocessing', action='store_true', 
                        help='Disable noise reduction preprocessing (for color method)')
-    parser.add_argument('--save-masks', help='Save masked images to this path (for color method)')
     
     args = parser.parse_args()
     run(args)
@@ -709,13 +692,8 @@ def run(args):
     # Detect objects based on method
     if args.method == 'color':
         color_ranges = create_sample_color_ranges()
-        # Default mask save path if not specified
-        mask_path = args.save_masks if hasattr(args, 'save_masks') and args.save_masks else 'mask_output.png'
         detected_objects = detector.detect_objects_by_color(
-            color_ranges, 
-            use_preprocessing=not args.no_preprocessing,
-            display_mask=False,
-            save_mask_path=mask_path)
+            color_ranges, use_preprocessing=not args.no_preprocessing)
     elif args.method == 'template':
         if not args.templates:
             print("Template paths required for template matching method")
