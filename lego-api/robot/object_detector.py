@@ -154,9 +154,22 @@ class ObjectDetector:
                 if aspect_ratio > 10:  # Skip very elongated shapes
                     continue
                 
+                # Filter objects that don't fit in 100x100 box
+                if w > 200 or h > 200:
+                    continue
+                
                 # Calculate center point
                 center_x = x + w // 2
                 center_y = y + h // 2
+                
+                # Special filtering for Bowser: only detect in top-right corner
+                if name.lower() == 'bowser':
+                    # Bowser must be in the top-right area (right 30% of image, top 40%)
+                    if not (center_x > self.image_width * 0.7 and center_y < self.image_height * 0.4):
+                        continue
+                    # Skip very large background areas
+                    if area > 12000:
+                        continue
                 
                 # If robot, shift y and center_y up by 100px (not less than 0)
                 if name.lower() == 'robot':
@@ -188,8 +201,10 @@ class ObjectDetector:
                 
                 detected_objects.append(obj_data)
         
-        self.detected_objects = detected_objects
-        return detected_objects
+        # Filter to keep only the object with biggest area for each name
+        filtered_objects = self._filter_objects_by_max_area(detected_objects)
+        self.detected_objects = filtered_objects
+        return filtered_objects
     
     def detect_objects_by_template(self, template_paths: List[str], threshold: float = 0.8) -> List[Dict[str, Any]]:
         """
@@ -218,6 +233,11 @@ class ObjectDetector:
                 
                 w, h = template.shape[::-1]
                 
+                # Skip if template doesn't fit in 100x100 box
+                if w > 100 or h > 100:
+                    print(f"Skipping template {template_path}: size {w}x{h} exceeds 100x100")
+                    continue
+                
                 # Perform template matching
                 res = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
                 locations = np.where(res >= threshold)
@@ -245,8 +265,10 @@ class ObjectDetector:
             except Exception as e:
                 print(f"Error processing template {template_path}: {e}")
         
-        self.detected_objects = detected_objects
-        return detected_objects
+        # Filter to keep only the object with biggest area for each name
+        filtered_objects = self._filter_objects_by_max_area(detected_objects)
+        self.detected_objects = filtered_objects
+        return filtered_objects
     
     def detect_objects_by_yolo(self, confidence_threshold: float = 0.5, 
                               target_objects: List[str] = None) -> List[Dict[str, Any]]:
@@ -308,6 +330,11 @@ class ObjectDetector:
                     center_y = int((y1 + y2) / 2)
                     width = int(x2 - x1)
                     height = int(y2 - y1)
+                    
+                    # Filter objects that don't fit in 100x100 box
+                    if width > 100 or height > 100:
+                        continue
+                    
                     area = width * height
                     
                     # Convert to 2D coordinate system (origin at bottom-left)
@@ -340,8 +367,44 @@ class ObjectDetector:
             print(f"Error during YOLO detection: {e}")
             return []
         
-        self.detected_objects = detected_objects
-        return detected_objects
+        # Filter to keep only the object with biggest area for each name
+        filtered_objects = self._filter_objects_by_max_area(detected_objects)
+        self.detected_objects = filtered_objects
+        return filtered_objects
+    
+    def _filter_objects_by_max_area(self, detected_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Filter detected objects to keep only the one with the biggest area for each object name.
+        
+        Args:
+            detected_objects (List[Dict]): List of detected objects
+            
+        Returns:
+            List[Dict]: Filtered list with only the largest object for each name
+        """
+        if not detected_objects:
+            return detected_objects
+        
+        # Group objects by name
+        objects_by_name = {}
+        for obj in detected_objects:
+            name = obj['name']
+            if name not in objects_by_name:
+                objects_by_name[name] = []
+            objects_by_name[name].append(obj)
+        
+        # Keep only the object with the biggest area for each name
+        filtered_objects = []
+        for name, objects in objects_by_name.items():
+            if len(objects) == 1:
+                filtered_objects.append(objects[0])
+            else:
+                # Find object with maximum area
+                max_area_obj = max(objects, key=lambda x: x['area'])
+                filtered_objects.append(max_area_obj)
+                print(f"Filtered {len(objects)} instances of '{name}', kept largest with area {max_area_obj['area']}")
+        
+        return filtered_objects
     
     def calculate_distance(self, obj1: Dict[str, Any], obj2: Dict[str, Any], 
                           pixels_per_unit: float = 1.0) -> float:
@@ -539,7 +602,7 @@ def create_sample_color_ranges():
             # Value 100+ avoids very dark areas
         },
         {
-            'name': 'red',  # Red colored objects (e.g., Coca-Cola bottle)
+            'name': 'coke',  # Red colored objects (e.g., Coca-Cola bottle)
             'lower': [0, 120, 80],      # Lower HSV for red (low end)
             'upper': [8, 255, 255]      # Upper HSV for red (low end)
             # Red wraps around in HSV, so we need two ranges
@@ -547,19 +610,12 @@ def create_sample_color_ranges():
             # Higher saturation (120+) to avoid pink/orange backgrounds
         },
         {
-            'name': 'red',  # Red colored objects (high hue range)
-            'lower': [172, 120, 80],    # Lower HSV for red (high end)
-            'upper': [180, 255, 255]    # Upper HSV for red (high end)
-            # This captures the high end (172-180)
-            # Together with the previous range, covers full red spectrum
-        },
-        {
-            'name': 'yellow',  # Yellow/orange colored objects (e.g., Bowser figure)
-            'lower': [10, 140, 120],    # Lower HSV for yellow/orange
-            'upper': [25, 255, 255]     # Upper HSV for yellow/orange
-            # Hue 10-25 covers orange to yellow (narrowed to avoid brown)
-            # Saturation 140+ ensures very vibrant colors only
-            # Value 120+ avoids dark areas and brown tones
+            'name': 'bowser',  # Yellow-green colored objects (e.g., Bowser LEGO figures)
+            'lower': [24, 25, 45],      # Lower HSV for yellow-green
+            'upper': [42, 200, 255]     # Upper HSV for yellow-green
+            # Hue 24-42 covers yellow to yellow-green range for Bowser figures
+            # Saturation 25-200 captures both muted and vibrant colors
+            # Value 45-255 includes various lighting conditions
         }
     ]
 

@@ -21,8 +21,8 @@ def test_color_ranges():
     color_names = [cr['name'] for cr in color_ranges]
     
     assert 'robot' in color_names, "Missing 'robot' (blue) color range"
-    assert 'red' in color_names, "Missing 'red' color range"
-    assert 'yellow' in color_names, "Missing 'yellow' color range"
+    assert 'coke' in color_names, "Missing 'red' color range"
+    assert 'bowser' in color_names, "Missing 'yellow' color range"
     
     # Check that all ranges have required keys
     for color_range in color_ranges:
