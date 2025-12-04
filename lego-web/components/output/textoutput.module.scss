@@ -1,5 +1,6 @@
 
 @use "../../app/defaults.scss" as *;
+@use 'sass:color';
 
 h1,
 h2,
@@ -37,21 +38,21 @@ ul li {
 }
 
 code {
-  background: rgba(0, 85, 191, 0.1);
+  background: color.change($color-lego-blue, $alpha: 0.1);
   padding: 2px 5px;
   border-radius: 3px;
   font-size: 0.8em;
   color: $color-lego-purple-dark;
-  border: 1px solid rgba(155, 95, 184, 0.15);
+  border: 1px solid color.change($color-lego-purple, $alpha: 0.15);
   font-family: 'Courier New', monospace;
 }
 
 pre {
-  background: rgba(0, 85, 191, 0.08);
+  background: color.change($color-lego-blue, $alpha: 0.08);
   padding: 8px;
   border-radius: 6px;
   overflow-x: auto;
-  border: 1px solid rgba(0, 85, 191, 0.15);
+  border: 1px solid color.change($color-lego-blue, $alpha: 0.15);
   max-height: 200px;
   
   code {
@@ -60,7 +61,7 @@ pre {
     border: none;
     font-size: 0.7rem;
     line-height: 1.3;
-    color: #2c3e50;
+    color: $color-zinc-800;
     display: block;
   }
 }
@@ -71,7 +72,7 @@ pre {
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 85, 191, 0.3) transparent;
+  scrollbar-color: color.change($color-lego-blue, $alpha: 0.3) transparent;
   mask-image: linear-gradient(180deg, transparent, black 2%);
   height: calc(100% - 26px);
   
@@ -84,7 +85,7 @@ pre {
   }
   
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 85, 191, 0.3);
+    background: color.change($color-lego-blue, $alpha: 0.3);
     border-radius: 2px;
   }
 }
