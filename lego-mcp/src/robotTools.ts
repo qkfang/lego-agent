@@ -211,11 +211,11 @@ export function registerRobotTools(mcp: McpServer): void {
     async (param: RobotArmParams): Promise<McpResponse> => {
       return safeExecute(
         async () => {
-          const openClose = param.openOrClose === "1" ? -100 : 100;
+          const openClose = param.openOrClose === "1" ? 3500 : -3500;
           let code = '';
           if (!isTest) {
             code = `
-    await rotateTop(${openClose}, Speed.Slow)
+    await rotateFront(${openClose}, Speed.Fast)
     print("done")
     sys.exit(0)
 `;

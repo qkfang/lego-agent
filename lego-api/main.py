@@ -126,7 +126,7 @@ async def voice_endpoint(id: str, websocket: WebSocket):
             api_version="2025-04-01-preview",
         )
         async with client.beta.realtime.connect(
-            model="gpt-4o-realtime-preview", extra_query={"debug": "elvis"}
+            model="gpt-realtime", extra_query={"debug": "elvis"}
         ) as realtime_client:
 
             # get current username and receive any parameters

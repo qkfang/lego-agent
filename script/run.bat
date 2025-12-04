@@ -1,5 +1,7 @@
 
 
+az login --tenant 285f1bcc-8795-4823-b35e-c6f15d78e70b
+
 http://localhost:5173/app?flags=tools,debug
 
 fastapi run main.py
