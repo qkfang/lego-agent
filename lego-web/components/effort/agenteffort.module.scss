@@ -6,8 +6,8 @@
   font-size: 1rem;
   color: $color-zinc-300;
   background: linear-gradient(135deg, 
-    rgba(155, 95, 184, 0.15) 0%,
-    rgba(186, 104, 200, 0.15) 100%
+    color.change($color-lego-purple, $alpha: 0.15) 0%,
+    color.change($color-lego-purple-light, $alpha: 0.15) 100%
   );
   padding: 10px;
   border-radius: 10px;

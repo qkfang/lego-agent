@@ -9,6 +9,18 @@ import OutputDisplay, { type OuptutDisplayHandle } from "./output/outputdisplay"
 
 import VideoImagePicker from "components/videoimagepicker";
 
+// LEGO-inspired pastel colors for treemap items
+const TREEMAP_COLORS = [
+  { r: 173, g: 216, b: 230 }, // Light blue
+  { r: 255, g: 228, b: 181 }, // Light peach
+  { r: 221, g: 160, b: 221 }, // Light plum
+  { r: 144, g: 238, b: 144 }, // Light green
+  { r: 255, g: 218, b: 185 }, // Light coral
+  { r: 176, g: 224, b: 230 }, // Powder blue
+  { r: 255, g: 239, b: 213 }, // Papaya whip
+  { r: 230, g: 230, b: 250 }, // Lavender
+];
+
 type Props = {
   data: OutputNode;
 };
@@ -176,18 +188,8 @@ const Output: React.FC<Props> = ({ data }: Props) => {
                 </g>
                 {d.children &&
                   d.children.map((child, j) => {
-                    // Create a gradient of colorful backgrounds using LEGO colors
-                    const colors = [
-                      { r: 173, g: 216, b: 230 }, // Light blue
-                      { r: 255, g: 228, b: 181 }, // Light peach
-                      { r: 221, g: 160, b: 221 }, // Light plum
-                      { r: 144, g: 238, b: 144 }, // Light green
-                      { r: 255, g: 218, b: 185 }, // Light coral
-                      { r: 176, g: 224, b: 230 }, // Powder blue
-                      { r: 255, g: 239, b: 213 }, // Papaya whip
-                      { r: 230, g: 230, b: 250 }, // Lavender
-                    ];
-                    const color = colors[j % colors.length];
+                    // Use LEGO-inspired colors from the constant array
+                    const color = TREEMAP_COLORS[j % TREEMAP_COLORS.length];
                     const fillColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.85)`;
                     return (
                       <g

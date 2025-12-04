@@ -7,8 +7,8 @@
   border-radius: 12px;
   color: $color-zinc-100;
   background: linear-gradient(135deg, 
-    rgba(173, 216, 230, 0.25) 0%,
-    rgba(135, 206, 250, 0.25) 100%
+    color.change($color-sky-300, $alpha: 0.25) 0%,
+    color.change($color-sky-400, $alpha: 0.25) 100%
   );
   backdrop-filter: blur(8px);
   padding: 12px;
@@ -102,8 +102,8 @@
 .assistant {
   margin-right: 25px;
   background: linear-gradient(135deg, 
-    rgba(173, 216, 230, 0.25) 0%,
-    rgba(135, 206, 250, 0.25) 100%
+    color.change($color-sky-300, $alpha: 0.25) 0%,
+    color.change($color-sky-400, $alpha: 0.25) 100%
   );
   border-color: $color-lego-blue;
 }
@@ -111,8 +111,8 @@
 .user {
   margin-left: 25px;
   background: linear-gradient(135deg, 
-    rgba(255, 213, 0, 0.25) 0%,
-    rgba(255, 165, 0, 0.25) 100%
+    color.change($color-lego-yellow, $alpha: 0.25) 0%,
+    color.change($color-lego-orange, $alpha: 0.25) 100%
   );
   border-color: $color-lego-orange;
   
