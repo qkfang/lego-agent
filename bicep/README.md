@@ -1,16 +1,20 @@
-# Azure Infrastructure Deployment for Video Agent
+# Azure Infrastructure Deployment for LEGO Agent
 
-This directory contains Bicep templates for deploying the Azure infrastructure required for the Content Understanding Video Agent.
+This directory contains Bicep templates for deploying the Azure infrastructure required for the LEGO Agent project.
 
 ## Resources Deployed
 
 - **Azure AI Foundry Hub (v2)**: AI orchestration hub
-- **Azure AI Foundry Project**: Project workspace for the video agent
+- **Azure AI Foundry Project**: Project workspace for the LEGO agent
 - **Azure Content Understanding Service**: Service for video analysis
 - **Azure OpenAI Service**: GPT-4o model for agent intelligence
-- **Storage Account**: Storage for Foundry hub
+- **Azure Cosmos DB**: Database for storing voice configurations and data (serverless)
+- **Storage Account**: Blob storage for application data and Foundry hub
+  - Blob container: `sustineo` for application data
 - **Key Vault**: Secure storage for secrets
 - **Application Insights**: Monitoring and telemetry
+
+All resources are prefixed with `legobot` for easy identification and management.
 
 ## Prerequisites
 
@@ -74,6 +78,7 @@ az deployment group show \
 
 Edit `main.parameters.json` to customize the deployment:
 
+- `resourcePrefix`: Prefix for all resource names (default: legobot)
 - `foundryHubName`: Name for the Azure AI Foundry hub
 - `foundryProjectName`: Name for the Foundry project
 - `contentUnderstandingName`: Name for the Content Understanding service
@@ -102,11 +107,25 @@ After deployment, you'll need to:
    az cognitiveservices account keys list --name <contentUnderstandingName> --resource-group lego-agent-rg
    ```
 
-3. Set environment variables in your `.env` file:
+3. Get the Cosmos DB connection string:
+   ```bash
+   az cosmosdb keys list --name <cosmosDbAccountName> --resource-group lego-agent-rg --type connection-strings
+   ```
+
+4. Get the Storage Account connection string:
+   ```bash
+   az storage account show-connection-string --name <storageAccountName> --resource-group lego-agent-rg
+   ```
+
+5. Set environment variables in your `.env` file:
    ```env
    PROJECT_CONNECTION_STRING=<from-step-1>
    CONTENT_UNDERSTANDING_ENDPOINT=<from-step-2>
    CONTENT_UNDERSTANDING_KEY=<from-step-2>
+   COSMOSDB_CONNECTION=<from-step-3>
+   SUSTINEO_STORAGE=<storage-account-blob-endpoint>
+   AZURE_VOICE_ENDPOINT=<openai-endpoint>
+   AZURE_VOICE_KEY=<openai-key>
    ```
 
 ## Architecture
@@ -117,15 +136,15 @@ After deployment, you'll need to:
 │  ┌───────────────────────────────────────────┐  │
 │  │   Azure AI Foundry Project                │  │
 │  │                                           │  │
-│  │   - Video Agent (agent-cu)                │  │
+│  │   - LEGO Robot Agents                     │  │
 │  │   - GPT-4o Model                          │  │
 │  └───────────────────────────────────────────┘  │
 │                                                  │
 │  ┌───────────────────────────────────────────┐  │
 │  │   Supporting Services                     │  │
-│  │   - Storage Account                       │  │
-│  │   - Key Vault                             │  │
-│  │   - Application Insights                  │  │
+│  │   - Storage Account (legobot*)            │  │
+│  │   - Key Vault (legobot*)                  │  │
+│  │   - Application Insights (legobot*)       │  │
 │  └───────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────┘
                       │
@@ -133,10 +152,32 @@ After deployment, you'll need to:
                       ▼
 ┌─────────────────────────────────────────────────┐
 │   Azure Content Understanding Service           │
+│   (legobot-content-understanding)               │
 │   - Video Analysis                              │
 │   - Transcription                               │
 │   - Key Frame Extraction                        │
 │   - Segment Detection                           │
+└─────────────────────────────────────────────────┘
+                      │
+┌─────────────────────────────────────────────────┐
+│   Azure OpenAI Service                          │
+│   (legobot-*-openai)                            │
+│   - GPT-4o Deployment                           │
+│   - Realtime API for Voice                      │
+└─────────────────────────────────────────────────┘
+                      │
+┌─────────────────────────────────────────────────┐
+│   Azure Cosmos DB (Serverless)                  │
+│   (legobot-*-cosmos)                            │
+│   - Database: sustineo                          │
+│   - Container: VoiceConfigurations              │
+└─────────────────────────────────────────────────┘
+                      │
+┌─────────────────────────────────────────────────┐
+│   Azure Storage Account                         │
+│   (legobot*st)                                  │
+│   - Blob Container: sustineo                    │
+│   - Application data storage                    │
 └─────────────────────────────────────────────────┘
 ```
 
