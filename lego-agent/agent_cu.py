@@ -11,7 +11,6 @@ from typing import Optional, Dict, Any
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects.aio import AIProjectClient
 from semantic_kernel.agents.azure_ai.azure_ai_agent import AzureAIAgent
-from semantic_kernel.functions import kernel_function
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -211,7 +210,7 @@ You provide detailed descriptions of video content, including:
             try:
                 analysis = await self.analyze_video_from_url(video_url)
                 
-                # Format the analysis for the agent
+                # Format the analysis for the agent to process
                 context = f"""
 Video Analysis Results:
 
@@ -224,10 +223,51 @@ Number of segments: {len(analysis['segments'])}
 Number of key frames: {len(analysis['key_frames'])}
 
 User Query: {query}
-
-Please provide a comprehensive answer based on the video analysis above.
 """
-                return context
+                # Create a thread and run the agent
+                thread = await self.project_client.agents.create_thread()
+                
+                # Add message to thread with video analysis context
+                await self.project_client.agents.create_message(
+                    thread_id=thread.id,
+                    role="user",
+                    content=context
+                )
+                
+                # Run the agent
+                run = await self.project_client.agents.create_run(
+                    thread_id=thread.id,
+                    assistant_id=self.agent.id
+                )
+                
+                # Wait for completion
+                while run.status in ["queued", "in_progress", "requires_action"]:
+                    await asyncio.sleep(1)
+                    run = await self.project_client.agents.get_run(
+                        thread_id=thread.id,
+                        run_id=run.id
+                    )
+                
+                if run.status == "completed":
+                    # Get the agent's response
+                    messages = await self.project_client.agents.list_messages(
+                        thread_id=thread.id
+                    )
+                    
+                    # Get the last assistant message
+                    for message in messages.data:
+                        if message.role == "assistant":
+                            # Extract text content from the message
+                            if message.content:
+                                for content_item in message.content:
+                                    if hasattr(content_item, 'text') and hasattr(content_item.text, 'value'):
+                                        return content_item.text.value
+                            break
+                    
+                    return "Agent completed but no response was generated."
+                else:
+                    return f"Agent run failed with status: {run.status}"
+                    
             except Exception as e:
                 return f"Error analyzing video: {str(e)}"
         else:
