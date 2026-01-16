@@ -32,6 +32,7 @@ class FoundryAgentService {
 
       // Get the LEGO orchestrator agent
       const agents = await this.projectClient.agents.listAgents({ limit: 100 });
+      // Note: Checking for both spellings to handle existing agent name typo in azureagents.py
       const orchestrator = agents.data.find((agent) =>
         agent.name.includes('lego-orchestrator') || agent.name.includes('lego-ochestrator')
       );
