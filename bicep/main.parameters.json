@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "foundryHubName": {
+      "value": "lego-agent-foundry-hub"
+    },
+    "foundryProjectName": {
+      "value": "lego-agent-video-project"
+    },
+    "contentUnderstandingName": {
+      "value": "lego-agent-content-understanding"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "contentUnderstandingSku": {
+      "value": "S0"
+    }
+  }
+}
