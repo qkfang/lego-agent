@@ -200,7 +200,12 @@ try {
         exit 0
     }
 } catch {
-    if ($_.Exception.Response.StatusCode -eq 404) {
+    $statusCode = $null
+    if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+    }
+    
+    if ($statusCode -eq 404) {
         Write-Host "Index does not exist. Creating new index..." -ForegroundColor Cyan
     } else {
         Write-Error "Error checking index: $_"

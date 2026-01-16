@@ -78,13 +78,20 @@ function Invoke-DocumentAnalysis {
         }
         
         # Use Invoke-WebRequest to get both response and headers
-        $webResponse = Invoke-WebRequest -Uri $analyzeUrl -Method Post -Headers $headers -Body $fileBytes
+        $webResponse = Invoke-WebRequest -Uri $analyzeUrl -Method Post -Headers $headers -Body $fileBytes -ErrorAction Stop
         
-        # Get operation location from response headers
-        $resultUrl = $webResponse.Headers['Operation-Location']
-        if (-not $resultUrl) {
-            # Try alternative header name
-            $resultUrl = $webResponse.Headers['operation-location']
+        # Check HTTP status
+        if ($webResponse.StatusCode -lt 200 -or $webResponse.StatusCode -ge 300) {
+            throw "Document analysis request failed with status code: $($webResponse.StatusCode)"
+        }
+        
+        # Get operation location from response headers (case-insensitive lookup)
+        $resultUrl = $null
+        foreach ($headerName in $webResponse.Headers.Keys) {
+            if ($headerName -eq 'Operation-Location') {
+                $resultUrl = $webResponse.Headers[$headerName]
+                break
+            }
         }
         
         if (-not $resultUrl) {
@@ -281,9 +288,14 @@ foreach ($file in $allFiles) {
             }
             
             # Create document object for indexing
+            # Generate unique ID using file path hash to avoid duplicates
+            $filePathHash = [System.BitConverter]::ToString([System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($file.FullName))).Replace('-','').Substring(0, 16)
+            $baseId = [System.IO.Path]::GetFileNameWithoutExtension($file.Name) -replace '[^a-zA-Z0-9_-]', '_'
+            $uniqueId = "$baseId-$filePathHash"
+            
             $doc = @{
                 "@search.action" = "mergeOrUpload"
-                id = [System.IO.Path]::GetFileNameWithoutExtension($file.Name) -replace '[^a-zA-Z0-9_-]', '_'
+                id = $uniqueId
                 title = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
                 content = $content
                 documentType = $file.Extension.TrimStart('.')

@@ -173,10 +173,13 @@ if ($RecreateIndex) {
     $initScript = Join-Path $PSScriptRoot "Initialize-SearchIndex.ps1"
     
     if (Test-Path $initScript) {
-        & $initScript -Force -EnvFile $EnvFile
-        
-        if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to recreate index"
+        try {
+            & $initScript -Force -EnvFile $EnvFile
+            if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+                throw "Script returned exit code $LASTEXITCODE"
+            }
+        } catch {
+            Write-Error "Failed to recreate index: $_"
             exit 1
         }
     } else {
@@ -210,13 +213,12 @@ if ($reingest -eq "yes") {
     $ingestScript = Join-Path $PSScriptRoot "Ingest-Documents.ps1"
     
     if (Test-Path $ingestScript) {
-        & $ingestScript -EnvFile $EnvFile
-        
-        if ($LASTEXITCODE -eq 0) {
+        try {
+            & $ingestScript -EnvFile $EnvFile
             Write-Host ""
             Write-Host "Reset and re-ingestion complete!" -ForegroundColor Green
-        } else {
-            Write-Error "Ingestion failed"
+        } catch {
+            Write-Error "Ingestion failed: $_"
             exit 1
         }
     } else {
