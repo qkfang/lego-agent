@@ -1,0 +1,34 @@
+{
+  "name": "lego-copilot",
+  "version": "1.0.0",
+  "description": "LEGO Copilot for Microsoft Teams - Integration with Azure AI Foundry Agent",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon --exec node --env-file=.env.local src/index.js",
+    "start": "node --env-file=.env.local src/index.js",
+    "watch": "nodemon --exec node src/index.js",
+    "package": "cd appPackage && zip -r ../lego-copilot-teams-app.zip manifest.json *.png && cd ..",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "teams",
+    "copilot",
+    "bot",
+    "lego",
+    "foundry",
+    "azure-ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@azure/ai-projects": "^1.0.0-beta.3",
+    "@azure/identity": "^4.8.0",
+    "@microsoft/teams-ai": "^1.5.0",
+    "botbuilder": "^4.22.0",
+    "dotenv": "^16.4.5",
+    "restify": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

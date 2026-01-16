@@ -46,6 +46,12 @@ The system consists of several interconnected components:
    - Computer vision processing
    - Object detection and tracking capabilities
 
+6. **LEGO Copilot** (`lego-copilot/`) - Microsoft Teams integration
+   - Teams bot for conversational robot control
+   - Integration with Azure AI Foundry Agents
+   - Natural language interface for LEGO robot commands
+   - Deployable to Microsoft Teams for team collaboration
+
 ## 🚀 Features
 
 ### AI-Powered Interactions
@@ -65,6 +71,12 @@ The system consists of several interconnected components:
 - **WebSocket Communication**: Instant updates and commands
 - **Voice Streaming**: Continuous voice interaction
 - **Telemetry**: Real-time monitoring and logging
+
+### Microsoft Teams Integration
+- **Teams Copilot**: Chat-based robot control through Microsoft Teams
+- **Collaborative Control**: Team members can interact with robots together
+- **Foundry Agent Integration**: Leverages Azure AI Foundry for intelligent responses
+- **Easy Deployment**: Simple setup with provided scripts and documentation
 
 ## 📋 Prerequisites
 
@@ -130,6 +142,12 @@ cd lego-cam
 pip install -r requirements.txt
 ```
 
+**Teams Copilot (Node.js):**
+```bash
+cd lego-copilot
+npm install
+```
+
 ## 🏃‍♂️ Running the Application
 
 ### 1. Start the MCP Server
@@ -163,7 +181,14 @@ cd lego-web
 npm run dev
 ```
 
-### 6. Run All Services (Alternative)
+### 6. (Optional) Start the Teams Copilot
+```bash
+cd lego-copilot
+npm run dev
+# See lego-copilot/README.md for full setup instructions
+```
+
+### 7. Run All Services (Alternative)
 ```bash
 # From the root directory
 script/run.bat
@@ -184,6 +209,12 @@ Connect to the web interface and use natural language commands:
 - Monitor robot status and camera feeds
 - Send manual commands through the interface
 - View real-time telemetry and logs
+
+### Microsoft Teams Copilot
+- Install the LEGO Copilot bot in Microsoft Teams (see `lego-copilot/README.md`)
+- Chat with the bot using natural language commands
+- Control robots collaboratively with your team
+- Examples: "What can the robot do?", "Move forward 20cm", "Show robot status"
 
 ### API Endpoints
 
@@ -230,6 +261,7 @@ lego-agent/
 ├── lego-web/          # React frontend
 ├── lego-ble/          # Bluetooth communication
 ├── lego-cam/          # Camera streaming
+├── lego-copilot/      # Microsoft Teams bot integration
 ├── tests/             # Test suites
 ├── testdata/          # Test images and data
 └── script/            # Utility scripts
@@ -285,6 +317,7 @@ For support and questions:
 - Cloud deployment templates
 - Advanced AI agent behaviors
 - Multi-robot coordination
+- ✅ **Microsoft Teams integration** (completed - see `lego-copilot/`)
 
 ---
 
