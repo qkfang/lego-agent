@@ -5,10 +5,17 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "7291322459185200788"
+      "templateHash": "16715393453281719913"
     }
   },
   "parameters": {
+    "resourcePrefix": {
+      "type": "string",
+      "defaultValue": "legobot",
+      "metadata": {
+        "description": "Prefix for all resource names"
+      }
+    },
     "foundryHubName": {
       "type": "string",
       "metadata": {
@@ -61,7 +68,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2023-01-01",
-      "name": "[format('{0}storage', toLower(replace(parameters('foundryHubName'), '-', '')))]",
+      "name": "[format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', '')))]",
       "location": "[parameters('location')]",
       "tags": "[parameters('tags')]",
       "sku": {
@@ -76,9 +83,28 @@
       }
     },
     {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}', format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}/{2}', format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))), 'default', 'sustineo')]",
+      "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))), 'default')]"
+      ]
+    },
+    {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2023-07-01",
-      "name": "[format('{0}-kv', parameters('foundryHubName'))]",
+      "name": "[format('{0}-{1}-kv', parameters('resourcePrefix'), parameters('foundryHubName'))]",
       "location": "[parameters('location')]",
       "tags": "[parameters('tags')]",
       "properties": {
@@ -98,7 +124,7 @@
     {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02",
-      "name": "[format('{0}-insights', parameters('foundryHubName'))]",
+      "name": "[format('{0}-{1}-insights', parameters('resourcePrefix'), parameters('foundryHubName'))]",
       "location": "[parameters('location')]",
       "tags": "[parameters('tags')]",
       "kind": "web",
@@ -125,16 +151,16 @@
       "properties": {
         "friendlyName": "[parameters('foundryHubName')]",
         "description": "Azure AI Foundry Hub for LEGO Agent",
-        "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}storage', toLower(replace(parameters('foundryHubName'), '-', ''))))]",
-        "keyVault": "[resourceId('Microsoft.KeyVault/vaults', format('{0}-kv', parameters('foundryHubName')))]",
-        "applicationInsights": "[resourceId('Microsoft.Insights/components', format('{0}-insights', parameters('foundryHubName')))]",
+        "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))))]",
+        "keyVault": "[resourceId('Microsoft.KeyVault/vaults', format('{0}-{1}-kv', parameters('resourcePrefix'), parameters('foundryHubName')))]",
+        "applicationInsights": "[resourceId('Microsoft.Insights/components', format('{0}-{1}-insights', parameters('resourcePrefix'), parameters('foundryHubName')))]",
         "publicNetworkAccess": "Enabled",
         "v1LegacyMode": false
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Insights/components', format('{0}-insights', parameters('foundryHubName')))]",
-        "[resourceId('Microsoft.KeyVault/vaults', format('{0}-kv', parameters('foundryHubName')))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}storage', toLower(replace(parameters('foundryHubName'), '-', ''))))]"
+        "[resourceId('Microsoft.Insights/components', format('{0}-{1}-insights', parameters('resourcePrefix'), parameters('foundryHubName')))]",
+        "[resourceId('Microsoft.KeyVault/vaults', format('{0}-{1}-kv', parameters('resourcePrefix'), parameters('foundryHubName')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))))]"
       ]
     },
     {
@@ -186,7 +212,7 @@
     {
       "type": "Microsoft.CognitiveServices/accounts",
       "apiVersion": "2024-04-01",
-      "name": "[format('{0}-openai', parameters('foundryHubName'))]",
+      "name": "[format('{0}-{1}-openai', parameters('resourcePrefix'), parameters('foundryHubName'))]",
       "location": "[parameters('location')]",
       "tags": "[parameters('tags')]",
       "sku": {
@@ -197,7 +223,7 @@
         "type": "SystemAssigned"
       },
       "properties": {
-        "customSubDomainName": "[format('{0}-openai', parameters('foundryHubName'))]",
+        "customSubDomainName": "[format('{0}-{1}-openai', parameters('resourcePrefix'), parameters('foundryHubName'))]",
         "publicNetworkAccess": "Enabled",
         "networkAcls": {
           "defaultAction": "Allow"
@@ -207,7 +233,7 @@
     {
       "type": "Microsoft.CognitiveServices/accounts/deployments",
       "apiVersion": "2024-04-01",
-      "name": "[format('{0}/{1}', format('{0}-openai', parameters('foundryHubName')), 'gpt-4o')]",
+      "name": "[format('{0}/{1}', format('{0}-{1}-openai', parameters('resourcePrefix'), parameters('foundryHubName')), 'gpt-4o')]",
       "sku": {
         "name": "Standard",
         "capacity": 10
@@ -221,7 +247,77 @@
         "versionUpgradeOption": "OnceNewDefaultVersionAvailable"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}-openai', parameters('foundryHubName')))]"
+        "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}-{1}-openai', parameters('resourcePrefix'), parameters('foundryHubName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2024-05-15",
+      "name": "[format('{0}-{1}-cosmos', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', '')))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "databaseAccountOfferType": "Standard",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "locations": [
+          {
+            "locationName": "[parameters('location')]",
+            "failoverPriority": 0,
+            "isZoneRedundant": false
+          }
+        ],
+        "publicNetworkAccess": "Enabled",
+        "enableAutomaticFailover": false,
+        "enableMultipleWriteLocations": false,
+        "capabilities": [
+          {
+            "name": "EnableServerless"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2024-05-15",
+      "name": "[format('{0}/{1}', format('{0}-{1}-cosmos', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))), 'sustineo')]",
+      "properties": {
+        "resource": {
+          "id": "sustineo"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}-{1}-cosmos', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2024-05-15",
+      "name": "[format('{0}/{1}/{2}', format('{0}-{1}-cosmos', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))), 'sustineo', 'VoiceConfigurations')]",
+      "properties": {
+        "resource": {
+          "id": "VoiceConfigurations",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          },
+          "indexingPolicy": {
+            "indexingMode": "consistent",
+            "automatic": true,
+            "includedPaths": [
+              {
+                "path": "/*"
+              }
+            ]
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', format('{0}-{1}-cosmos', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', ''))), 'sustineo')]"
       ]
     }
   ],
@@ -256,11 +352,43 @@
     },
     "openAIEndpoint": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}-openai', parameters('foundryHubName'))), '2024-04-01').endpoint]"
+      "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}-{1}-openai', parameters('resourcePrefix'), parameters('foundryHubName'))), '2024-04-01').endpoint]"
     },
     "openAIId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}-openai', parameters('foundryHubName')))]"
+      "value": "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}-{1}-openai', parameters('resourcePrefix'), parameters('foundryHubName')))]"
+    },
+    "storageAccountName": {
+      "type": "string",
+      "value": "[format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', '')))]"
+    },
+    "storageAccountEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}st', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', '')))), '2023-01-01').primaryEndpoints.blob]"
+    },
+    "cosmosDbAccountName": {
+      "type": "string",
+      "value": "[format('{0}-{1}-cosmos', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', '')))]"
+    },
+    "cosmosDbEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}-{1}-cosmos', parameters('resourcePrefix'), toLower(replace(parameters('foundryHubName'), '-', '')))), '2024-05-15').documentEndpoint]"
+    },
+    "keyVaultName": {
+      "type": "string",
+      "value": "[format('{0}-{1}-kv', parameters('resourcePrefix'), parameters('foundryHubName'))]"
+    },
+    "keyVaultUri": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}-{1}-kv', parameters('resourcePrefix'), parameters('foundryHubName'))), '2023-07-01').vaultUri]"
+    },
+    "applicationInsightsName": {
+      "type": "string",
+      "value": "[format('{0}-{1}-insights', parameters('resourcePrefix'), parameters('foundryHubName'))]"
+    },
+    "applicationInsightsConnectionString": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/components', format('{0}-{1}-insights', parameters('resourcePrefix'), parameters('foundryHubName'))), '2020-02-02').ConnectionString]"
     }
   }
 }
