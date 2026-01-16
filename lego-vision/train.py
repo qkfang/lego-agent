@@ -211,11 +211,16 @@ class CustomVisionTrainer:
             # This would typically come from your Azure Custom Vision resource
         
         try:
+            # Use None as fallback instead of empty string for API compatibility
+            resource_id = prediction_resource_id or os.getenv("PREDICTION_RESOURCE_ID")
+            if not resource_id:
+                resource_id = None
+            
             self.trainer.publish_iteration(
                 self.project.id,
                 iteration_id,
                 self.publish_iteration_name,
-                prediction_resource_id or os.getenv("PREDICTION_RESOURCE_ID", "")
+                resource_id
             )
             print("  Model published successfully!")
         except Exception as e:

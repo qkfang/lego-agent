@@ -221,6 +221,23 @@ class TrainingDataManager:
                             errors.append(
                                 f"Image {i}, Region {j}: '{coord}' must be between 0 and 1, got {value}"
                             )
+                
+                # Validate that bounding box doesn't exceed image boundaries
+                if "left" in region and "width" in region:
+                    if region["left"] + region["width"] > 1.0:
+                        errors.append(
+                            f"Image {i}, Region {j}: Bounding box extends beyond image right edge "
+                            f"(left={region['left']:.3f} + width={region['width']:.3f} = "
+                            f"{region['left'] + region['width']:.3f} > 1.0)"
+                        )
+                
+                if "top" in region and "height" in region:
+                    if region["top"] + region["height"] > 1.0:
+                        errors.append(
+                            f"Image {i}, Region {j}: Bounding box extends beyond image bottom edge "
+                            f"(top={region['top']:.3f} + height={region['height']:.3f} = "
+                            f"{region['top'] + region['height']:.3f} > 1.0)"
+                        )
         
         return len(errors) == 0, errors
 
