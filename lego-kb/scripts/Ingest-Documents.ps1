@@ -70,28 +70,25 @@ function Invoke-DocumentAnalysis {
         
         Write-Verbose "Analyzing document: $FilePath ($contentType)"
         
-        # Start document analysis
+        # Start document analysis (use Invoke-WebRequest to capture headers)
         $analyzeUrl = "$Endpoint/formrecognizer/documentModels/prebuilt-layout:analyze?api-version=2023-07-31"
         $headers = @{
             "Ocp-Apim-Subscription-Key" = $ApiKey
             "Content-Type" = $contentType
         }
         
-        $analyzeResponse = Invoke-RestMethod -Uri $analyzeUrl -Method Post -Headers $headers -Body $fileBytes
+        # Use Invoke-WebRequest to get both response and headers
+        $webResponse = Invoke-WebRequest -Uri $analyzeUrl -Method Post -Headers $headers -Body $fileBytes
         
         # Get operation location from response headers
-        $operationLocation = $analyzeResponse
+        $resultUrl = $webResponse.Headers['Operation-Location']
+        if (-not $resultUrl) {
+            # Try alternative header name
+            $resultUrl = $webResponse.Headers['operation-location']
+        }
         
-        # Poll for results (Document Intelligence is async)
-        $resultUrl = $analyzeUrl
-        if ($analyzeResponse.PSObject.Properties['operationLocation']) {
-            $resultUrl = $analyzeResponse.operationLocation
-        } elseif ($analyzeResponse.PSObject.Properties['Operation-Location']) {
-            $resultUrl = $analyzeResponse.'Operation-Location'
-        } else {
-            # Extract from response headers (need to use Invoke-WebRequest)
-            $webResponse = Invoke-WebRequest -Uri $analyzeUrl -Method Post -Headers $headers -Body $fileBytes
-            $resultUrl = $webResponse.Headers['Operation-Location']
+        if (-not $resultUrl) {
+            throw "Operation-Location header not found in response"
         }
         
         Write-Verbose "Polling for results at: $resultUrl"
