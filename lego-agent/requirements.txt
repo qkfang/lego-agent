@@ -1,0 +1,6 @@
+pydantic
+python-dotenv
+azure-identity
+azure-ai-projects==1.0.0b10
+aiohttp
+semantic-kernel[azure]

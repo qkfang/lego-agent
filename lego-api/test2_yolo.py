@@ -1,4 +1,4 @@
-from semantic_kernel.connectors.mcp import MCPStdioPlugin
+"""Test script for observer agent using Microsoft Agent Framework."""
 from robot.robot_agent_orchestrator import LegoOrchestratorAgent
 from robot.robot_agent_observer import LegoObserverAgent
 from robot.robot_agent_planner import LegoPlannerAgent
@@ -11,7 +11,7 @@ import json
 async def main():
 
     shared.isTest = False
-    shared.foundryAgents = (await shared.project_client.agents.list_agents(limit=100)).data
+    shared.foundryAgents = []  # Agents are created on-demand in new framework
 
     legoObserverAgent = LegoObserverAgent()
     await legoObserverAgent.init()
