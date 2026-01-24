@@ -1,4 +1,5 @@
-from lego_robot_agent import RobotData
+from lego_robot_agent.models import RobotData
+from azure.ai.projects.aio import AIProjectClient
 from azure.identity import DefaultAzureCredential, AzureCliCredential
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.semconv.resource import ResourceAttributes
@@ -15,12 +16,23 @@ AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "https://legobot
 AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4o")
 AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", "2025-01-01-preview")
 
+
+credential=AzureCliCredential()
+
 # Create the Azure OpenAI Chat client for agent creation
 azure_client = AzureOpenAIChatClient(
     endpoint=AZURE_OPENAI_ENDPOINT,
     deployment_name=AZURE_OPENAI_DEPLOYMENT,
     api_version=AZURE_OPENAI_API_VERSION,
-    credential=AzureCliCredential(),
+    credential=credential,
+)
+
+# Get Azure AI Foundry project endpoint from environment
+AZURE_AI_PROJECT_ENDPOINT = os.environ.get("AZURE_AI_PROJECT_ENDPOINT", os.environ.get("PROJECT_CONNECTION_STRING", ""))
+
+project_client = AIProjectClient(
+    endpoint=AZURE_AI_PROJECT_ENDPOINT,
+    credential=DefaultAzureCredential(),
 )
 
 resource = Resource.create({ResourceAttributes.SERVICE_NAME: "lego-telemetry"})

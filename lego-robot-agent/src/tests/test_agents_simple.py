@@ -13,6 +13,8 @@ from pathlib import Path
 from agent.agents import gpt_image_edit, gpt_image_generation, publish_linkedin_post
 from model import Content
 
+from dotenv import load_dotenv
+load_dotenv()
 
 BASE_PATH = Path(__file__).parent
 

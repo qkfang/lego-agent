@@ -4,6 +4,9 @@ LEGO Planner Agent - Creates step-by-step action plans.
 
 from typing import TYPE_CHECKING
 from agent_framework import ChatAgent
+from agent_framework.azure import AzureAIAgentClient
+from azure.ai.projects.models import PromptAgentDefinition
+from .. import shared
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -32,10 +35,13 @@ class LegoPlannerAgent:
         if context.mcp_session is not None:
             tools = context.mcp_tools if context.mcp_tools else []
         
-        self.agent = ChatAgent(
-            chat_client=context.azure_client,
-            name=self.AGENT_NAME,
-            instructions='''
+        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
+        if agentdef is None:
+            agentdef = await shared.project_client.agents.create_version(
+                agent_name=self.AGENT_NAME,
+                definition=PromptAgentDefinition(
+                    model="gpt-4o",
+                    instructions='''
 You are robot planner agent. 
 
 need to decide how the robot should action to achieve the goal. 
@@ -71,9 +77,18 @@ Never try to run mcp action directly, just plan the steps and return the json ar
         ....
     }
 ]  
-''',
-            tools=tools,
-            description="Robot action planner that creates step-by-step action plans"
+'''
+                ),
+            )
+        
+        self.agent = ChatAgent(
+            chat_client=AzureAIAgentClient(
+                    project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
+                    model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
+                    agent_name=agentdef.name,
+                    credential=shared.credential,
+                ),
+            tools=tools
         )
 
     async def exec(self, message: str) -> str:

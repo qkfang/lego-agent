@@ -11,7 +11,7 @@ from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
 async def main():
 
     shared.isTest = False
-    shared.foundryAgents = []  # Agents are created on-demand in new framework
+    shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]  # Agents are created on-demand in new framework
     
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(

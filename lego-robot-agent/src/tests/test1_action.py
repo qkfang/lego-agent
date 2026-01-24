@@ -13,7 +13,7 @@ import lego_robot_agent.shared as shared
 
 async def main():
     shared.isTest = False
-    shared.foundryAgents = []  # Agents are created on-demand in new framework
+    shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]
     
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(
@@ -41,7 +41,7 @@ async def main():
             legoControllerAgent = LegoControllerAgent()
             
             await legoControllerAgent.init(context)
-            await legoControllerAgent.exec('hi')
+            await legoControllerAgent.exec('hi. 1+1 = ?')
 
 if __name__ == "__main__":
     asyncio.run(main())

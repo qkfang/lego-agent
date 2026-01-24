@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
         
         # Microsoft Agent Framework - agents are created on-demand
         # No need to pre-fetch agents from a service
-        shared.foundryAgents = []
+        shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]
         
         # Setup MCP connection for robot tools
         # Using the mcp package for MCP server communication

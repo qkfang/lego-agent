@@ -10,6 +10,7 @@ import aiohttp
 from typing import Optional, Dict, Any
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects.aio import AIProjectClient
+from azure.ai.projects.models import PromptAgentDefinition
 from semantic_kernel.agents.azure_ai.azure_ai_agent import AzureAIAgent
 from dotenv import load_dotenv
 
@@ -31,20 +32,20 @@ class ContentUnderstandingVideoAgent:
         
     async def init(self):
         """Initialize the agent with Azure AI Projects"""
-        connection_string = os.environ.get("PROJECT_CONNECTION_STRING")
-        if not connection_string:
-            raise ValueError("PROJECT_CONNECTION_STRING environment variable is required")
+        endpoint = os.environ.get("AZURE_AI_PROJECT_ENDPOINT", os.environ.get("PROJECT_CONNECTION_STRING", ""))
+        if not endpoint:
+            raise ValueError("AZURE_AI_PROJECT_ENDPOINT environment variable is required")
             
-        self.project_client = AIProjectClient.from_connection_string(
+        self.project_client = AIProjectClient(
+            endpoint=endpoint,
             credential=self.credential,
-            conn_str=connection_string
         )
         
         # Get or create the agent
-        agents_list = await self.project_client.agents.list_agents(limit=100)
+        agents_list = [agent async for agent in self.project_client.agents.list(limit=100)]
         existing_agent = None
         
-        for agent in agents_list.data:
+        for agent in agents_list:
             if agent.name == "agent-cu":
                 existing_agent = agent
                 break
@@ -56,11 +57,12 @@ class ContentUnderstandingVideoAgent:
             )
         else:
             # Create new agent
-            created_agent = await self.project_client.agents.create_agent(
-                model="gpt-4o",
+            created_agent = await self.project_client.agents.create(
                 name="agent-cu",
-                temperature=0.2,
-                instructions="""
+                definition=PromptAgentDefinition(
+                    model="gpt-4o",
+                    temperature=0.2,
+                    instructions="""
 You are a video analysis assistant using Azure Content Understanding service.
 You can analyze videos from URLs, transcribe them, and explain what happened in the video.
 You provide detailed descriptions of video content, including:
@@ -69,6 +71,7 @@ You provide detailed descriptions of video content, including:
 - Visual descriptions
 - Summary of the video content
 """
+                )
             )
             self.agent = AzureAIAgent(
                 service=self.project_client.agents,

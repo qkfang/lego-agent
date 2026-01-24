@@ -4,6 +4,9 @@ LEGO Judger Agent - Evaluates goal completion.
 
 from typing import TYPE_CHECKING
 from agent_framework import ChatAgent
+from agent_framework.azure import AzureAIAgentClient
+from azure.ai.projects.models import PromptAgentDefinition
+from .. import shared
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -27,10 +30,13 @@ class LegoJudgerAgent:
         """
         self._context = context
         
-        self.agent = ChatAgent(
-            chat_client=context.azure_client,
-            name=self.AGENT_NAME,
-            instructions='''
+        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
+        if agentdef is None:
+            agentdef = await shared.project_client.agents.create_version(
+                agent_name=self.AGENT_NAME,
+                definition=PromptAgentDefinition(
+                    model="gpt-4o",
+                    instructions='''
 You are robot judger agent. 
 
 You need to decide if the goal is already achieved based on the current field data and the goal.
@@ -39,8 +45,17 @@ robot position should not be considered.
 
 You must provide an answer in response by saying **goal completed** or **goal failed**. Also include the reason for your decision.
 NEVER repeat other agent's response, just provide your own answer.
-''',
-            description="Robot judger that evaluates goal completion"
+'''
+                ),
+            )
+        
+        self.agent = ChatAgent(
+            chat_client=AzureAIAgentClient(
+                    project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
+                    model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
+                    agent_name=agentdef.name,
+                    credential=shared.credential,
+                )
         )
 
     async def exec(self, message: str) -> str:

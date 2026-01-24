@@ -6,6 +6,9 @@ import json
 import requests
 from typing import TYPE_CHECKING
 from agent_framework import ChatAgent, ai_function
+from agent_framework.azure import AzureAIAgentClient
+from azure.ai.projects.models import PromptAgentDefinition
+from .. import shared
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -114,10 +117,13 @@ class LegoObserverAgent:
         self._context = context
         _observer_context = context
         
-        self.agent = ChatAgent(
-            chat_client=context.azure_client,
-            name=self.AGENT_NAME,
-            instructions='''
+        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
+        if agentdef is None:
+            agentdef = await shared.project_client.agents.create_version(
+                agent_name=self.AGENT_NAME,
+                definition=PromptAgentDefinition(
+                    model="gpt-4o",
+                    instructions='''
 You are robot observer agent. 
 
 You must ignore the information from other agents.
@@ -142,9 +148,18 @@ dont return any other text or explanation.
        // details
     }
 }
-''',
-            tools=[get_field_state_by_camera],
-            description="Robot field observer that captures and analyzes field state"
+'''
+                ),
+            )
+        
+        self.agent = ChatAgent(
+            chat_client=AzureAIAgentClient(
+                    project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
+                    model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
+                    agent_name=agentdef.name,
+                    credential=shared.credential,
+                ),
+            tools=[get_field_state_by_camera]
         )
 
     async def exec(self, message: str) -> str:
