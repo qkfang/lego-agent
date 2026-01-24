@@ -3,7 +3,7 @@
 		"lego-robot": {
 			"command": "node",
 			"args": [
-				"lego-mcp\\build\\index.js"
+				"${workspaceFolder}/lego-mcp/build/index.js"
 			],
 			"env": {},
 			"type": "stdio"

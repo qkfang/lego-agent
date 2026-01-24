@@ -8,7 +8,9 @@ from pathlib import Path
 import sys
 
 # Add the lego-robot-agent package to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "lego-robot-agent" / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from lego_robot_agent.util.paths import find_repo_root
 
 from lego_robot_agent.models import RobotData, RoboProcessArgs, Content
 from lego_robot_agent.context import AgentContext
@@ -21,7 +23,8 @@ class TestRobotData:
         """Test RobotData initializes with correct defaults."""
         robot_data = RobotData()
         
-        assert robot_data.root == "D:/gh-repo/lego-agent/lego-api/temp"
+        expected_root = str(find_repo_root(Path(__file__).resolve()) / "lego-api" / "temp")
+        assert robot_data.root == expected_root
         assert robot_data.runid is not None
         assert robot_data.field_data == {}
         assert robot_data.sequence == 0

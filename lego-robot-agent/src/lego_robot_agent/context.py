@@ -5,7 +5,10 @@ Replaces global state (shared.py) with explicit dependency passing.
 """
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Coroutine, Optional, TYPE_CHECKING
+
+from .util.paths import find_repo_root
 
 if TYPE_CHECKING:
     from .models import RobotData
@@ -42,7 +45,7 @@ class AgentContext:
     notify_callback: Optional[Callable[..., Coroutine[Any, Any, None]]] = None
     
     # Configuration
-    temp_folder: str = "D:/gh-repo/lego-agent/lego-mcp/temp"
+    temp_folder: str = ""
     is_test: bool = False
     test_count: int = 1
     
@@ -55,6 +58,11 @@ class AgentContext:
         if self.robot_data is None:
             from .models import RobotData
             self.robot_data = RobotData()
+        if not self.temp_folder:
+            self.temp_folder = str(
+                # repo root -> lego-mcp/temp
+                find_repo_root(Path(__file__).resolve()) / "lego-mcp" / "temp"
+            )
     
     async def notify(
         self,
