@@ -46,6 +46,12 @@ The system consists of several interconnected components:
    - Computer vision processing
    - Object detection and tracking capabilities
 
+6. **LEGO KB** (`lego-kb/`) - Knowledge base system
+   - Azure AI Search integration for document storage
+   - Azure Document Intelligence for document parsing
+   - Support for PDF and Word documents
+   - PowerShell scripts for index management and ingestion
+
 ## 🚀 Features
 
 ### AI-Powered Interactions
@@ -128,6 +134,13 @@ pip install -r requirements.txt
 ```bash
 cd lego-cam
 pip install -r requirements.txt
+```
+
+**Knowledge Base:**
+```bash
+cd lego-kb
+# Configure .env file with Azure credentials
+# See lego-kb/README.md for detailed setup instructions
 ```
 
 ## 🏃‍♂️ Running the Application
@@ -230,6 +243,9 @@ lego-agent/
 ├── lego-web/          # React frontend
 ├── lego-ble/          # Bluetooth communication
 ├── lego-cam/          # Camera streaming
+├── lego-kb/           # Knowledge base system
+│   ├── docs/          # Document storage
+│   └── scripts/       # PowerShell management scripts
 ├── tests/             # Test suites
 ├── testdata/          # Test images and data
 └── script/            # Utility scripts
