@@ -55,7 +55,9 @@ NEVER repeat other agent's response, just provide your own answer.
                     model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
                     agent_name=agentdef.name,
                     credential=shared.credential,
-                )
+                ),
+            name=self.AGENT_NAME,
+            description="Evaluates goal completion based on field data"
         )
 
     async def exec(self, message: str) -> str:

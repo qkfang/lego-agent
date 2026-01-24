@@ -51,7 +51,9 @@ It's always good to ask user to check the final result in the end.
                     model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
                     agent_name=agentdef.name,
                     credential=shared.credential,
-                )
+                ),
+            name=self.AGENT_NAME,
+            description="Coordinates the overall workflow and decides when the task is complete"
         )
 
     async def exec(self, message: str) -> str:

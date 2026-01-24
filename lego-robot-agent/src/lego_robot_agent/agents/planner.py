@@ -88,6 +88,8 @@ Never try to run mcp action directly, just plan the steps and return the json ar
                     agent_name=agentdef.name,
                     credential=shared.credential,
                 ),
+            name=self.AGENT_NAME,
+            description="Creates step-by-step action plans for the robot",
             tools=tools
         )
 

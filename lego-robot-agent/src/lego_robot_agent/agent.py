@@ -2,11 +2,13 @@
 LegoAgent - Main LEGO Agent orchestrator using Microsoft Agent Framework workflows.
 """
 
+import json
 import os
 import asyncio
 from typing import List, Callable, Coroutine, Any, Optional
 
 from agent_framework import GroupChatBuilder, GroupChatState, WorkflowEvent, ChatMessage
+from agent_framework import AgentRunEvent, Role, WorkflowOutputEvent, ExecutorCompletedEvent
 
 from .context import AgentContext
 from .models import Content
@@ -117,9 +119,9 @@ class LegoAgent:
             
         result = conversation[-4:]
         print(f"--- Agent Termination Check ---")
-        for idx, h in enumerate(result):
-            content = getattr(h, 'text', '') or getattr(h, 'content', '')
-            print(f"{idx}: name={getattr(h, 'author_name', None)}, content={content}")
+        # for idx, h in enumerate(result):
+        #     content = getattr(h, 'text', '') or getattr(h, 'content', '')
+        #     print(f"{idx}: name={getattr(h, 'author_name', None)}, content={content}")
         print(f"-------------------------------")
         
         return any(
@@ -197,8 +199,22 @@ class LegoAgent:
             print(f"# USER: '{goal}'")
             
             async for event in self._context.workflow.run_stream(goal):
-                if isinstance(event, WorkflowEvent):
-                    await self._handle_workflow_event(event)
+                match event:
+                    case AgentRunEvent() as agent_event:
+                        agent_name = getattr(agent_event, 'agent_name', 'unknown')
+                        message = getattr(agent_event, 'message', None)
+                        if message:
+                            content = getattr(message, 'content', '') or getattr(message, 'text', '')
+                            print(f"\033[94m[{agent_name}]\033[0m: {content}")
+                    case ExecutorCompletedEvent() as complete:
+                        agent_name = getattr(complete, 'executor_id', 'unknown')
+                        data = getattr(complete, 'data', None)
+                        if data:
+                            content = getattr(data[0], 'agent_response', '')
+                            print(f"\033[92m[{agent_name} completed]\033[0m: {content}")
+                    case WorkflowOutputEvent() as output:
+                        print(f"\033[93mWorkflow produced output:\033[0m {output.data}")
+                        return
 
             print(f"code completed")
         finally:
@@ -208,13 +224,15 @@ class LegoAgent:
         
         return "Robot agent run completed."
 
-    async def _handle_workflow_event(self, event: WorkflowEvent):
+    async def _handle_workflow_event(self, event: ExecutorCompletedEvent):
         """Handle a workflow event and send notifications."""
+        print(f"==={event.data}")
         content = event
         agent_name = getattr(content, 'author_name', None) or getattr(content, 'name', '*')
-        message_content = getattr(content, 'text', '') or getattr(content, 'content', '')
+        message_content = getattr(content, 'message', '') or getattr(content, 'content', '')
         
         print(f"\033[93m \r\n--------------------- {agent_name} start --------------------- \033[0m")
+        print(f"{content}")
         print(f"{message_content}")
         print(f"\033[93m \r\n--------------------- {agent_name} end --------------------- \033[0m")
 

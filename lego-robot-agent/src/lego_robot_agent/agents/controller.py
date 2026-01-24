@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class LegoControllerAgent:
     """LEGO Controller Agent using Microsoft Agent Framework."""
     
-    AGENT_NAME = "lego-controller2"
+    AGENT_NAME = "lego-controller"
     
     def __init__(self):
         self.agent: ChatAgent = None
@@ -60,6 +60,8 @@ After performing all actions, say that 'detection_result' is no longer valid, ne
                     agent_name=agentdef.name,
                     credential=shared.credential,
                 ),
+            name=self.AGENT_NAME,
+            description="Executes physical robot actions via MCP tools",
             tools=tools
         )
 

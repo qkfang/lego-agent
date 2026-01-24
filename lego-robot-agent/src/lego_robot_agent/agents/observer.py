@@ -159,6 +159,8 @@ dont return any other text or explanation.
                     agent_name=agentdef.name,
                     credential=shared.credential,
                 ),
+            name=self.AGENT_NAME,
+            description="Captures and analyzes the robot field state",
             tools=[get_field_state_by_camera]
         )
 
