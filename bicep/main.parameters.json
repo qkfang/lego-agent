@@ -5,20 +5,8 @@
     "resourcePrefix": {
       "value": "legobot"
     },
-    "foundryHubName": {
-      "value": "lego-agent-foundry-hub"
-    },
-    "foundryProjectName": {
-      "value": "lego-agent-video-project"
-    },
-    "contentUnderstandingName": {
-      "value": "legobot-content-understanding"
-    },
     "location": {
-      "value": "eastus"
-    },
-    "contentUnderstandingSku": {
-      "value": "S0"
+      "value": "eastus2"
     }
   }
 }

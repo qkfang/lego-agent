@@ -4,37 +4,14 @@ targetScope = 'resourceGroup'
 @description('Prefix for all resource names')
 param resourcePrefix string = 'legobot'
 
-@description('Name of the Azure AI Foundry hub')
-param foundryHubName string
-
-@description('Name of the Azure AI Foundry project')
-param foundryProjectName string
-
-@description('Name of the Content Understanding service')
-param contentUnderstandingName string
-
 @description('Location for all resources')
 param location string = resourceGroup().location
 
-@description('SKU for Content Understanding service')
-@allowed([
-  'S0'
-  'F0'
-])
-param contentUnderstandingSku string = 'S0'
-
-@description('Tags to apply to all resources')
-param tags object = {
-  environment: 'production'
-  project: 'lego-agent'
-  component: 'video-agent'
-}
 
 // Storage account for Foundry and application data
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: '${resourcePrefix}${toLower(replace(foundryHubName, '-', ''))}st'
+  name: '${resourcePrefix}st'
   location: location
-  tags: tags
   sku: {
     name: 'Standard_LRS'
   }
@@ -63,9 +40,8 @@ resource sustineoContainer 'Microsoft.Storage/storageAccounts/blobServices/conta
 
 // Key Vault for Foundry
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
-  name: '${resourcePrefix}-${foundryHubName}-kv'
+  name: '${resourcePrefix}-kv'
   location: location
-  tags: tags
   properties: {
     sku: {
       family: 'A'
@@ -83,9 +59,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
 
 // Application Insights for monitoring
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: '${resourcePrefix}-${foundryHubName}-insights'
+  name: '${resourcePrefix}-insights'
   location: location
-  tags: tags
   kind: 'web'
   properties: {
     Application_Type: 'web'
@@ -95,116 +70,103 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 // Azure AI Foundry Hub (v2 - not classic)
-resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-04-01' = {
-  name: foundryHubName
+resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
+  name: '${resourcePrefix}-foundry'
   location: location
-  tags: tags
   identity: {
     type: 'SystemAssigned'
   }
   sku: {
-    name: 'Basic'
-    tier: 'Basic'
+    name: 'S0'
   }
-  kind: 'Hub'
+  kind: 'AIServices'
   properties: {
-    friendlyName: foundryHubName
-    description: 'Azure AI Foundry Hub for LEGO Agent'
-    storageAccount: storageAccount.id
-    keyVault: keyVault.id
-    applicationInsights: applicationInsights.id
+    allowProjectManagement: true
+    customSubDomainName: '${resourcePrefix}-foundry'
     publicNetworkAccess: 'Enabled'
-    v1LegacyMode: false
+    disableLocalAuth: false
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
   }
 }
 
 // Azure AI Foundry Project
-resource aiProject 'Microsoft.MachineLearningServices/workspaces@2024-04-01' = {
-  name: foundryProjectName
-  location: location
-  tags: tags
-  identity: {
-    type: 'SystemAssigned'
-  }
-  sku: {
-    name: 'Basic'
-    tier: 'Basic'
-  }
-  kind: 'Project'
-  properties: {
-    friendlyName: foundryProjectName
-    description: 'Azure AI Foundry Project for Video Agent'
-    hubResourceId: aiHub.id
-    publicNetworkAccess: 'Enabled'
-  }
-}
+// resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-10-01-preview' = {
+//   parent: aiHub
+//   name: '${resourcePrefix}-project'
+//   location: location
+//   identity: {
+//     type: 'SystemAssigned'
+//   }
+// }
 
-// Content Understanding Service
-resource contentUnderstanding 'Microsoft.CognitiveServices/accounts@2024-04-01' = {
-  name: contentUnderstandingName
-  location: location
-  tags: tags
-  sku: {
-    name: contentUnderstandingSku
-  }
-  kind: 'ContentUnderstanding'
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {
-    customSubDomainName: contentUnderstandingName
-    publicNetworkAccess: 'Enabled'
-    networkAcls: {
-      defaultAction: 'Allow'
-    }
-    disableLocalAuth: false
-  }
-}
+
+// // Content Understanding Service
+// resource contentUnderstanding 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+//   name: '${resourcePrefix}-cu'
+//   location: location
+//   tags: tags
+//   sku: {
+//     name: contentUnderstandingSku
+//   }
+//   kind: 'ContentUnderstanding'
+//   identity: {
+//     type: 'SystemAssigned'
+//   }
+//   properties: {
+//     customSubDomainName: '${resourcePrefix}-cu'
+//     publicNetworkAccess: 'Enabled'
+//     networkAcls: {
+//       defaultAction: 'Allow'
+//     }
+//     disableLocalAuth: false
+//   }
+// }
 
 // OpenAI service for Foundry models
-resource openAI 'Microsoft.CognitiveServices/accounts@2024-04-01' = {
-  name: '${resourcePrefix}-${foundryHubName}-openai'
-  location: location
-  tags: tags
-  sku: {
-    name: 'S0'
-  }
-  kind: 'OpenAI'
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {
-    customSubDomainName: '${resourcePrefix}-${foundryHubName}-openai'
-    publicNetworkAccess: 'Enabled'
-    networkAcls: {
-      defaultAction: 'Allow'
-    }
-  }
-}
+// resource openAI 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+//   name: '${resourcePrefix}-${foundryHubName}-openai'
+//   location: location
+//   tags: tags
+//   sku: {
+//     name: 'S0'
+//   }
+//   kind: 'OpenAI'
+//   identity: {
+//     type: 'SystemAssigned'
+//   }
+//   properties: {
+//     customSubDomainName: '${resourcePrefix}-${foundryHubName}-openai'
+//     publicNetworkAccess: 'Enabled'
+//     networkAcls: {
+//       defaultAction: 'Allow'
+//     }
+//   }
+// }
 
 // GPT-4o deployment for agent
-resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-04-01' = {
-  parent: openAI
-  name: 'gpt-4o'
-  sku: {
-    name: 'Standard'
-    capacity: 10
-  }
-  properties: {
-    model: {
-      format: 'OpenAI'
-      name: 'gpt-4o'
-      version: '2024-05-13'
-    }
-    versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
-  }
-}
+// resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
+//   parent: openAI
+//   name: 'gpt-4o'
+//   sku: {
+//     name: 'Standard'
+//     capacity: 10
+//   }
+//   properties: {
+//     model: {
+//       format: 'OpenAI'
+//       name: 'gpt-4o'
+//       version: '2024-05-13'
+//     }
+//     versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
+//   }
+// }
 
 // Cosmos DB account for storing configurations and data
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
-  name: '${resourcePrefix}-${toLower(replace(foundryHubName, '-', ''))}-cosmos'
+  name: '${resourcePrefix}-cosmos'
   location: location
-  tags: tags
   kind: 'GlobalDocumentDB'
   properties: {
     databaseAccountOfferType: 'Standard'
@@ -265,22 +227,3 @@ resource voiceConfigContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabase
     }
   }
 }
-
-// Outputs
-output foundryHubId string = aiHub.id
-output foundryHubName string = aiHub.name
-output foundryProjectId string = aiProject.id
-output foundryProjectName string = aiProject.name
-output contentUnderstandingId string = contentUnderstanding.id
-output contentUnderstandingName string = contentUnderstanding.name
-output contentUnderstandingEndpoint string = contentUnderstanding.properties.endpoint
-output openAIEndpoint string = openAI.properties.endpoint
-output openAIId string = openAI.id
-output storageAccountName string = storageAccount.name
-output storageAccountEndpoint string = storageAccount.properties.primaryEndpoints.blob
-output cosmosDbAccountName string = cosmosDbAccount.name
-output cosmosDbEndpoint string = cosmosDbAccount.properties.documentEndpoint
-output keyVaultName string = keyVault.name
-output keyVaultUri string = keyVault.properties.vaultUri
-output applicationInsightsName string = applicationInsights.name
-output applicationInsightsConnectionString string = applicationInsights.properties.ConnectionString
