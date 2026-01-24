@@ -4,8 +4,9 @@ import lego_robot_agent.shared as shared
 from mcp import StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.client.session import ClientSession
-from robot.robot_agent import LegoAgent
-from util.mcp_tools import wrap_mcp_tools
+from lego_robot_agent import LegoAgent
+from lego_robot_agent.context import AgentContext
+from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
 
 async def main():
 
@@ -30,11 +31,18 @@ async def main():
             mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
             # Wrap MCP tools to make them callable for agent framework
             shared.robotmcptools = wrap_mcp_tools(mcp_tools, session)
-            
-            legoAgent = LegoAgent()
+                        
+            # Create context for the agent
+            context = AgentContext(
+                azure_client=shared.azure_client,
+                mcp_session=session,
+                mcp_tools=shared.robotmcptools,
+            )
+
+            legoAgent = LegoAgent(context)
 
             await legoAgent.init()
-            await legoAgent.robot_agent_run('grab bowser a coke and go back.')
+            await legoAgent.run('grab bowser a coke and go back.')
 
 
 if __name__ == "__main__":
