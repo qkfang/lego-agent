@@ -11,7 +11,7 @@ from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect
 from openai.types.beta.realtime.session_update_event import SessionTool
 
 from agent.decorators import function_agents, function_calls
-from util.storage import get_storage_client
+from lego_robot_agent.util.storage import get_storage_client
 from connection import connections
 from model import Update
 from telemetry import init_tracing
@@ -24,8 +24,8 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from mcp import StdioServerParameters
 from mcp.client.stdio import stdio_client
 from agent.common import foundry_agents, custom_agents, get_custom_agents
-from util.mcp_tools import wrap_mcp_tools
-import shared
+from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
+import lego_robot_agent.shared as shared
             
 from dotenv import load_dotenv
 
@@ -202,7 +202,7 @@ async def voice_endpoint(id: str, websocket: WebSocket):
                 print(f"ToolName: {tool.name}")
 
             # create a new thread in the foundry
-            thread_id = await create_foundry_thread()
+            thread_id = await create_thread()
 
             global session
             session = RealtimeSession(

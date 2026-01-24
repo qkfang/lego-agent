@@ -9,7 +9,7 @@ from robot.robot_agent_controller import LegoControllerAgent
 from robot.robot_agent_judger import LegoJudgerAgent
 from util.mcp_tools import wrap_mcp_tools
 import asyncio
-import shared
+import lego_robot_agent.shared as shared
 import json
 
 async def main():

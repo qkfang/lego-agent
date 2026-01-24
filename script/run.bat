@@ -13,3 +13,7 @@ uvicorn main:app
 python object_detector.py ../../testdata/test4.jpg --method color --output dist.json
 
 python lego-api/robot/object_detector.py testdata/test4.jpg --method color --output result.json
+
+
+cd c:\repo\lego-agent\lego-api
+pip install -e ../lego-robot-agent

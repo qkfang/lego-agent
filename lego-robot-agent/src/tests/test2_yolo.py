@@ -5,7 +5,7 @@ from robot.robot_agent_planner import LegoPlannerAgent
 from robot.robot_agent_controller import LegoControllerAgent
 from robot.robot_agent_judger import LegoJudgerAgent
 import asyncio
-import shared
+import lego_robot_agent.shared as shared
 import json
 
 async def main():

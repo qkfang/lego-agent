@@ -1,5 +1,5 @@
 import os
-import shared
+import lego_robot_agent.shared as shared
 import asyncio
 from azure.identity import DefaultAzureCredential, AzureCliCredential
 from agent_framework.azure import AzureOpenAIResponsesClient

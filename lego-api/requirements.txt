@@ -26,3 +26,7 @@ requests>=2.32.3
 agent-framework --pre
 mcp
 opencv-python
+
+# Local packages (install with pip install -e)
+# lego-robot-agent @ file:../lego-robot-agent
+-e ../lego-robot-agent

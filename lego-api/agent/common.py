@@ -95,7 +95,7 @@ async def execute_foundry_agent(
     Note: This function is maintained for compatibility but the main
     agent execution now happens through the workflow in robot_agent.py
     """
-    import shared
+    import lego_robot_agent.shared as shared
     
     # For now, log the execution request
     # The actual execution happens through the workflow

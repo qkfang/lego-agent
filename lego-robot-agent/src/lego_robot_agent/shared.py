@@ -1,4 +1,4 @@
-from robot.robotmodel import RobotData
+from lego_robot_agent import RobotData
 from azure.identity import DefaultAzureCredential, AzureCliCredential
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.semconv.resource import ResourceAttributes

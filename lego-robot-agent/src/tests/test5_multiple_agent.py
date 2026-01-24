@@ -1,6 +1,6 @@
 """Test script for multi-agent workflow using Microsoft Agent Framework."""
 import asyncio
-import shared
+import lego_robot_agent.shared as shared
 from mcp import StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.client.session import ClientSession

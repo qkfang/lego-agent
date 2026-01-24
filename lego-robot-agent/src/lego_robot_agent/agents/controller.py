@@ -1,27 +1,40 @@
-import shared
+"""
+LEGO Controller Agent - Executes physical robot actions via MCP tools.
+"""
+
+from typing import TYPE_CHECKING
 from agent_framework import ChatAgent
+
+if TYPE_CHECKING:
+    from ..context import AgentContext
 
 
 class LegoControllerAgent:
     """LEGO Controller Agent using Microsoft Agent Framework."""
-    agent: ChatAgent = None
-    agentName = "lego-controller"
-
+    
+    AGENT_NAME = "lego-controller"
+    
     def __init__(self):
-        self.agent = None
+        self.agent: ChatAgent = None
+        self._context: "AgentContext" = None
 
-    async def init(self):
-        """Initialize the controller agent using Microsoft Agent Framework with MCP tools."""
+    async def init(self, context: "AgentContext"):
+        """
+        Initialize the controller agent using Microsoft Agent Framework with MCP tools.
         
-        # Get MCP tools from shared if available
+        Args:
+            context: The agent context with Azure client and dependencies
+        """
+        self._context = context
+        
+        # Get MCP tools from context if available
         tools = []
-        if shared.mcprobot is not None:
-            tools = shared.robotmcptools if shared.robotmcptools else []
+        if context.mcp_session is not None:
+            tools = context.mcp_tools if context.mcp_tools else []
         
-        # Create agent with MCP robot tools for physical control
         self.agent = ChatAgent(
-            chat_client=shared.azure_client,
-            name=self.agentName,
+            chat_client=context.azure_client,
+            name=self.AGENT_NAME,
             instructions='''
 You are robot controller agent. need to follow the plan to control the robot to action. 
 do one step at a time and wait for earlier action to complete. 
@@ -37,10 +50,8 @@ After performing all actions, say that 'detection_result' is no longer valid, ne
             description="Robot controller that executes physical robot actions"
         )
 
-    async def exec(self, message: str):
+    async def exec(self, message: str) -> str:
         """Execute the controller agent with a message."""
         response = await self.agent.run(message)
-        print(f"# {self.agentName}: {response}")
+        print(f"# {self.AGENT_NAME}: {response}")
         return str(response)
-
-

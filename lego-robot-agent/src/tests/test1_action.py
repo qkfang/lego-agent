@@ -1,11 +1,15 @@
 """Test script for robot controller agent using Microsoft Agent Framework."""
+import sys
+from pathlib import Path
+
 from mcp import StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.client.session import ClientSession
-from robot.robot_agent_controller import LegoControllerAgent
-from util.mcp_tools import wrap_mcp_tools
+from lego_robot_agent.agents import LegoControllerAgent
+from lego_robot_agent.context import AgentContext
+from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
 import asyncio
-import shared
+import lego_robot_agent.shared as shared
 
 async def main():
     shared.isTest = False
@@ -27,9 +31,16 @@ async def main():
             # Wrap MCP tools to make them callable for agent framework
             shared.robotmcptools = wrap_mcp_tools(mcp_tools, session)
             
+            # Create context for the agent
+            context = AgentContext(
+                azure_client=shared.azure_client,
+                mcp_session=session,
+                mcp_tools=shared.robotmcptools,
+            )
+            
             legoControllerAgent = LegoControllerAgent()
             
-            await legoControllerAgent.init()
+            await legoControllerAgent.init(context)
             await legoControllerAgent.exec('hi')
 
 if __name__ == "__main__":

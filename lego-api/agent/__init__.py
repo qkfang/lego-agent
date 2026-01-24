@@ -29,7 +29,7 @@ from agent.common import (
 )
 
 import json
-import shared
+import lego_robot_agent.shared as shared
 import agent.agents as agents  # noqa: F401
 import agent.functions as functions  # noqa: F401
 from connection import connections
