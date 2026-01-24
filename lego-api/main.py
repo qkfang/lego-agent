@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
         # Using the mcp package for MCP server communication
         mcp_server_params = StdioServerParameters(
             command="node",
-            args=["D:\\gh-repo\\lego-agent\\lego-mcp\\build\\index.js"],
+            args=["c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"],
             env={
                 "PROJECT_CONNECTION_STRING": "",
                 "DEFAULT_ROBOT_ID": "robot_b"

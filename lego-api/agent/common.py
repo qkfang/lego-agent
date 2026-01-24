@@ -76,8 +76,14 @@ async def get_available_agents() -> dict[str, Agent]:
     return foundry_agents
 
 
+# Alias for backward compatibility
+async def get_foundry_agents() -> dict[str, Agent]:
+    """Alias for get_available_agents for backward compatibility."""
+    return await get_available_agents()
+
+
 @trace
-async def execute_agent(
+async def execute_foundry_agent(
     agent_id: str,
     additional_instructions: str,
     query: str,

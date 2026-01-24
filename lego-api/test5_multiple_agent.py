@@ -15,7 +15,7 @@ async def main():
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(
         command="node",
-        args=["D:\\gh-repo\\lego-agent\\lego-mcp\\build\\index.js"],
+        args=["c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"],
         env={
             "PROJECT_CONNECTION_STRING": "",
             "DEFAULT_ROBOT_ID": "robot_b"

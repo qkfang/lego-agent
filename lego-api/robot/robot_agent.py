@@ -1,8 +1,6 @@
 
 from typing import ClassVar, List
-from agent_framework import ChatAgent
-from agent_framework.workflows import AgentWorkflowBuilder, GroupChatManager, WorkflowEvent
-from agent_framework.workflows.orchestrations import RoundRobinGroupChatManager
+from agent_framework import ChatAgent, GroupChatBuilder, GroupChatState, WorkflowEvent, ChatMessage
 from robot.robot_agent_orchestrator import LegoOrchestratorAgent
 from robot.robot_agent_observer import LegoObserverAgent
 from robot.robot_agent_planner import LegoPlannerAgent
@@ -14,78 +12,78 @@ import os
 import asyncio
 
 
-class LegoGroupChatManager(RoundRobinGroupChatManager):
-    """Custom group chat manager for LEGO robot agents that follows a logical workflow."""
+# Module-level state for the group chat workflow
+_action_executing: bool = False
+_action_ending: bool = False
+_agent_map: dict = {}
+
+
+async def lego_select_next_speaker(state: GroupChatState) -> str:
+    """Select the next agent based on the conversation flow and context."""
+    global _action_executing, _action_ending, _agent_map
     
-    def __init__(self, agents: List[ChatAgent]):
-        super().__init__(agents)
-        self.action_executing: bool = False
-        self.action_ending: bool = False
-        self.maximum_iteration_count = 10
-        self._agent_map = {agent.name: agent for agent in agents}
-        
-    async def select_next_speaker(self, history: List) -> ChatAgent:
-        """Select the next agent based on the conversation flow and context."""
-        
-        if self.action_ending:
-            return self._agent_map.get("lego-orchestrator")
-            
-        if not history:
-            # Start with orchestrator
-            return self._agent_map.get("lego-orchestrator")
-            
-        last_message = history[-1] if history else None
-        last_agent = getattr(last_message, 'author_name', None) if last_message else None
-        
-        # Define the workflow logic
-        if last_agent == "lego-orchestrator":
-            # After orchestrator, start with observer to analyze the field
-            return self._agent_map.get("lego-observer")
-            
-        elif last_agent == "lego-observer" and not self.action_executing:
-            # After observation, move to planner
-            return self._agent_map.get("lego-planner")
-            
-        elif last_agent == "lego-planner":
-            # After planning, execute with controller
-            return self._agent_map.get("lego-controller")
-            
-        elif last_agent == "lego-controller":
-            # After action, judge the results
-            self.action_executing = True
-            return self._agent_map.get("lego-observer")
-            
-        elif last_agent == "lego-observer" and self.action_executing:
-            self.action_executing = False
-            return self._agent_map.get("lego-judger")
-            
-        elif last_agent == "lego-judger":
-            self.action_ending = True
-            return self._agent_map.get("lego-orchestrator")
-            
-        # Default fallback
-        return self._agent_map.get("lego-orchestrator")
+    history = state.conversation
     
-    async def should_terminate(self, history: List) -> bool:
-        """Check if the workflow should terminate."""
-        if len(history) < 4:
-            return False
-            
-        result = history[-4:]
-        print(f"--- Agent Termination Check ---")
-        for idx, h in enumerate(result):
-            content = getattr(h, 'text', '') or getattr(h, 'content', '')
-            print(f"{idx}: name={getattr(h, 'author_name', None)}, content={content}")
-        print(f"-------------------------------")
+    if _action_ending:
+        return "lego-orchestrator"
         
-        return any(
-            "completed actions" in (getattr(h, 'text', '') or getattr(h, 'content', '') or '').lower() 
-            for h in result
-        ) or any(
-            "task completed" in (getattr(h, 'text', '') or getattr(h, 'content', '') or '').lower() 
-            for h in result
-        )
+    if not history:
+        # Start with orchestrator
+        return "lego-orchestrator"
+        
+    last_message = history[-1] if history else None
+    last_agent = getattr(last_message, 'author_name', None) if last_message else None
     
+    # Define the workflow logic
+    if last_agent == "lego-orchestrator":
+        # After orchestrator, start with observer to analyze the field
+        return "lego-observer"
+        
+    elif last_agent == "lego-observer" and not _action_executing:
+        # After observation, move to planner
+        return "lego-planner"
+        
+    elif last_agent == "lego-planner":
+        # After planning, execute with controller
+        return "lego-controller"
+        
+    elif last_agent == "lego-controller":
+        # After action, judge the results
+        _action_executing = True
+        return "lego-observer"
+        
+    elif last_agent == "lego-observer" and _action_executing:
+        _action_executing = False
+        return "lego-judger"
+        
+    elif last_agent == "lego-judger":
+        _action_ending = True
+        return "lego-orchestrator"
+        
+    # Default fallback
+    return "lego-orchestrator"
+
+
+def lego_termination_condition(conversation: List[ChatMessage]) -> bool:
+    """Check if the workflow should terminate."""
+    if len(conversation) < 4:
+        return False
+        
+    result = conversation[-4:]
+    print(f"--- Agent Termination Check ---")
+    for idx, h in enumerate(result):
+        content = getattr(h, 'text', '') or getattr(h, 'content', '')
+        print(f"{idx}: name={getattr(h, 'author_name', None)}, content={content}")
+    print(f"-------------------------------")
+    
+    return any(
+        "completed actions" in (getattr(h, 'text', '') or getattr(h, 'content', '') or '').lower() 
+        for h in result
+    ) or any(
+        "task completed" in (getattr(h, 'text', '') or getattr(h, 'content', '') or '').lower() 
+        for h in result
+    )
+
         
 class LegoAgent:
     """Main LEGO Agent orchestrator using Microsoft Agent Framework workflows."""
@@ -126,6 +124,12 @@ class LegoAgent:
             seen_files = current_files
 
     async def robot_agent_run(self, goal: str):
+        global _action_executing, _action_ending, _agent_map
+        
+        # Reset state for new run
+        _action_executing = False
+        _action_ending = False
+        
         await shared.mcprobot.connect()
         
         # Get agent instances
@@ -137,11 +141,19 @@ class LegoAgent:
             self.legoJudgerAgent.agent
         ]
         
+        # Build agent map for speaker selection
+        _agent_map = {agent.name: agent for agent in agents}
+        
         # Build the workflow using Microsoft Agent Framework group chat pattern
-        # Using custom manager for LEGO-specific agent selection logic
-        shared.workflow = AgentWorkflowBuilder.create_group_chat_builder_with(
-            lambda agent_list: LegoGroupChatManager(agent_list)
-        ).add_participants(*agents).build()
+        # Using custom selection function for LEGO-specific agent selection logic
+        shared.workflow = (
+            GroupChatBuilder()
+            .with_select_speaker_func(lego_select_next_speaker)
+            .with_termination_condition(lego_termination_condition)
+            .with_max_rounds(10)
+            .participants(agents)
+            .build()
+        )
         
         temp_folder = os.path.join('D:/gh-repo/lego-agent/lego-mcp/temp')
         monitor_task = asyncio.create_task(self.monitor_temp_folder(temp_folder))

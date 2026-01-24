@@ -25,3 +25,4 @@ werkzeug<3.1.2
 requests>=2.32.3
 agent-framework --pre
 mcp
+opencv-python

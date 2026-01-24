@@ -8,7 +8,7 @@ from typing import Annotated
 from agent.decorators import agent
 from model import AgentUpdateEvent, Content
 from util.storage import save_image_blobs, save_image_binary_blobs
-from agent.common import execute_agent, post_request
+from agent.common import execute_foundry_agent, post_request
 from dotenv import load_dotenv
 from robot.robotmodel import RobotData, RoboProcessArgs
 from robot.robot_agent import LegoAgent
