@@ -1,5 +1,6 @@
 """Test script for robot controller agent using Microsoft Agent Framework."""
 import sys
+import os
 from pathlib import Path
 
 from mcp import StdioServerParameters
@@ -10,15 +11,19 @@ from lego_robot_agent.context import AgentContext
 from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
 import asyncio
 import lego_robot_agent.shared as shared
+from mcp_test_utils import get_mcp_server_path
 
 async def main():
     shared.isTest = False
     shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]
     
+    # Get MCP server path
+    mcp_server_path = get_mcp_server_path()
+    
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(
         command="node",
-        args=["c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"],
+        args=[str(mcp_server_path)],
         env={},
     )
     

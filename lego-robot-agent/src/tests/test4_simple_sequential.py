@@ -11,16 +11,20 @@ from util.mcp_tools import wrap_mcp_tools
 import asyncio
 import lego_robot_agent.shared as shared
 import json
+from mcp_test_utils import get_mcp_server_path
 
 async def main():
 
     shared.isTest = False
     shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]  # Agents are created on-demand in new framework
     
+    # Get MCP server path
+    mcp_server_path = get_mcp_server_path()
+    
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(
         command="node",
-        args=["c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"],
+        args=[str(mcp_server_path)],
         env={},
     )
     

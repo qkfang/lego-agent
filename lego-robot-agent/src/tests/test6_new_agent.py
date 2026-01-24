@@ -13,15 +13,19 @@ from mcp.client.session import ClientSession
 # New import style using the refactored package
 from lego_robot_agent import LegoAgent, AgentContext, RobotData
 from lego_api.util.mcp_tools import wrap_mcp_tools
+from mcp_test_utils import get_mcp_server_path
 
 
 async def main():
     """Run the LegoAgent with a sample goal."""
     
+    # Get MCP server path
+    mcp_server_path = get_mcp_server_path()
+    
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(
         command="node",
-        args=["c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"],
+        args=[str(mcp_server_path)],
         env={
             "PROJECT_CONNECTION_STRING": "",
             "DEFAULT_ROBOT_ID": "robot_b"
