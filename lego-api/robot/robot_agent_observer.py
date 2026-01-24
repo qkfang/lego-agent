@@ -1,9 +1,8 @@
 import json
 import shared
 import requests
-from semantic_kernel.agents.azure_ai.azure_ai_agent import AzureAIAgent
-from semantic_kernel.functions import kernel_function
-from semantic_kernel.contents.chat_message_content import ChatMessageContent
+from agent_framework import ChatAgent
+from agent_framework import ai_function
 from robot.robotmodel import RobotData, RoboProcessArgs
 from util.storage import save_image_binary_blobs
 from robot.object_detector import run 
@@ -33,78 +32,65 @@ async def processImage(robotData: RobotData):
     return fieldData
 
 
-class FieldStatePlugin:
+@ai_function(description="Get the current state of the robot field by capturing an image via camera")
+async def get_field_state_by_camera() -> str:
     """
-    Description: Capture field state via camera or photo as analysis data.
+    Returns analysis data of the current state of the robot field by capturing an image or photo or camera
     """
 
-    @kernel_function(
-        description="the current state of the robot field by capturing an image or photo or camera",
-        name="get_field_state_by_camera",
-    )
-    async def get_field_state_by_camera() -> str:
-        """
-        Returns analysis data of the current state of the robot field by capturing an image or photo or camera
-        """
+    if shared.notify is not None:
+        await shared.notify(
+            id="text_update",
+            subagent='lego-observer',
+            status="Field analysis started",
+            information="Requesting field photo from camera.",
+        )
+    
+    # Use local file if istest is True, otherwise use camera
+    if shared.isTest:
+        if shared.isTestCount == 1:
+            imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
+        elif shared.isTestCount > 1:
+            imageFile = "D://gh-repo//lego-agent//testdata//field-2.jpg"
 
-        if shared.notify is not None:
-            await shared.notify(
-                id="text_update",
-                subagent = 'lego-observer',
-                status="Field analysis started",
-                information="Requesting field photo from camera.",
-            )
-        
-        # Use local file if istest is True, otherwise use camera
-        if shared.isTest:
-            if(shared.isTestCount == 1):
-                imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
-            elif(shared.isTestCount > 1):
-                imageFile = "D://gh-repo//lego-agent//testdata//field-2.jpg"
-            # if(shared.isTestCount == 2):
-            #     imageFile = "D://gh-repo//lego-agent//testdata//field-1.jpg"
+        print('shared.isTestCount=' + str(shared.isTestCount) + ' ' + imageFile)
+        with open(imageFile, "rb") as f:
+            img_data = f.read()
 
-            print('shared.isTestCount=' + str(shared.isTestCount) + ' ' + imageFile)
-            with open(imageFile, "rb") as f:
-                img_data = f.read()
+        shared.isTestCount += 1
+    else:
+        url = "http://192.168.0.50:5000/photo"
+        response = requests.get(url)
+        img_data = response.content
 
-            shared.isTestCount += 1
-        else:
-            url = "http://192.168.0.50:5000/photo"
-            response = requests.get(url)
-            img_data = response.content
+    with open(shared.robotData.step0_img_path(), "wb") as f:
+        f.write(img_data)
 
-        with open(shared.robotData.step0_img_path(), "wb") as f:
-            f.write(img_data)
+    data = await processImage(shared.robotData)
 
-        data = await processImage(shared.robotData)
-        # print (f"get_field_state_by_camera: {shared.robotData.field_data}")
-
-        return data
+    return json.dumps(data)
 
 
 class LegoObserverAgent:
-    agent = None
+    """LEGO Observer Agent using Microsoft Agent Framework."""
+    agent: ChatAgent = None
     agentName = "lego-observer"
 
     def __init__(self):
         self.agent = None
 
-
     async def init(self):
-
-        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.agentName), None)
-        if agentdef is None:
-            agentdef = await shared.project_client.agents.create_agent(
-                model="gpt-4o",
-                name=self.agentName,
-                temperature=0,
-                instructions=
-'''
+        """Initialize the observer agent using Microsoft Agent Framework with tools."""
+        
+        # Create agent with the field state tool
+        self.agent = ChatAgent(
+            chat_client=shared.azure_client,
+            name=self.agentName,
+            instructions='''
 You are robot observer agent. 
 
 You must ignore the information from other agents.
-MUST call FieldStatePlugin and get_field_state_by_camera every single time to get the latest field data.
+MUST call get_field_state_by_camera every single time to get the latest field data.
 You must not reuse previous detection_result json data.
 
 Each time you are asked for a photo or detection_result, you must get it yourself by using camera and take a photo.
@@ -125,23 +111,15 @@ dont return any other text or explanation.
        // details
     }
 }
-'''
+''',
+            tools=[get_field_state_by_camera],
+            description="Robot field observer that captures and analyzes field state"
         )
-
-        self.agent = AzureAIAgent(
-            client=shared.project_client,
-            definition=agentdef,
-            plugins=[FieldStatePlugin],
-            
-        )
-
 
     async def exec(self, message: str):
-        response = await self.agent.get_response(
-                                        messages= message, 
-                                        thread=shared.thread
-                                    )
-        print(f"# {response.name}: {response.content}")
+        """Execute the observer agent with a message."""
+        response = await self.agent.run(message)
+        print(f"# {self.agentName}: {response}")
         return str(response)
 
 

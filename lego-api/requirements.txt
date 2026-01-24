@@ -13,7 +13,6 @@ aiohttp
 aiofiles
 types-aiofiles
 mypy
-azure-ai-projects==1.0.0b10
 azure-identity
 prompty[azure]==1.0.0a1
 aiohttp
@@ -22,5 +21,7 @@ pytest>=7.0.0
 pytest-asyncio>=0.21.0
 pytest-mock>=3.10.0
 aioresponses>=0.7.4
-semantic-kernel[mcp]
-semantic-kernel[azure]
+werkzeug<3.1.2
+requests>=2.32.3
+agent-framework --pre
+mcp

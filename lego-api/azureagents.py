@@ -1,37 +1,34 @@
 import os
 import shared
 import asyncio
-from azure.ai.projects import AIProjectClient
-from azure.identity import DefaultAzureCredential
-from azure.ai.projects.models import AzureAISearchQueryType, AzureAISearchTool, ListSortOrder, MessageRole
+from azure.identity import DefaultAzureCredential, AzureCliCredential
+from agent_framework.azure import AzureOpenAIResponsesClient
 from dotenv import load_dotenv
 
 load_dotenv()
 
-
-project_client = AIProjectClient.from_connection_string(
-    credential=DefaultAzureCredential(),
-    conn_str= os.environ["PROJECT_CONNECTION_STRING"]
+# Microsoft Agent Framework - Azure OpenAI Responses Client
+azure_client = AzureOpenAIResponsesClient(
+    endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT", ""),
+    deployment_name=os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4o"),
+    api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview"),
+    credential=AzureCliCredential(),
 )
 
 
 async def main():
-
-    with project_client:
-
-        agents = project_client.agents.list_agents(limit=100)
+    """
+    Main function to demonstrate agent creation with Microsoft Agent Framework.
     
-        for agent in agents.data:
-            if agent.name.startswith("lego-"):
-                project_client.agents.delete_agent(agent.id)
-                print("Deleted agent: " + agent.id)
-
-        await shared.project_client.agents.create_agent(
-            model="gpt-4o",
-            name="lego-ochestrator",
-            temperature=0.2,
-            instructions=
-'''
+    Note: In the new framework, agents are created on-demand and don't need
+    to be pre-registered in a service. The cleanup and creation pattern
+    from Azure AI Foundry is no longer needed.
+    """
+    
+    # Create orchestrator agent
+    orchestrator = azure_client.create_agent(
+        name="lego-orchestrator",
+        instructions='''
 You are robot orchestrator. 
 
 Always starting with analyzing the current field data, and decide if the goal is already achieved.
@@ -41,15 +38,12 @@ if the goal is failed or not achieved, need to analyze the field data again.
 NEVER repeat other agent's response, just provide your own answer.
 '''
     )
-        
-        
-
-        await shared.project_client.agents.create_agent(
-            model="gpt-4o",
-            name="lego-observer",
-            temperature=0,
-            instructions=
-'''
+    print(f"Created agent: lego-orchestrator")
+    
+    # Create observer agent
+    observer = azure_client.create_agent(
+        name="lego-observer",
+        instructions='''
 You are robot field observer. 
 never ask for an photo, you must get it yourself.
 
@@ -63,13 +57,12 @@ MUST return detection_result in json format exactly as it as, NEVER CHANGE STRUC
 dont return any other text or explanation.
 '''
     )
-
-        await shared.project_client.agents.create_agent(
-            model="gpt-4o" ,
-            name="lego-planner",
-            temperature=0.2,
-            instructions=
-'''
+    print(f"Created agent: lego-observer")
+    
+    # Create planner agent
+    planner = azure_client.create_agent(
+        name="lego-planner",
+        instructions='''
 You are robot action planner. 
 
 need to decide how the robot should action to achieve the goal. 
@@ -91,39 +84,29 @@ follow below example format to output the plan with multiple steps,
             "distance": 200
         },
         "explain": "move the robot 200mm forward in the current direction, which is east."
-    },
-    {
-    },
-    {
     }
 ]  
-
-this is the current field data, the blue object stands for the robot, the red object stands for the goal. 
 '''
     )
-
-
-        await shared.project_client.agents.create_agent(
-            model="gpt-4o",
-            name="lego-controller",
-            temperature=0,
-            instructions=
-'''
-You are robot action connter. need to follow the plan to control the robot to action. 
+    print(f"Created agent: lego-planner")
+    
+    # Create controller agent
+    controller = azure_client.create_agent(
+        name="lego-controller",
+        instructions='''
+You are robot action controller. need to follow the plan to control the robot to action. 
 do one step at a time and wait for earlier action to complete. 
 You might not know if the robot action is successful or not.
 dont ask for any confirmation, just follow the plan step by step.
 NEVER repeat other agent's response, just provide your own answer.
 '''
     )
-        
-
-        await shared.project_client.agents.create_agent(
-            model="gpt-4o",
-            name="lego-judger",
-            temperature=0,
-            instructions=
-'''
+    print(f"Created agent: lego-controller")
+    
+    # Create judger agent
+    judger = azure_client.create_agent(
+        name="lego-judger",
+        instructions='''
 You are robot judge. 
 You need to decide if the goal is already achieved based on the current field data and the goal.
 You must ask field data and photo from the observer agent after controller agent has completed the action.
@@ -133,7 +116,10 @@ You must provide an answer in response by saying 'goal completed' or 'goal faile
 NEVER repeat other agent's response, just provide your own answer.
 '''
     )
-
+    print(f"Created agent: lego-judger")
+    
+    print("\nAll agents created successfully with Microsoft Agent Framework!")
+    print("Note: Agents are now created on-demand and don't persist in a service.")
 
 
 if __name__ == "__main__":

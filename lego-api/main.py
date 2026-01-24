@@ -19,10 +19,12 @@ from voice.common import get_default_configuration_data, convert_function_params
 from voice.session import RealtimeSession
 from voice import router as voice_configuration_router
 from agent import router as agent_router
-from agent.common import get_custom_agents, create_foundry_thread
+from agent.common import get_custom_agents, create_thread, get_available_agents
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from semantic_kernel.connectors.mcp import MCPStdioPlugin
-from agent.common import foundry_agents, custom_agents, get_foundry_agents, get_custom_agents
+from mcp import StdioServerParameters
+from mcp.client.stdio import stdio_client
+from agent.common import foundry_agents, custom_agents, get_custom_agents
+from util.mcp_tools import wrap_mcp_tools
 import shared
             
 from dotenv import load_dotenv
@@ -44,24 +46,33 @@ async def lifespan(app: FastAPI):
     try:
         # Load agents from prompty files in directory
         await get_custom_agents()
-        shared.foundryAgents = (await shared.project_client.agents.list_agents(limit=100)).data
         
-        async with (
-            MCPStdioPlugin(
-                name="robotmcp",
-                description="Robot MCP Agents and run query, call this plugin.",
-                command="node",
-                args= ["D:\\gh-repo\\lego-agent\\lego-mcp\\build\\index.js"],
-                env={
-                    "PROJECT_CONNECTION_STRING": "",
-                    "DEFAULT_ROBOT_ID": "robot_b"
-                },
-            ) as lego_robot_mcp
-        ):
-            shared.mcprobot = lego_robot_mcp  # set the value in api.agent
-            shared.mcprobottools = await lego_robot_mcp.session.list_tools()
+        # Microsoft Agent Framework - agents are created on-demand
+        # No need to pre-fetch agents from a service
+        shared.foundryAgents = []
+        
+        # Setup MCP connection for robot tools
+        # Using the mcp package for MCP server communication
+        mcp_server_params = StdioServerParameters(
+            command="node",
+            args=["D:\\gh-repo\\lego-agent\\lego-mcp\\build\\index.js"],
+            env={
+                "PROJECT_CONNECTION_STRING": "",
+                "DEFAULT_ROBOT_ID": "robot_b"
+            },
+        )
+        
+        async with stdio_client(mcp_server_params) as (read_stream, write_stream):
+            from mcp.client.session import ClientSession
+            async with ClientSession(read_stream, write_stream) as session:
+                await session.initialize()
+                shared.mcprobot = session
+                tools_result = await session.list_tools()
+                mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
+                # Wrap MCP tools to make them callable for agent framework
+                shared.robotmcptools = wrap_mcp_tools(mcp_tools, session)
                 
-        yield
+                yield
     finally:
         await connections.clear()
 
