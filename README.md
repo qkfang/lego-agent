@@ -72,6 +72,12 @@ The system consists of several interconnected components:
 - **Voice Streaming**: Continuous voice interaction
 - **Telemetry**: Real-time monitoring and logging
 
+### Microsoft Teams Integration
+- **Teams Copilot**: Chat-based robot control through Microsoft Teams
+- **Collaborative Control**: Team members can interact with robots together
+- **Foundry Agent Integration**: Leverages Azure AI Foundry for intelligent responses
+- **Easy Deployment**: Simple setup with provided scripts and documentation
+
 ## 📋 Prerequisites
 
 - **Python 3.8+** for backend services
@@ -176,7 +182,14 @@ cd lego-web
 npm run dev
 ```
 
-### 6. Run All Services (Alternative)
+### 6. (Optional) Start the Teams Copilot
+```bash
+cd lego-copilot
+npm run dev
+# See lego-copilot/README.md for full setup instructions
+```
+
+### 7. Run All Services (Alternative)
 ```bash
 # From the root directory
 script/run.bat
@@ -197,6 +210,12 @@ Connect to the web interface and use natural language commands:
 - Monitor robot status and camera feeds
 - Send manual commands through the interface
 - View real-time telemetry and logs
+
+### Microsoft Teams Copilot
+- Install the LEGO Copilot bot in Microsoft Teams (see `lego-copilot/README.md`)
+- Chat with the bot using natural language commands
+- Control robots collaboratively with your team
+- Examples: "What can the robot do?", "Move forward 20cm", "Show robot status"
 
 ### API Endpoints
 
@@ -301,6 +320,7 @@ For support and questions:
 - Cloud deployment templates
 - Advanced AI agent behaviors
 - Multi-robot coordination
+- ✅ **Microsoft Teams integration** (completed - see `lego-copilot/`)
 
 ---
 
