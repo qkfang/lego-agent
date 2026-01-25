@@ -55,12 +55,12 @@ function Get-IndexDocumentIds {
     param(
         [string]$Endpoint,
         [string]$IndexName,
-        [string]$ApiKey
+        [string]$AccessToken
     )
     
-    $searchUrl = "$Endpoint/indexes/$IndexName/docs?api-version=2023-11-01&`$select=id&`$top=1000"
+    $searchUrl = "$Endpoint/indexes/$IndexName/docs?api-version=2024-07-01&`$select=id&`$top=1000"
     $headers = @{
-        "api-key" = $ApiKey
+        "Authorization" = "Bearer $AccessToken"
     }
     
     try {
@@ -77,11 +77,11 @@ function Clear-IndexDocuments {
     param(
         [string]$Endpoint,
         [string]$IndexName,
-        [string]$ApiKey
+        [string]$AccessToken
     )
     
     Write-Host "Retrieving all document IDs..." -ForegroundColor Cyan
-    $documents = Get-IndexDocumentIds -Endpoint $Endpoint -IndexName $IndexName -ApiKey $ApiKey
+    $documents = Get-IndexDocumentIds -Endpoint $Endpoint -IndexName $IndexName -AccessToken $AccessToken
     
     if ($documents.Count -eq 0) {
         Write-Host "Index is already empty" -ForegroundColor Yellow
@@ -105,9 +105,9 @@ function Clear-IndexDocuments {
     
     $batchJson = $batch | ConvertTo-Json -Depth 10
     
-    $uploadUrl = "$Endpoint/indexes/$IndexName/docs/index?api-version=2023-11-01"
+    $uploadUrl = "$Endpoint/indexes/$IndexName/docs/index?api-version=2024-07-01"
     $headers = @{
-        "api-key" = $ApiKey
+        "Authorization" = "Bearer $AccessToken"
         "Content-Type" = "application/json"
     }
     
@@ -134,11 +134,23 @@ Import-EnvFile -Path $EnvFile
 
 # Get required environment variables
 $searchEndpoint = $env:AZURE_SEARCH_ENDPOINT
-$searchApiKey = $env:AZURE_SEARCH_API_KEY
 $indexName = $env:AZURE_SEARCH_INDEX_NAME
 
-if (-not $searchEndpoint -or -not $searchApiKey -or -not $indexName) {
-    Write-Error "Required environment variables not set. Please configure AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_API_KEY, and AZURE_SEARCH_INDEX_NAME"
+if (-not $searchEndpoint -or -not $indexName) {
+    Write-Error "Required environment variables not set. Please configure AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_INDEX_NAME"
+    exit 1
+}
+
+# Get access token using Azure CLI
+Write-Host "Acquiring access token using Azure CLI..." -ForegroundColor Cyan
+try {
+    $accessToken = az account get-access-token --resource https://search.azure.com --query accessToken -o tsv
+    if (-not $accessToken) {
+        throw "No token returned"
+    }
+} catch {
+    Write-Error "Failed to acquire access token. Ensure you are logged in with 'az login'."
+    Write-Error "Error: $_"
     exit 1
 }
 
@@ -189,7 +201,7 @@ if ($RecreateIndex) {
 } else {
     Write-Host "Clearing all documents from index..." -ForegroundColor Cyan
     
-    $success = Clear-IndexDocuments -Endpoint $searchEndpoint -IndexName $indexName -ApiKey $searchApiKey
+    $success = Clear-IndexDocuments -Endpoint $searchEndpoint -IndexName $indexName -AccessToken $accessToken
     
     if (-not $success) {
         Write-Error "Failed to clear documents"

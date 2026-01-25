@@ -46,11 +46,23 @@ Import-EnvFile -Path $EnvFile
 
 # Get required environment variables
 $searchEndpoint = $env:AZURE_SEARCH_ENDPOINT
-$searchApiKey = $env:AZURE_SEARCH_API_KEY
 $indexName = $env:AZURE_SEARCH_INDEX_NAME
 
-if (-not $searchEndpoint -or -not $searchApiKey -or -not $indexName) {
-    Write-Error "Required environment variables not set. Please configure AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_API_KEY, and AZURE_SEARCH_INDEX_NAME"
+if (-not $searchEndpoint -or -not $indexName) {
+    Write-Error "Required environment variables not set. Please configure AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_INDEX_NAME"
+    exit 1
+}
+
+# Get access token using Azure CLI (managed identity)
+Write-Host "Acquiring access token using Azure CLI..." -ForegroundColor Cyan
+try {
+    $accessToken = az account get-access-token --resource https://search.azure.com --query accessToken -o tsv
+    if (-not $accessToken) {
+        throw "No token returned"
+    }
+} catch {
+    Write-Error "Failed to acquire access token. Ensure you are logged in with 'az login'."
+    Write-Error "Error: $_"
     exit 1
 }
 
@@ -66,6 +78,15 @@ $indexSchema = @{
             name = "id"
             type = "Edm.String"
             key = $true
+            searchable = $true
+            filterable = $true
+            sortable = $false
+            facetable = $false
+            analyzer = "keyword"
+        },
+        @{
+            name = "parent_id"
+            type = "Edm.String"
             searchable = $false
             filterable = $true
             sortable = $false
@@ -122,6 +143,22 @@ $indexSchema = @{
             facetable = $true
         },
         @{
+            name = "chunkIndex"
+            type = "Edm.Int32"
+            searchable = $false
+            filterable = $true
+            sortable = $true
+            facetable = $false
+        },
+        @{
+            name = "totalChunks"
+            type = "Edm.Int32"
+            searchable = $false
+            filterable = $true
+            sortable = $true
+            facetable = $false
+        },
+        @{
             name = "uploadedAt"
             type = "Edm.DateTimeOffset"
             searchable = $false
@@ -154,6 +191,7 @@ $indexSchema = @{
         }
     )
     semantic = @{
+        defaultConfiguration = "default"
         configurations = @(
             @{
                 name = "default"
@@ -161,10 +199,10 @@ $indexSchema = @{
                     titleField = @{
                         fieldName = "title"
                     }
-                    contentFields = @(
+                    prioritizedContentFields = @(
                         @{ fieldName = "content" }
                     )
-                    keywordsFields = @(
+                    prioritizedKeywordsFields = @(
                         @{ fieldName = "category" }
                     )
                 }
@@ -176,14 +214,14 @@ $indexSchema = @{
 # Convert to JSON
 $indexSchemaJson = $indexSchema | ConvertTo-Json -Depth 10
 
-# Prepare headers
+# Prepare headers with Bearer token authentication (managed identity)
 $headers = @{
-    "api-key" = $searchApiKey
+    "Authorization" = "Bearer $accessToken"
     "Content-Type" = "application/json"
 }
 
 # Check if index already exists
-$checkUrl = "$searchEndpoint/indexes/$indexName?api-version=2023-11-01"
+$checkUrl = "${searchEndpoint}/indexes/${indexName}?api-version=2024-07-01"
 try {
     $existingIndex = Invoke-RestMethod -Uri $checkUrl -Method Get -Headers $headers -ErrorAction Stop
     
@@ -191,7 +229,7 @@ try {
         Write-Warning "Index '$indexName' already exists. Deleting due to -Force flag..."
         
         # Delete the existing index
-        $deleteUrl = "$searchEndpoint/indexes/$indexName?api-version=2023-11-01"
+        $deleteUrl = "${searchEndpoint}/indexes/${indexName}?api-version=2024-07-01"
         Invoke-RestMethod -Uri $deleteUrl -Method Delete -Headers $headers -ErrorAction Stop
         Write-Host "Existing index deleted successfully" -ForegroundColor Yellow
     } else {
@@ -214,7 +252,7 @@ try {
 }
 
 # Create the index
-$createUrl = "$searchEndpoint/indexes?api-version=2023-11-01"
+$createUrl = "${searchEndpoint}/indexes?api-version=2024-07-01"
 try {
     Write-Host "Creating index '$indexName'..." -ForegroundColor Cyan
     

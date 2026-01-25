@@ -25,7 +25,13 @@ param(
     [string]$EnvFile = "../.env",
     
     [Parameter(Mandatory=$false)]
-    [string[]]$FileTypes = @("*.pdf", "*.docx", "*.doc")
+    [string[]]$FileTypes = @("*.pdf", "*.docx", "*.doc"),
+    
+    [Parameter(Mandatory=$false)]
+    [int]$ChunkSize = 1000,
+    
+    [Parameter(Mandatory=$false)]
+    [int]$ChunkOverlap = 200
 )
 
 # Import environment variables from .env file if it exists
@@ -52,7 +58,7 @@ function Invoke-DocumentAnalysis {
     param(
         [string]$FilePath,
         [string]$Endpoint,
-        [string]$ApiKey
+        [string]$AccessToken
     )
     
     try {
@@ -73,7 +79,7 @@ function Invoke-DocumentAnalysis {
         # Start document analysis (use Invoke-WebRequest to capture headers)
         $analyzeUrl = "$Endpoint/formrecognizer/documentModels/prebuilt-layout:analyze?api-version=2023-07-31"
         $headers = @{
-            "Ocp-Apim-Subscription-Key" = $ApiKey
+            "Authorization" = "Bearer $AccessToken"
             "Content-Type" = $contentType
         }
         
@@ -89,7 +95,13 @@ function Invoke-DocumentAnalysis {
         $resultUrl = $null
         foreach ($headerName in $webResponse.Headers.Keys) {
             if ($headerName -eq 'Operation-Location') {
-                $resultUrl = $webResponse.Headers[$headerName]
+                $headerValue = $webResponse.Headers[$headerName]
+                # Handle both string and array values
+                if ($headerValue -is [array]) {
+                    $resultUrl = $headerValue[0]
+                } else {
+                    $resultUrl = $headerValue
+                }
                 break
             }
         }
@@ -109,7 +121,7 @@ function Invoke-DocumentAnalysis {
             $attempt++
             
             $getHeaders = @{
-                "Ocp-Apim-Subscription-Key" = $ApiKey
+                "Authorization" = "Bearer $AccessToken"
             }
             
             $result = Invoke-RestMethod -Uri $resultUrl -Method Get -Headers $getHeaders
@@ -164,13 +176,115 @@ function Get-TextFromAnalysis {
     return $content
 }
 
+# Function to split text into chunks with overlap
+function Split-TextIntoChunks {
+    param(
+        [string]$Text,
+        [int]$ChunkSize = 1000,
+        [int]$Overlap = 200
+    )
+    
+    if ([string]::IsNullOrWhiteSpace($Text)) {
+        return @()
+    }
+    
+    $chunks = @()
+    $text = $Text.Trim()
+    
+    # If text is smaller than chunk size, return as single chunk
+    if ($text.Length -le $ChunkSize) {
+        return @(@{ 
+            Content = $text
+            StartIndex = 0
+            EndIndex = $text.Length
+            ChunkIndex = 0
+        })
+    }
+    
+    $startIndex = 0
+    $chunkIndex = 0
+    
+    while ($startIndex -lt $text.Length) {
+        $endIndex = [Math]::Min($startIndex + $ChunkSize, $text.Length)
+        
+        # Try to break at sentence or paragraph boundary if not at end
+        if ($endIndex -lt $text.Length) {
+            # Look for paragraph break first
+            $paragraphBreak = $text.LastIndexOf("`n`n", $endIndex, [Math]::Min(200, $endIndex - $startIndex))
+            if ($paragraphBreak -gt $startIndex + ($ChunkSize / 2)) {
+                $endIndex = $paragraphBreak + 2
+            } else {
+                # Look for sentence break (. ! ?)
+                $sentenceBreak = -1
+                $searchStart = [Math]::Max($startIndex + ($ChunkSize / 2), $startIndex)
+                $searchRange = $endIndex - $searchStart
+                
+                foreach ($delimiter in @(". ", "! ", "? ", ".\n", "!\n", "?\n")) {
+                    $pos = $text.LastIndexOf($delimiter, $endIndex, $searchRange)
+                    if ($pos -gt $sentenceBreak) {
+                        $sentenceBreak = $pos + $delimiter.Length
+                    }
+                }
+                
+                if ($sentenceBreak -gt $startIndex) {
+                    $endIndex = $sentenceBreak
+                }
+            }
+        }
+        
+        $chunkText = $text.Substring($startIndex, $endIndex - $startIndex).Trim()
+        
+        if ($chunkText.Length -gt 0) {
+            $chunks += @{
+                Content = $chunkText
+                StartIndex = $startIndex
+                EndIndex = $endIndex
+                ChunkIndex = $chunkIndex
+            }
+            $chunkIndex++
+        }
+        
+        # Move start position with overlap
+        $startIndex = $endIndex - $Overlap
+        if ($startIndex -ge $text.Length - $Overlap) {
+            break
+        }
+    }
+    
+    return $chunks
+}
+
+# Function to get Azure access token for managed identity authentication
+function Get-AzureAccessToken {
+    param(
+        [string]$Resource = "https://search.azure.com"
+    )
+    
+    try {
+        # Use Azure CLI to get access token
+        $tokenResponse = az account get-access-token --resource $Resource --output json 2>$null | ConvertFrom-Json
+        
+        if ($tokenResponse -and $tokenResponse.accessToken) {
+            Write-Verbose "Successfully obtained access token for $Resource"
+            return $tokenResponse.accessToken
+        }
+        
+        throw "Failed to get access token from Azure CLI"
+    }
+    catch {
+        Write-Error "Failed to get Azure access token. Make sure you are logged in with 'az login' and have appropriate permissions."
+        Write-Error "Error: $_"
+        return $null
+    }
+}
+
 # Function to upload documents to Azure AI Search
 function Add-DocumentsToIndex {
     param(
         [array]$Documents,
         [string]$Endpoint,
         [string]$IndexName,
-        [string]$ApiKey
+        [string]$AccessToken
     )
     
     if ($Documents.Count -eq 0) {
@@ -178,9 +292,9 @@ function Add-DocumentsToIndex {
         return
     }
     
-    $uploadUrl = "$Endpoint/indexes/$IndexName/docs/index?api-version=2023-11-01"
+    $uploadUrl = "$Endpoint/indexes/$IndexName/docs/index?api-version=2024-07-01"
     $headers = @{
-        "api-key" = $ApiKey
+        "Authorization" = "Bearer $AccessToken"
         "Content-Type" = "application/json"
     }
     
@@ -221,18 +335,32 @@ Import-EnvFile -Path $EnvFile
 
 # Get required environment variables
 $searchEndpoint = $env:AZURE_SEARCH_ENDPOINT
-$searchApiKey = $env:AZURE_SEARCH_API_KEY
 $indexName = $env:AZURE_SEARCH_INDEX_NAME
 $docIntelligenceEndpoint = $env:AZURE_DOC_INTELLIGENCE_ENDPOINT
-$docIntelligenceKey = $env:AZURE_DOC_INTELLIGENCE_KEY
 
-if (-not $searchEndpoint -or -not $searchApiKey -or -not $indexName) {
-    Write-Error "Required environment variables not set. Please configure AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_API_KEY, and AZURE_SEARCH_INDEX_NAME"
+if (-not $searchEndpoint -or -not $indexName) {
+    Write-Error "Required environment variables not set. Please configure AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_INDEX_NAME"
     exit 1
 }
 
-if (-not $docIntelligenceEndpoint -or -not $docIntelligenceKey) {
-    Write-Error "Required environment variables not set. Please configure AZURE_DOC_INTELLIGENCE_ENDPOINT and AZURE_DOC_INTELLIGENCE_KEY"
+if (-not $docIntelligenceEndpoint) {
+    Write-Error "Required environment variable not set. Please configure AZURE_DOC_INTELLIGENCE_ENDPOINT"
+    exit 1
+}
+
+# Get access token for Azure AI Search using managed identity
+Write-Host "Obtaining Azure access token for AI Search..." -ForegroundColor Cyan
+$searchAccessToken = Get-AzureAccessToken -Resource "https://search.azure.com"
+if (-not $searchAccessToken) {
+    Write-Error "Failed to obtain access token for Azure AI Search. Ensure you are logged in with 'az login'."
+    exit 1
+}
+
+# Get access token for Document Intelligence using managed identity
+Write-Host "Obtaining Azure access token for Document Intelligence..." -ForegroundColor Cyan
+$docIntelligenceAccessToken = Get-AzureAccessToken -Resource "https://cognitiveservices.azure.com"
+if (-not $docIntelligenceAccessToken) {
+    Write-Error "Failed to obtain access token for Document Intelligence. Ensure you are logged in with 'az login'."
     exit 1
 }
 
@@ -240,6 +368,8 @@ Write-Host "Search Endpoint: $searchEndpoint" -ForegroundColor Cyan
 Write-Host "Index Name: $indexName" -ForegroundColor Cyan
 Write-Host "Doc Intelligence Endpoint: $docIntelligenceEndpoint" -ForegroundColor Cyan
 Write-Host "Docs Path: $DocsPath" -ForegroundColor Cyan
+Write-Host "Chunk Size: $ChunkSize characters" -ForegroundColor Cyan
+Write-Host "Chunk Overlap: $ChunkOverlap characters" -ForegroundColor Cyan
 Write-Host ""
 
 # Check if docs folder exists
@@ -268,6 +398,7 @@ Write-Host ""
 $documentsToIndex = @()
 $processedCount = 0
 $failedCount = 0
+$totalChunks = 0
 
 foreach ($file in $allFiles) {
     $processedCount++
@@ -275,7 +406,7 @@ foreach ($file in $allFiles) {
     
     try {
         # Analyze document with Document Intelligence
-        $analysisResult = Invoke-DocumentAnalysis -FilePath $file.FullName -Endpoint $docIntelligenceEndpoint -ApiKey $docIntelligenceKey
+        $analysisResult = Invoke-DocumentAnalysis -FilePath $file.FullName -Endpoint $docIntelligenceEndpoint -AccessToken $docIntelligenceAccessToken
         
         if ($analysisResult) {
             # Extract text content
@@ -287,28 +418,37 @@ foreach ($file in $allFiles) {
                 $pageCount = $analysisResult.pages.Count
             }
             
-            # Create document object for indexing
-            # Generate unique ID using file path hash to avoid duplicates
+            # Split content into chunks
+            $chunks = Split-TextIntoChunks -Text $content -ChunkSize $ChunkSize -Overlap $ChunkOverlap
+            
+            # Generate base ID using file path hash
             $filePathHash = [System.BitConverter]::ToString([System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($file.FullName))).Replace('-','').Substring(0, 16)
             $baseId = [System.IO.Path]::GetFileNameWithoutExtension($file.Name) -replace '[^a-zA-Z0-9_-]', '_'
-            $uniqueId = "$baseId-$filePathHash"
             
-            $doc = @{
-                "@search.action" = "mergeOrUpload"
-                id = $uniqueId
-                title = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
-                content = $content
-                documentType = $file.Extension.TrimStart('.')
-                filePath = $file.FullName
-                fileName = $file.Name
-                pageCount = $pageCount
-                uploadedAt = (Get-Date).ToUniversalTime().ToString("o")
-                category = "LEGO Robot Documentation"
+            # Create a document for each chunk
+            foreach ($chunk in $chunks) {
+                $chunkId = "$baseId-$filePathHash-chunk$($chunk.ChunkIndex)"
+                
+                $doc = @{
+                    "@search.action" = "mergeOrUpload"
+                    id = $chunkId
+                    title = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
+                    content = $chunk.Content
+                    documentType = $file.Extension.TrimStart('.')
+                    filePath = $file.FullName
+                    fileName = $file.Name
+                    pageCount = $pageCount
+                    chunkIndex = $chunk.ChunkIndex
+                    totalChunks = $chunks.Count
+                    uploadedAt = (Get-Date).ToUniversalTime().ToString("o")
+                    category = "LEGO Robot Documentation"
+                }
+                
+                $documentsToIndex += $doc
             }
             
-            $documentsToIndex += $doc
-            
-            Write-Host "  ✓ Parsed successfully ($pageCount pages, $($content.Length) characters)" -ForegroundColor Green
+            $totalChunks += $chunks.Count
+            Write-Host "  ✓ Parsed successfully ($pageCount pages, $($content.Length) chars → $($chunks.Count) chunks)" -ForegroundColor Green
         } else {
             $failedCount++
             Write-Warning "  ✗ Failed to analyze document"
@@ -322,15 +462,16 @@ foreach ($file in $allFiles) {
 
 Write-Host ""
 Write-Host "Processing complete:" -ForegroundColor Cyan
-Write-Host "  Processed: $processedCount" -ForegroundColor White
-Write-Host "  Successful: $($documentsToIndex.Count)" -ForegroundColor Green
-Write-Host "  Failed: $failedCount" -ForegroundColor $(if ($failedCount -gt 0) { "Yellow" } else { "White" })
+Write-Host "  Documents processed: $processedCount" -ForegroundColor White
+Write-Host "  Documents successful: $($processedCount - $failedCount)" -ForegroundColor Green
+Write-Host "  Documents failed: $failedCount" -ForegroundColor $(if ($failedCount -gt 0) { "Yellow" } else { "White" })
+Write-Host "  Total chunks created: $totalChunks" -ForegroundColor Cyan
 Write-Host ""
 
 # Upload documents to search index
 if ($documentsToIndex.Count -gt 0) {
     Write-Host "Uploading documents to Azure AI Search..." -ForegroundColor Cyan
-    Add-DocumentsToIndex -Documents $documentsToIndex -Endpoint $searchEndpoint -IndexName $indexName -ApiKey $searchApiKey
+    Add-DocumentsToIndex -Documents $documentsToIndex -Endpoint $searchEndpoint -IndexName $indexName -AccessToken $searchAccessToken
     Write-Host ""
     Write-Host "Ingestion complete! Documents are now searchable." -ForegroundColor Green
 } else {

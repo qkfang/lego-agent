@@ -16,11 +16,15 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     accessTier: 'Hot'
     supportsHttpsTrafficOnly: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
+    allowSharedKeyAccess: false
   }
 }
 
@@ -33,6 +37,14 @@ resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01
 resource sustineoContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
   parent: blobServices
   name: 'sustineo'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+resource legoDocumentsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+  parent: blobServices
+  name: 'lego-documents'
   properties: {
     publicAccess: 'None'
   }
@@ -88,6 +100,27 @@ resource searchService 'Microsoft.Search/searchServices@2024-06-01-preview' = {
       ipRules: []
     }
     semanticSearch: 'free'
+  }
+}
+
+// Azure Document Intelligence for document processing
+resource documentIntelligence 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+  name: '${resourcePrefix}-docint'
+  location: location
+  sku: {
+    name: 'S0'
+  }
+  kind: 'FormRecognizer'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    customSubDomainName: '${resourcePrefix}-docint'
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+    disableLocalAuth: false
   }
 }
 

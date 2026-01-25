@@ -52,3 +52,6 @@ node build/index.js  # Or via MCP client
 ```bash
 cd lego-web && npm install && npm run dev
 ```
+
+### Rule
+Don't need to update documentation, keep it minimal or none.
