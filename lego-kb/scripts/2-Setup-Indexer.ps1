@@ -203,15 +203,14 @@ $skillset = @{
     name = $skillsetName
     description = "Skillset for chunking documents with Document Intelligence parsing"
     skills = @(
-        # Document Intelligence skill for PDF/Office parsing
+        # Document Extraction skill - uses built-in Azure AI Search integration with Document Intelligence
         @{
-            "@odata.type" = "#Microsoft.Skills.Custom.WebApiSkill"
-            name = "document-intelligence"
+            "@odata.type" = "#Microsoft.Skills.Util.DocumentExtractionSkill"
+            name = "document-extraction"
             description = "Extract text from documents using Document Intelligence"
-            uri = "$docIntelligenceEndpoint/formrecognizer/documentModels/prebuilt-layout:analyze?api-version=2023-07-31"
-            httpMethod = "POST"
-            timeout = "PT3M"
             context = "/document"
+            parsingMode = "default"
+            dataToExtract = "contentAndMetadata"
             inputs = @(
                 @{
                     name = "file_data"
@@ -225,7 +224,7 @@ $skillset = @{
                 }
             )
         },
-        # Text Split skill for chunking
+        # Text Split skill for chunking - now uses extracted content
         @{
             "@odata.type" = "#Microsoft.Skills.Text.SplitSkill"
             name = "text-split"
@@ -237,7 +236,7 @@ $skillset = @{
             inputs = @(
                 @{
                     name = "text"
-                    source = "/document/content"
+                    source = "/document/extracted_content"
                 }
             )
             outputs = @(
@@ -311,6 +310,7 @@ $indexer = @{
             dataToExtract = "contentAndMetadata"
             parsingMode = "default"
             imageAction = "none"
+            allowSkillsetToReadFileData = $true
         }
     }
     fieldMappings = @(
@@ -332,62 +332,6 @@ try {
     exit 1
 }
 
-# 4. Run the indexer
-Write-Host ""
-Write-Host "Step 4: Running Indexer..." -ForegroundColor Cyan
-$runUrl = "$searchEndpoint/indexers/$indexerName/run?api-version=2024-07-01"
-try {
-    Invoke-RestMethod -Uri $runUrl -Method Post -Headers $headers -ErrorAction Stop | Out-Null
-    Write-Host "  ✓ Indexer started successfully" -ForegroundColor Green
-    
-    # Wait and show initial progress
-    Write-Host ""
-    Write-Host "Waiting for indexer to process..." -ForegroundColor Cyan
-    $statusUrl = "$searchEndpoint/indexers/$indexerName/status?api-version=2024-07-01"
-    $maxWaitAttempts = 30
-    $waitAttempt = 0
-    
-    do {
-        Start-Sleep -Seconds 5
-        $waitAttempt++
-        
-        try {
-            $status = Invoke-RestMethod -Uri $statusUrl -Method Get -Headers $headers -ErrorAction Stop
-            $lastResult = $status.lastResult
-            
-            if ($lastResult) {
-                $runStatus = $lastResult.status
-                $itemsProcessed = $lastResult.itemsProcessed
-                $itemsFailed = $lastResult.itemsFailed
-                
-                Write-Host "  Status: $runStatus | Processed: $itemsProcessed | Failed: $itemsFailed" -ForegroundColor $(
-                    if ($runStatus -eq "success") { "Green" }
-                    elseif ($runStatus -eq "inProgress") { "Yellow" }
-                    else { "Red" }
-                )
-                
-                if ($runStatus -eq "success") {
-                    Write-Host "  ✓ Indexer completed successfully!" -ForegroundColor Green
-                    break
-                } elseif ($runStatus -eq "transientFailure" -or $runStatus -eq "persistentFailure") {
-                    Write-Warning "  Indexer encountered errors. Run .\Get-IndexerStatus.ps1 for details."
-                    break
-                }
-            }
-        } catch {
-            Write-Verbose "Could not get status: $_"
-        }
-        
-    } while ($waitAttempt -lt $maxWaitAttempts)
-    
-    if ($waitAttempt -ge $maxWaitAttempts) {
-        Write-Host "  Indexer still running. Use .\Get-IndexerStatus.ps1 to check progress." -ForegroundColor Yellow
-    }
-    
-} catch {
-    Write-Warning "Failed to start indexer: $_"
-}
-
 Write-Host ""
 Write-Host "=== Setup Complete ===" -ForegroundColor Green
 Write-Host ""
@@ -398,8 +342,8 @@ Write-Host "  3. Split text into chunks of ~$ChunkSize characters with $ChunkOve
 Write-Host "  4. Index chunks into '$indexName'"
 Write-Host "  5. Run automatically every hour"
 Write-Host ""
-Write-Host "To check indexer status:" -ForegroundColor Yellow
-Write-Host "  .\Get-IndexerStatus.ps1"
+Write-Host "To run the indexer now:" -ForegroundColor Yellow
+Write-Host "  .\3a-Run-Indexer.ps1"
 Write-Host ""
-Write-Host "To manually trigger the indexer:" -ForegroundColor Yellow
-Write-Host "  Invoke-RestMethod -Uri '$searchEndpoint/indexers/$indexerName/run?api-version=2024-07-01' -Method Post -Headers @{Authorization='Bearer <token>'}"
+Write-Host "To check indexer status:" -ForegroundColor Yellow
+Write-Host "  .\4-Get-IndexerStatus.ps1"
