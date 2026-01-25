@@ -139,7 +139,7 @@ resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
     allowProjectManagement: true
     customSubDomainName: '${resourcePrefix}-foundry'
     publicNetworkAccess: 'Enabled'
-    disableLocalAuth: false
+    disableLocalAuth: true
     networkAcls: {
       defaultAction: 'Allow'
     }
@@ -147,15 +147,54 @@ resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
 }
 
 // Azure AI Foundry Project
-// resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-10-01-preview' = {
-//   parent: aiHub
-//   name: '${resourcePrefix}-project'
-//   location: location
-//   identity: {
-//     type: 'SystemAssigned'
-//   }
-// }
+resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview' = {
+  parent: aiHub
+  name: '${resourcePrefix}-project'
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {}
+}
 
+// GPT-4o deployment
+resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
+  parent: aiHub
+  name: 'gpt-4o'
+  sku: {
+    name: 'GlobalStandard'
+    capacity: 100
+  }
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: 'gpt-4o'
+      version: '2024-11-20'
+    }
+    versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
+    raiPolicyName: 'Microsoft.DefaultV2'
+  }
+}
+
+// GPT Realtime deployment
+resource gptRealtimeDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
+  parent: aiHub
+  name: 'gpt-realtime'
+  sku: {
+    name: 'GlobalStandard'
+    capacity: 10
+  }
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: 'gpt-realtime'
+      version: '2025-08-28'
+    }
+    versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
+    raiPolicyName: 'Microsoft.DefaultV2'
+  }
+  dependsOn: [gpt4oDeployment]
+}
 
 // // Content Understanding Service
 // resource contentUnderstanding 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
