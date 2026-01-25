@@ -62,14 +62,15 @@ def get_test_files() -> List[Path]:
     # Get all test files
     test_files = sorted(tests_dir.glob("test*.py"))
     
-    # Filter out __init__.py and other non-test files
-    test_files = [f for f in test_files if not f.name.startswith("test_") or f.name in [
-        "test1_action.py",
-        "test2_yolo.py", 
-        "test3_object_detection.py",
-        "test4_simple_sequential.py",
-        "test5_multiple_agent.py"
-    ]]
+    # Filter to include:
+    # - Files matching pattern test[0-9]*_*.py (e.g., test1_action.py, test2_yolo.py)
+    # - Files matching pattern test[0-9]_*.py (e.g., test3_object_detection.py)
+    # Exclude:
+    # - Files starting with test_ (like test_agents_simple.py, test_foundry_agent.py)
+    #   unless they are explicitly test[0-9]_*.py pattern
+    import re
+    test_pattern = re.compile(r'^test\d+[_\w]*\.py$')
+    test_files = [f for f in test_files if test_pattern.match(f.name)]
     
     return test_files
 
