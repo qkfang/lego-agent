@@ -1,6 +1,4 @@
 """Test script for robot controller agent using Microsoft Agent Framework."""
-import sys
-from pathlib import Path
 
 from mcp import StdioServerParameters
 from mcp.client.stdio import stdio_client
@@ -18,7 +16,7 @@ async def main():
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(
         command="node",
-        args=["c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"],
+        args=[shared.mcp_server_path],
         env={},
     )
     

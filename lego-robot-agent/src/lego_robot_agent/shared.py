@@ -39,6 +39,9 @@ resource = Resource.create({ResourceAttributes.SERVICE_NAME: "lego-telemetry"})
 robotData = RobotData()
 foundryAgents = []
 
+# MCP server path configuration
+mcp_server_path = "c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"
+
 notify = None
 chat = None
 workflow = None  # Workflow for multi-agent orchestration

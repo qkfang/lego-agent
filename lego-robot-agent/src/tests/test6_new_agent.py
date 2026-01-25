@@ -12,7 +12,8 @@ from mcp.client.session import ClientSession
 
 # New import style using the refactored package
 from lego_robot_agent import LegoAgent, AgentContext, RobotData
-from lego_api.util.mcp_tools import wrap_mcp_tools
+from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
+import lego_robot_agent.shared as shared
 
 
 async def main():
@@ -21,7 +22,7 @@ async def main():
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(
         command="node",
-        args=["c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"],
+        args=[shared.mcp_server_path],
         env={
             "PROJECT_CONNECTION_STRING": "",
             "DEFAULT_ROBOT_ID": "robot_b"
@@ -37,12 +38,9 @@ async def main():
             mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
             wrapped_tools = wrap_mcp_tools(mcp_tools, mcp_session)
             
-            # Create Azure client (import from shared for now)
-            from lego_api.shared import azure_client
-            
             # Create the agent context with all dependencies
             context = AgentContext(
-                azure_client=azure_client,
+                azure_client=shared.azure_client,
                 mcp_session=mcp_session,
                 mcp_tools=wrapped_tools,
                 robot_data=RobotData(),
