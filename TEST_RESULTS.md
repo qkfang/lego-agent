@@ -99,11 +99,13 @@ to perform `POST /api/projects/{projectName}/assistants` operation.
 
 #### Current Permissions
 - ✅ **Read Access**: Can list and view agents
-- ❌ **Write Access**: Cannot create or update agent versions
+- ✅ **Account-Level Write Access**: Azure AI Developer role assigned at account level
+- ❌ **Project-Level Write Access**: Azure AI Developer role NOT assigned at project level (required!)
 
 #### Required Permission
 - **Data Action**: `Microsoft.CognitiveServices/accounts/AIServices/agents/write`
 - **Built-in Role**: `Azure AI Developer`
+- **Scope**: Must be assigned at BOTH account and project levels
 
 ---
 
@@ -113,12 +115,25 @@ to perform `POST /api/projects/{projectName}/assistants` operation.
 
 This role provides the necessary permissions for creating and managing AI agents.
 
+**IMPORTANT**: The role must be assigned at BOTH the account level AND the project level.
+
+#### Step 1: Assign at Account Level (✅ Completed)
 ```bash
 az role assignment create \
   --role "Azure AI Developer" \
   --assignee a6efe236-83c5-472b-a068-65006e369ad7 \
   --scope "/subscriptions/873a4995-e21b-47e2-953e-f2e88e2fa4f9/resourceGroups/rg-legobot/providers/Microsoft.CognitiveServices/accounts/legobot-foundry"
 ```
+**Status**: ✅ Completed - Role assigned successfully
+
+#### Step 2: Assign at Project Level (⚠️ Required)
+```bash
+az role assignment create \
+  --role "Azure AI Developer" \
+  --assignee a6efe236-83c5-472b-a068-65006e369ad7 \
+  --scope "/subscriptions/873a4995-e21b-47e2-953e-f2e88e2fa4f9/resourceGroups/rg-legobot/providers/Microsoft.CognitiveServices/accounts/legobot-foundry/projects/legobot-project"
+```
+**Status**: ⚠️ Pending - Requires administrator with Owner or User Access Administrator role
 
 **Prerequisites**: Requires `Owner` or `User Access Administrator` role on the resource or resource group.
 
@@ -168,15 +183,26 @@ The test successfully verified:
 3. ✅ MCP server builds and initializes correctly
 4. ✅ READ access to Azure AI Foundry project confirmed
 5. ✅ All MCP robot control tools are available
+6. ✅ Account-level Azure AI Developer role assigned
 
-The only remaining issue is the **write permission** for creating/updating agent versions. Once the `Azure AI Developer` role is assigned to the `lego-agent` service principal, the test script should run completely successfully.
+The only remaining issue is the **project-level write permission**. Azure AI Foundry requires the `Azure AI Developer` role to be assigned at BOTH the account level AND the project level. The account-level assignment is complete, but the project-level assignment is still needed.
+
+---
+
+## Update Log
+
+### 2026-01-25 - Second Test Run
+- Confirmed account-level "Azure AI Developer" role successfully assigned
+- Identified that role must ALSO be assigned at project level
+- Project scope: `/subscriptions/.../legobot-foundry/projects/legobot-project`
+- Test still fails with same permission error until project-level role is assigned
 
 ---
 
 ## Next Steps
 
-1. **Immediate**: Assign `Azure AI Developer` role to service principal (requires admin)
-2. **Verify**: Re-run test script after permission grant
+1. **Immediate**: Assign `Azure AI Developer` role to service principal at **project level** (requires admin with Owner/User Access Administrator role)
+2. **Verify**: Re-run test script after project-level permission grant
 3. **Test**: Verify agent can process messages and control robots
 4. **Document**: Update team documentation with findings
 
