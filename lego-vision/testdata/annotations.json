@@ -1,0 +1,221 @@
+{
+  "images": [
+    {
+      "path": "test1.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.35,
+          "top": 0.30,
+          "width": 0.30,
+          "height": 0.45
+        }
+      ]
+    },
+    {
+      "path": "test2.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.40,
+          "top": 0.25,
+          "width": 0.25,
+          "height": 0.50
+        },
+        {
+          "tag": "lego_wheel",
+          "left": 0.42,
+          "top": 0.60,
+          "width": 0.08,
+          "height": 0.10
+        },
+        {
+          "tag": "lego_wheel",
+          "left": 0.55,
+          "top": 0.60,
+          "width": 0.08,
+          "height": 0.10
+        }
+      ]
+    },
+    {
+      "path": "test3.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.30,
+          "top": 0.20,
+          "width": 0.35,
+          "height": 0.55
+        }
+      ]
+    },
+    {
+      "path": "test4.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.25,
+          "top": 0.28,
+          "width": 0.28,
+          "height": 0.48
+        },
+        {
+          "tag": "lego_brick",
+          "left": 0.60,
+          "top": 0.55,
+          "width": 0.12,
+          "height": 0.08
+        }
+      ]
+    },
+    {
+      "path": "test5.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.38,
+          "top": 0.22,
+          "width": 0.32,
+          "height": 0.52
+        }
+      ]
+    },
+    {
+      "path": "field-1.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.45,
+          "top": 0.35,
+          "width": 0.20,
+          "height": 0.40
+        },
+        {
+          "tag": "lego_brick",
+          "left": 0.15,
+          "top": 0.60,
+          "width": 0.10,
+          "height": 0.06
+        },
+        {
+          "tag": "lego_brick",
+          "left": 0.75,
+          "top": 0.50,
+          "width": 0.10,
+          "height": 0.06
+        }
+      ]
+    },
+    {
+      "path": "field-2.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.50,
+          "top": 0.30,
+          "width": 0.22,
+          "height": 0.42
+        },
+        {
+          "tag": "lego_minifig",
+          "left": 0.20,
+          "top": 0.45,
+          "width": 0.06,
+          "height": 0.15
+        }
+      ]
+    },
+    {
+      "path": "r1.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.32,
+          "top": 0.18,
+          "width": 0.36,
+          "height": 0.60
+        },
+        {
+          "tag": "lego_wheel",
+          "left": 0.35,
+          "top": 0.65,
+          "width": 0.10,
+          "height": 0.12
+        },
+        {
+          "tag": "lego_wheel",
+          "left": 0.55,
+          "top": 0.65,
+          "width": 0.10,
+          "height": 0.12
+        }
+      ]
+    },
+    {
+      "path": "r4.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.28,
+          "top": 0.20,
+          "width": 0.40,
+          "height": 0.58
+        }
+      ]
+    },
+    {
+      "path": "r6.jpg",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "tag": "lego_robot",
+          "left": 0.35,
+          "top": 0.25,
+          "width": 0.30,
+          "height": 0.50
+        },
+        {
+          "tag": "lego_wheel",
+          "left": 0.38,
+          "top": 0.62,
+          "width": 0.08,
+          "height": 0.10
+        },
+        {
+          "tag": "lego_wheel",
+          "left": 0.54,
+          "top": 0.62,
+          "width": 0.08,
+          "height": 0.10
+        }
+      ]
+    }
+  ],
+  "tags": [
+    "lego_robot",
+    "lego_brick",
+    "lego_wheel",
+    "lego_minifig"
+  ],
+  "description": "Sample training annotations for Azure Custom Vision LEGO object detection. Coordinates are normalized (0-1). Adjust bounding boxes based on actual image content."
+}

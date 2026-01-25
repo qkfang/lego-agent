@@ -39,7 +39,7 @@ class CustomVisionTrainer:
                 "Please set TRAINING_ENDPOINT and TRAINING_KEY"
             )
         
-        # Initialize the Custom Vision training client
+        # Initialize the Custom Vision training client with API key
         credentials = ApiKeyCredentials(in_headers={"Training-key": self.training_key})
         self.trainer = CustomVisionTrainingClient(self.training_endpoint, credentials)
         self.project = None
@@ -253,20 +253,42 @@ def create_sample_training_data() -> List[Dict]:
     # Example structure - in practice, you'd load this from a JSON file or database
     # Coordinates are normalized (0-1 range relative to image dimensions)
     
-    sample_data = [
-        {
-            'path': '../testdata/test1.jpg',
-            'regions': [
-                {
-                    'tag': 'lego_robot',
-                    'left': 0.3,
-                    'top': 0.4,
-                    'width': 0.2,
-                    'height': 0.3
-                }
-            ]
-        }
-    ]
+    base_path = os.path.join(os.path.dirname(__file__), '..', 'testdata')
+    
+    sample_data = []
+    
+    # Root testdata images
+    root_images = ['r1.jpg', 'r4.jpg', 'r6.jpg', 'field-1.jpg', 'field-2.jpg']
+    for img in root_images:
+        sample_data.append({
+            'path': os.path.join(base_path, img),
+            'regions': [{'tag': 'lego_robot', 'left': 0.3, 'top': 0.2, 'width': 0.4, 'height': 0.6}]
+        })
+    
+    # Processed folder images
+    processed_images = ['r1.jpg', 'r2.jpg', 'r3.jpg', 'r4.jpg', 'r5.jpg', 'r6.jpg']
+    for img in processed_images:
+        sample_data.append({
+            'path': os.path.join(base_path, 'processed', img),
+            'regions': [{'tag': 'lego_robot', 'left': 0.3, 'top': 0.2, 'width': 0.4, 'height': 0.6}]
+        })
+    
+    # Raw folder images
+    raw_images = ['20250603_135435.jpg', '20250603_135443.jpg', '20250603_135445.jpg',
+                  '20250603_135447.jpg', '20250603_135449.jpg', '20250603_135450.jpg']
+    for img in raw_images:
+        sample_data.append({
+            'path': os.path.join(base_path, 'raw', img),
+            'regions': [{'tag': 'lego_robot', 'left': 0.3, 'top': 0.2, 'width': 0.4, 'height': 0.6}]
+        })
+    
+    # Step folder images
+    step_images = ['step0-photo.jpg', 'step1-measure-photo.jpg']
+    for img in step_images:
+        sample_data.append({
+            'path': os.path.join(base_path, 'step', img),
+            'regions': [{'tag': 'lego_robot', 'left': 0.3, 'top': 0.2, 'width': 0.4, 'height': 0.6}]
+        })
     
     return sample_data
 
@@ -288,9 +310,9 @@ def main():
         # These should match your training data
         tag_names = [
             'lego_robot',
-            'lego_brick',
-            'lego_wheel',
-            'lego_minifig'
+            # 'lego_brick',
+            # 'lego_wheel',
+            # 'lego_minifig'
         ]
         trainer.create_tags(tag_names)
         
@@ -303,10 +325,7 @@ def main():
         training_data = create_sample_training_data()
         
         # Upload images with tags
-        # Uncomment the following line when you have real training data
-        # trainer.upload_tagged_images(training_data)
-        print("\nSkipping image upload in this demo")
-        print("To upload images, uncomment the upload_tagged_images call")
+        trainer.upload_tagged_images(training_data)
         
         # Display project stats
         stats = trainer.get_project_stats()

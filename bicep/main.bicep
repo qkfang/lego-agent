@@ -218,6 +218,48 @@ resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
 //   }
 // }
 
+// Azure Custom Vision - Training resource
+resource customVisionTraining 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+  name: '${resourcePrefix}-cv-training'
+  location: location
+  sku: {
+    name: 'S0'
+  }
+  kind: 'CustomVision.Training'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    customSubDomainName: '${resourcePrefix}-cv-training'
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+    disableLocalAuth: false
+  }
+}
+
+// Azure Custom Vision - Prediction resource
+resource customVisionPrediction 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+  name: '${resourcePrefix}-cv-prediction'
+  location: location
+  sku: {
+    name: 'S0'
+  }
+  kind: 'CustomVision.Prediction'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    customSubDomainName: '${resourcePrefix}-cv-prediction'
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+    disableLocalAuth: false
+  }
+}
+
 // Cosmos DB account for storing configurations and data
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
   name: '${resourcePrefix}-cosmos'
