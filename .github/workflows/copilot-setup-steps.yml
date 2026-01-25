@@ -18,15 +18,15 @@ jobs:
       contents: read
 
     steps:
-    - uses: azure/login@v2
-      with:
-        auth-type: 'SERVICE_PRINCIPAL'
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: azure/login@v2
+        with:
+          auth-type: 'SERVICE_PRINCIPAL'
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Azure CLI script
-      uses: azure/cli@v2
-      with:
-        azcliversion: latest
-        inlineScript: |
-          az account show
+      - name: Azure CLI script
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az account show
 
