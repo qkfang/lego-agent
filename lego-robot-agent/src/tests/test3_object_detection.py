@@ -10,7 +10,7 @@ import os
 # Add the parent directory to the path so we can import the module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from robot.object_detector import ObjectDetector, create_sample_color_ranges
+from lego_robot_agent.detection import ObjectDetector, create_sample_color_ranges
 
 
 def test_color_ranges():

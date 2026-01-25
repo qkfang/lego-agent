@@ -2,12 +2,14 @@
 from mcp import StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.client.session import ClientSession
-from robot.robot_agent_orchestrator import LegoOrchestratorAgent
-from robot.robot_agent_observer import LegoObserverAgent
-from robot.robot_agent_planner import LegoPlannerAgent
-from robot.robot_agent_controller import LegoControllerAgent
-from robot.robot_agent_judger import LegoJudgerAgent
-from util.mcp_tools import wrap_mcp_tools
+from lego_robot_agent.agents import (
+    LegoOrchestratorAgent,
+    LegoObserverAgent,
+    LegoPlannerAgent,
+    LegoControllerAgent,
+    LegoJudgerAgent
+)
+from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
 import asyncio
 import lego_robot_agent.shared as shared
 import json
