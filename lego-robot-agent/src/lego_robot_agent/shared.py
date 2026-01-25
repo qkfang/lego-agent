@@ -18,7 +18,7 @@ AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4o
 AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", "2025-01-01-preview")
 
 
-credential=AzureCliCredential()
+credential=DefaultAzureCredential()
 
 # Create the Azure OpenAI Chat client for agent creation
 azure_client = AzureOpenAIChatClient(
