@@ -9,6 +9,7 @@ from lego_robot_agent.agents import (
     LegoControllerAgent,
     LegoJudgerAgent
 )
+from lego_robot_agent.context import AgentContext
 from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
 import asyncio
 import lego_robot_agent.shared as shared
@@ -35,12 +36,19 @@ async def main():
             # Wrap MCP tools to make them callable for agent framework
             shared.robotmcptools = wrap_mcp_tools(mcp_tools, session)
 
+            # Create context for the agents
+            context = AgentContext(
+                azure_client=shared.azure_client,
+                mcp_session=session,
+                mcp_tools=shared.robotmcptools,
+            )
+
             legoObserverAgent = LegoObserverAgent()
             legoControllerAgent = LegoControllerAgent()
             legoPlannerAgent = LegoPlannerAgent()
-            await legoObserverAgent.init()
-            await legoPlannerAgent.init()
-            await legoControllerAgent.init()
+            await legoObserverAgent.init(context)
+            await legoPlannerAgent.init(context)
+            await legoControllerAgent.init(context)
 
             print("\033[93m \r\n-------- run_step1 -------- \033[0m")
             await legoObserverAgent.exec(
