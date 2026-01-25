@@ -4,6 +4,7 @@ from azure.identity import DefaultAzureCredential, AzureCliCredential
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.semconv.resource import ResourceAttributes
 import os
+import platform
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -17,7 +18,7 @@ AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4o
 AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", "2025-01-01-preview")
 
 
-credential=AzureCliCredential()
+credential=DefaultAzureCredential()
 
 # Create the Azure OpenAI Chat client for agent creation
 azure_client = AzureOpenAIChatClient(
@@ -40,7 +41,15 @@ robotData = RobotData()
 foundryAgents = []
 
 # MCP server path configuration
-mcp_server_path = "c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"
+# Detect platform and use appropriate path
+if platform.system() == "Windows":
+    mcp_server_path = "c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"
+else:
+    # Linux/Unix path - go up from shared.py to lego-agent root
+    # shared.py is in: lego-robot-agent/src/lego_robot_agent/
+    # Need to go up 3 levels to get to lego-agent root
+    mcp_server_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lego-mcp", "build", "index.js")
+    mcp_server_path = os.path.abspath(mcp_server_path)
 
 notify = None
 chat = None
