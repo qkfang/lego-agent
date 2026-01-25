@@ -7,20 +7,16 @@ from mcp.client.session import ClientSession
 from lego_robot_agent import LegoAgent
 from lego_robot_agent.context import AgentContext
 from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
-from mcp_test_utils import get_mcp_server_path
 
 async def main():
 
     shared.isTest = False
     shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]  # Agents are created on-demand in new framework
     
-    # Get MCP server path
-    mcp_server_path = get_mcp_server_path()
-    
     # Setup MCP connection
     mcp_server_params = StdioServerParameters(
         command="node",
-        args=[str(mcp_server_path)],
+        args=[shared.mcp_server_path],
         env={
             "PROJECT_CONNECTION_STRING": "",
             "DEFAULT_ROBOT_ID": "robot_b"
