@@ -1,6 +1,4 @@
 """Test script for robot controller agent using Microsoft Agent Framework."""
-import sys
-from pathlib import Path
 
 from mcp import StdioServerParameters
 from mcp.client.stdio import stdio_client
