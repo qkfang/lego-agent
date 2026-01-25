@@ -4,6 +4,7 @@ from azure.identity import DefaultAzureCredential, AzureCliCredential
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.semconv.resource import ResourceAttributes
 import os
+import platform
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -41,7 +42,6 @@ foundryAgents = []
 
 # MCP server path configuration
 # Detect platform and use appropriate path
-import platform
 if platform.system() == "Windows":
     mcp_server_path = "c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"
 else:

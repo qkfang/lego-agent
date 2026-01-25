@@ -2,7 +2,7 @@
 
 **Date**: 2026-01-25  
 **Test Script**: `lego-robot-agent/src/tests/test1_action.py`  
-**Issue**: [test copilot](https://github.com/qkfang/lego-agent/issues/XXX)
+**Issue**: test copilot - verify Azure resource access under rg-legobot
 
 ## Executive Summary
 
