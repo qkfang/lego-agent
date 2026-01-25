@@ -40,7 +40,16 @@ robotData = RobotData()
 foundryAgents = []
 
 # MCP server path configuration
-mcp_server_path = "c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"
+# Detect platform and use appropriate path
+import platform
+if platform.system() == "Windows":
+    mcp_server_path = "c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"
+else:
+    # Linux/Unix path - go up from shared.py to lego-agent root
+    # shared.py is in: lego-robot-agent/src/lego_robot_agent/
+    # Need to go up 3 levels to get to lego-agent root
+    mcp_server_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lego-mcp", "build", "index.js")
+    mcp_server_path = os.path.abspath(mcp_server_path)
 
 notify = None
 chat = None
