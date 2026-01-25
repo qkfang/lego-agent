@@ -69,6 +69,28 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
+// Azure AI Search for knowledge base and RAG scenarios
+resource searchService 'Microsoft.Search/searchServices@2024-06-01-preview' = {
+  name: '${resourcePrefix}-search'
+  location: location
+  sku: {
+    name: 'basic'
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    replicaCount: 1
+    partitionCount: 1
+    hostingMode: 'default'
+    publicNetworkAccess: 'enabled'
+    networkRuleSet: {
+      ipRules: []
+    }
+    semanticSearch: 'free'
+  }
+}
+
 // Azure AI Foundry Hub (v2 - not classic)
 resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
   name: '${resourcePrefix}-foundry'
