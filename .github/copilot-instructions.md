@@ -55,3 +55,5 @@ cd lego-web && npm install && npm run dev
 
 ### Rule
 Don't need to update documentation, keep it minimal or none.
+Minimize comments in code, only essential ones.
+Minimize output during thinking step, only very key steps are needed.
