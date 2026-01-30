@@ -147,7 +147,7 @@ resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
 }
 
 // Azure AI Foundry Project
-resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview' = {
+resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-10-01-preview' = {
   parent: aiHub
   name: '${resourcePrefix}-project'
   location: location
@@ -156,6 +156,87 @@ resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-pre
   }
   properties: {}
 }
+
+
+resource aiHub_cu 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
+  name: '${resourcePrefix}-foundry-cu'
+  location: 'australiaeast'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  sku: {
+    name: 'S0'
+  }
+  kind: 'AIServices'
+  properties: {
+    allowProjectManagement: true
+    customSubDomainName: '${resourcePrefix}-foundry-cu'
+    publicNetworkAccess: 'Enabled'
+    disableLocalAuth: true
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+  }
+}
+
+resource aiProject_cu 'Microsoft.CognitiveServices/accounts/projects@2025-10-01-preview' = {
+  parent: aiHub_cu
+  name: '${resourcePrefix}-project-cu'
+  location: 'australiaeast'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {}
+}
+
+
+// Connection to Azure AI Search for knowledge base (knowledgebase564)
+resource knowledgeBaseConnection 'Microsoft.CognitiveServices/accounts/connections@2025-06-01' = {
+  parent: aiHub
+  name: 'kb-knowledgebase564-rwxe6'
+  properties: {
+    authType: 'ProjectManagedIdentity'
+    category: 'RemoteTool'
+    target: 'https://legobot-search.search.windows.net/knowledgebases/knowledgebase564/mcp?api-version=2025-11-01-Preview'
+    useWorkspaceManagedIdentity: false
+    isSharedToAll: false
+    sharedUserList: []
+    peRequirement: 'NotRequired'
+    peStatus: 'NotApplicable'
+    metadata: {
+      type: 'knowledgeBase_MCP'
+      knowledgeBaseName: 'knowledgebase564'
+    }
+  }
+}
+
+
+resource accounts_legobot_foundry_name_legobot_project_legobotsearchkrwxe6 'Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01' = {
+  parent: aiProject
+  name: 'legobotsearchkrwxe6'
+  properties: {
+    authType: 'ApiKey'
+    category: 'CognitiveSearch'
+    target: 'https://legobot-search.search.windows.net/'
+    useWorkspaceManagedIdentity: false
+    isSharedToAll: false
+    sharedUserList: []
+    peRequirement: 'NotRequired'
+    peStatus: 'NotApplicable'
+    credentials: {
+      key: searchService.listAdminKeys().primaryKey
+    }
+    metadata: {
+      displayName: 'legobot-search'
+      type: 'azure_ai_search'
+      ApiType: 'Azure'
+      ResourceId: searchService.id
+      ApiVersion: '2024-05-01-preview'
+      DeploymentApiVersion: '2023-11-01'
+    }
+  }
+}
+
 
 // GPT-4o deployment
 resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
@@ -196,66 +277,6 @@ resource gptRealtimeDeployment 'Microsoft.CognitiveServices/accounts/deployments
   dependsOn: [gpt4oDeployment]
 }
 
-// // Content Understanding Service
-// resource contentUnderstanding 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
-//   name: '${resourcePrefix}-cu'
-//   location: location
-//   tags: tags
-//   sku: {
-//     name: contentUnderstandingSku
-//   }
-//   kind: 'ContentUnderstanding'
-//   identity: {
-//     type: 'SystemAssigned'
-//   }
-//   properties: {
-//     customSubDomainName: '${resourcePrefix}-cu'
-//     publicNetworkAccess: 'Enabled'
-//     networkAcls: {
-//       defaultAction: 'Allow'
-//     }
-//     disableLocalAuth: false
-//   }
-// }
-
-// OpenAI service for Foundry models
-// resource openAI 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
-//   name: '${resourcePrefix}-${foundryHubName}-openai'
-//   location: location
-//   tags: tags
-//   sku: {
-//     name: 'S0'
-//   }
-//   kind: 'OpenAI'
-//   identity: {
-//     type: 'SystemAssigned'
-//   }
-//   properties: {
-//     customSubDomainName: '${resourcePrefix}-${foundryHubName}-openai'
-//     publicNetworkAccess: 'Enabled'
-//     networkAcls: {
-//       defaultAction: 'Allow'
-//     }
-//   }
-// }
-
-// GPT-4o deployment for agent
-// resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
-//   parent: openAI
-//   name: 'gpt-4o'
-//   sku: {
-//     name: 'Standard'
-//     capacity: 10
-//   }
-//   properties: {
-//     model: {
-//       format: 'OpenAI'
-//       name: 'gpt-4o'
-//       version: '2024-05-13'
-//     }
-//     versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
-//   }
-// }
 
 // Azure Custom Vision - Training resource
 resource customVisionTraining 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
