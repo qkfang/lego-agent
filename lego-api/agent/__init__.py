@@ -29,7 +29,12 @@ from agent.common import (
 )
 
 import json
-import lego_robot_agent.shared as shared
+# Commented out temporarily due to agent-framework version mismatch
+# import lego_robot_agent.shared as shared
+class SharedStub:
+    sessionrt = None
+shared = SharedStub()
+
 import agent.agents as agents  # noqa: F401
 import agent.functions as functions  # noqa: F401
 from connection import connections

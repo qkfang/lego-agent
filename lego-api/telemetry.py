@@ -8,7 +8,8 @@ from prompty.tracer import Tracer, PromptyTracer
 from opentelemetry import trace as oteltrace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
+# Commented out temporarily due to opentelemetry version mismatch
+# from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 base_path = Path(__file__).resolve().parent
@@ -61,35 +62,39 @@ def init_tracing(local_tracing: bool = True):
     """
     Initialize tracing for the application
     If local_tracing is True, use the PromptyTracer
-    If remote_tracing is True, use the OpenTelemetry tracer
-    If remote_tracing is not specified, defaults to using the OpenTelemetry tracer only if local_tracing is False
+    If remote_tracing is True, use the OpenTelemetry tracer (disabled temporarily)
     """
 
     if local_tracing:
         local_trace = PromptyTracer()
         Tracer.add("PromptyTracer", local_trace.tracer)
     else:
-        # Initialize OpenTelemetry Tracer
+        # Initialize OpenTelemetry Tracer (Azure Monitor export disabled temporarily)
         otel_genai_mapper = GenAIOTel(base_path / "semantic-mapper.json")
         Tracer.add("OpenTelemetry", otel_genai_mapper.trace_span)
 
         azmon_logger = logging.getLogger("azure")
         azmon_logger.setLevel(logging.INFO)
 
-        # oteltrace.set_tracer_provider(TracerProvider())
-
-        # Configure Azure Monitor as the Exporter
-        app_insights = os.getenv("APPINSIGHTS_CONNECTIONSTRING")
-
-        # Add the Azure exporter to the tracer provider
+        # Commented out temporarily due to opentelemetry version mismatch
+        # # Configure Azure Monitor as the Exporter
+        # app_insights = os.getenv("APPINSIGHTS_CONNECTIONSTRING")
+        # 
+        # # Add the Azure exporter to the tracer provider
+        # resource = Resource(attributes={SERVICE_NAME: "sustineo"})
+        # 
+        # provider = TracerProvider(resource=resource)
+        # provider.add_span_processor(
+        #     BatchSpanProcessor(
+        #         AzureMonitorTraceExporter(connection_string=app_insights)
+        #     )
+        # )
+        # 
+        # oteltrace.set_tracer_provider(provider)
+        # return oteltrace.get_tracer(_tracer)
+        
+        # Basic tracer provider without Azure Monitor
         resource = Resource(attributes={SERVICE_NAME: "sustineo"})
-
         provider = TracerProvider(resource=resource)
-        provider.add_span_processor(
-            BatchSpanProcessor(
-                AzureMonitorTraceExporter(connection_string=app_insights)
-            )
-        )
-
         oteltrace.set_tracer_provider(provider)
         return oteltrace.get_tracer(_tracer)
