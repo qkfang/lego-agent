@@ -27,7 +27,21 @@ npm run dev
 ## Prerequisites
 
 - Node.js 18+ 
-- lego-api backend running on `http://localhost:8000`
+- lego-api backend running (default: `http://localhost:8000`)
+
+## Configuration
+
+Create a `.env` file based on `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Edit the `.env` file to configure your backend endpoint:
+
+```
+VITE_WS_ENDPOINT=ws://localhost:8000
+```
 
 ## Usage
 

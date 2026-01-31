@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-const WS_ENDPOINT = 'ws://localhost:8000';
+const WS_ENDPOINT = import.meta.env.VITE_WS_ENDPOINT || 'ws://localhost:8000';
 
 interface User {
   key: string;
@@ -39,7 +39,7 @@ export default function useRealtime(
       source.connect(analyzerNode);
       setAnalyzer(analyzerNode);
 
-      const endpoint = WS_ENDPOINT.endsWith("/") ? WS_ENDPOINT.slice(0, -1) : WS_ENDPOINT;
+      const endpoint = WS_ENDPOINT;
       const ws = new WebSocket(`${endpoint}/api/voice/${user.key}`);
       wsRef.current = ws;
 

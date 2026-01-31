@@ -1,15 +1,4 @@
-$color-lego-red: #D92C2C;
-$color-lego-red-dark: #B71C1C;
-$color-lego-blue: #0055BF;
-$color-lego-blue-light: #2196F3;
-$color-lego-blue-dark: #004494;
-$color-lego-yellow: #FFD500;
-$color-lego-yellow-light: #FFEB3B;
-$color-lego-orange: #FF8C00;
-$color-lego-orange-dark: #F57C00;
-$color-lego-purple: #9B5FB8;
-$color-lego-purple-light: #BA68C8;
-$color-zinc-50: #fafafa;
+@import '../styles/global.scss';
 
 .voice-tool {
   z-index: 100;

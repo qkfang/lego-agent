@@ -20,7 +20,7 @@ const VoiceTool: React.FC<Props> = ({ onClick, callState, analyzer }) => {
       const dataArray = new Uint8Array(bufferLength);
       const width = canvas.width;
       const height = canvas.height;
-      let sum = 0;
+      
       if (context) {
         const draw = () => {
           if (callState === "call" && analyzer) {
@@ -35,7 +35,7 @@ const VoiceTool: React.FC<Props> = ({ onClick, callState, analyzer }) => {
           analyzer.getByteFrequencyData(dataArray);
           context.strokeStyle = "rgb(255, 255, 255, 0.1)";
 
-          sum = 0;
+          let sum = 0;
           for (let i = 0; i < bufferLength; i++) {
             const radius = (100 * dataArray[i]) / 255 + 50;
             sum += dataArray[i];
