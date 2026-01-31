@@ -37,12 +37,16 @@ Custom agents use the `@agent` decorator in `lego-api/agent/agents.py`:
 ## Development Commands
 
 ### Python Services (lego-api)
+lego-api uses lego-mcp and lego-robot-agent as dependencies.
+
 ```bash
 cd lego-api && pip install -r requirements.txt && pip install -e ../lego-robot-agent
 uvicorn main:app --reload --port 8000
 ```
 
 ### MCP Server (lego-mcp)
+MCP has a isMock option, it will just return success without connecting to physical robot. use this option for testing.
+
 ```bash
 cd lego-mcp && npm install && npm run build
 node build/index.js  # Or via MCP client
