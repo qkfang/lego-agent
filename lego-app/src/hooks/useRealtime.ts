@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 const WS_ENDPOINT = 'ws://localhost:8000';
 

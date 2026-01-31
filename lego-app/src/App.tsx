@@ -1,10 +1,8 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import './styles/App.scss'
 import VoiceTool from './components/VoiceTool'
 import { HiMiniMicrophone } from 'react-icons/hi2'
 import useRealtime from './hooks/useRealtime'
-
-const API_ENDPOINT = 'http://localhost:8000'
 
 function App() {
   const [inputValue, setInputValue] = useState('')
