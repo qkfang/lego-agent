@@ -11,8 +11,6 @@ from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect
 from openai.types.beta.realtime.session_update_event import SessionTool
 
 from agent.decorators import function_agents, function_calls
-# Commented out temporarily due to agent-framework version mismatch
-# from lego_robot_agent.util.storage import get_storage_client
 from storage import get_storage_client
 from connection import connections
 from model import Update
@@ -23,13 +21,14 @@ from voice import router as voice_configuration_router
 from agent import router as agent_router
 from agent.common import get_custom_agents, create_thread, get_available_agents
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-# Commented out temporarily due to agent-framework version mismatch
+# Temporarily disabled due to agent_framework compatibility
 # from mcp import StdioServerParameters
 # from mcp.client.stdio import stdio_client
 from agent.common import foundry_agents, custom_agents, get_custom_agents
 # from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
-# Commented out temporarily due to agent-framework version mismatch
 # import lego_robot_agent.shared as shared
+
+# Stub for shared module
 class SharedStub:
     foundryAgents = []
     mcprobot = None
@@ -64,7 +63,7 @@ async def lifespan(app: FastAPI):
         shared.foundryAgents = []
         
         # Setup MCP connection for robot tools
-        # Commented out temporarily due to agent-framework import issues
+        # Temporarily disabled due to agent_framework compatibility
         # Using the mcp package for MCP server communication
         # import platform
         # if platform.system() == "Windows":
@@ -72,24 +71,29 @@ async def lifespan(app: FastAPI):
         # else:
         #     mcp_path = "/home/runner/work/lego-agent/lego-agent/lego-mcp/build/index.js"
         # 
-        # mcp_server_params = StdioServerParameters(
-        #     command="node",
-        #     args=[mcp_path],
-        #     env={
-        #         "PROJECT_CONNECTION_STRING": "",
-        #         "DEFAULT_ROBOT_ID": "robot_b"
-        #     },
-        # )
-        # 
-        # async with stdio_client(mcp_server_params) as (read_stream, write_stream):
-        #     from mcp.client.session import ClientSession
-        #     async with ClientSession(read_stream, write_stream) as session:
-        #         await session.initialize()
-        #         shared.mcprobot = session
-        #         tools_result = await session.list_tools()
-        #         mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
-        #         # Wrap MCP tools to make them callable for agent framework
-        #         shared.robotmcptools = wrap_mcp_tools(mcp_tools, session)
+        # # Check if MCP build exists
+        # import os
+        # if not os.path.exists(mcp_path):
+        #     print(f"Warning: MCP server not found at {mcp_path}. Robot tools will not be available.")
+        # else:
+        #     mcp_server_params = StdioServerParameters(
+        #         command="node",
+        #         args=[mcp_path],
+        #         env={
+        #             "PROJECT_CONNECTION_STRING": "",
+        #             "DEFAULT_ROBOT_ID": "robot_b"
+        #         },
+        #     )
+        #     
+        #     async with stdio_client(mcp_server_params) as (read_stream, write_stream):
+        #         from mcp.client.session import ClientSession
+        #         async with ClientSession(read_stream, write_stream) as session:
+        #             await session.initialize()
+        #             shared.mcprobot = session
+        #             tools_result = await session.list_tools()
+        #             mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
+        #             # Wrap MCP tools to make them callable for agent framework
+        #             shared.robotmcptools = wrap_mcp_tools(mcp_tools, session)
                 
         yield
     finally:

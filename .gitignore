@@ -51,6 +51,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Test files
+test_api.py
+**/test_*.py
+
 # VS Code
 # .vscode/
 

@@ -29,11 +29,8 @@ from agent.common import (
 )
 
 import json
-# Commented out temporarily due to agent-framework version mismatch
-# import lego_robot_agent.shared as shared
-class SharedStub:
-    sessionrt = None
-shared = SharedStub()
+# Temporarily disable lego_robot_agent imports due to agent_framework compatibility
+# import lego_robot_agent.shared as lego_shared
 
 import agent.agents as agents  # noqa: F401
 import agent.functions as functions  # noqa: F401
@@ -205,7 +202,9 @@ async def execute_agent(id: str, function: FunctionCall):
             )
             result = await func(**args)
 
-            await shared.sessionrt.realtime.send(
+            # Get shared module at runtime to avoid circular import
+            import main
+            await main.shared.sessionrt.realtime.send(
                 ConversationItemCreateEvent(
                     type="conversation.item.create",
                     item=ConversationItem(
@@ -216,7 +215,7 @@ async def execute_agent(id: str, function: FunctionCall):
                 )
             )
             
-            await shared.sessionrt.realtime.response.create()
+            await main.shared.sessionrt.realtime.response.create()
 
         else:
             return {"error": "Function not found"}

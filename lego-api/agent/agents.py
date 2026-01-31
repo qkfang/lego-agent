@@ -3,12 +3,11 @@ import io
 import base64
 import json
 import aiohttp
-# Commented out temporarily due to agent-framework version mismatch
-# import lego_robot_agent.shared as shared
+# Temporarily disable due to agent_framework compatibility
+# import lego_robot_agent.shared as lego_shared
 # from lego_robot_agent.util.storage import save_image_blobs, save_image_binary_blobs
 # from lego_robot_agent import RobotData, RoboProcessArgs
 # from lego_robot_agent import LegoAgent, AgentContext
-from agent import shared
 from typing import Annotated
 from agent.decorators import agent
 from model import AgentUpdateEvent, Content
@@ -19,8 +18,7 @@ load_dotenv()
 AZURE_IMAGE_ENDPOINT = os.environ.get("AZURE_IMAGE_ENDPOINT", "EMPTY").rstrip("/")
 AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
 
-# Commented out temporarily due to agent-framework version mismatch
-# LegoAgent is now initialized lazily with context
+# LegoAgent is temporarily disabled due to agent_framework compatibility
 # legoAgent: LegoAgent = None
 
 
@@ -29,12 +27,12 @@ AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
 #     global legoAgent
 #     if legoAgent is None:
 #         context = AgentContext(
-#             azure_client=shared.azure_client,
-#             mcp_session=shared.mcprobot,
-#             mcp_tools=shared.robotmcptools,
-#             robot_data=shared.robotData,
-#             is_test=shared.isTest,
-#             test_count=shared.isTestCount,
+#             azure_client=lego_shared.azure_client,
+#             mcp_session=lego_shared.mcprobot,
+#             mcp_tools=lego_shared.robotmcptools,
+#             robot_data=lego_shared.robotData,
+#             is_test=lego_shared.isTest,
+#             test_count=lego_shared.isTestCount,
 #         )
 #         legoAgent = LegoAgent(context)
 #     return legoAgent
@@ -52,10 +50,15 @@ async def robot_agent(
     ],
     notify: AgentUpdateEvent,
 ) -> list[str]:
-    # Commented out temporarily due to agent-framework version mismatch
+    # Temporarily disabled due to agent_framework compatibility
     # agent = _get_lego_agent()
     # agent.context.notify_callback = notify
     # await agent.init()
     # await agent.run(goal)
+    
+    # For testing purposes, just log the goal
+    print(f"Robot agent called with goal: {goal}")
+    await notify("robot_agent", "running", information=f"Processing goal: {goal}")
+    await notify("robot_agent", "completed", information="Robot agent execution completed (stub)", output=True)
         
-    return ["Robot actions temporarily disabled due to agent-framework version mismatch."]
+    return [f"Robot agent stub completed. Goal was: {goal}"]
