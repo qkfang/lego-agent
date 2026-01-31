@@ -63,7 +63,12 @@ function App() {
           <h1>LEGO ROBOT</h1>
         </div>
         <div className="subtitle">Everything is Awesome! 🎵</div>
-        <button className="mode-toggle" onClick={toggleMode} title={`Switch to ${mode === 'voice' ? 'Text' : 'Voice'} Mode`}>
+        <button 
+          className="mode-toggle" 
+          onClick={toggleMode} 
+          title={`Switch to ${mode === 'voice' ? 'Text' : 'Voice'} Mode`}
+          aria-label={`Toggle between voice and text mode. Currently in ${mode} mode`}
+        >
           {mode === 'voice' ? (
             <HiOutlineChatBubbleLeftRight size={20} />
           ) : (
