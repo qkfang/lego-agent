@@ -34,6 +34,34 @@
   position: relative;
   z-index: 10;
 
+  .mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $color-lego-yellow 0%, $color-lego-orange 100%);
+    border: 3px solid $color-zinc-50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 213, 0, 0.5);
+    transition: all 0.3s ease;
+    color: $color-zinc-900;
+
+    &:hover {
+      background: linear-gradient(135deg, $color-lego-orange 0%, $color-lego-red 100%);
+      transform: scale(1.1) rotate(15deg);
+      box-shadow: 0 6px 20px rgba(255, 140, 0, 0.7);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
   .logo {
     display: flex;
     align-items: center;
@@ -197,9 +225,12 @@
   border-top: 4px solid $color-lego-yellow;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 16px;
   position: relative;
   z-index: 10;
+  min-height: 140px;
 
   .text-input {
     width: 100%;

@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import './styles/App.scss'
 import VoiceTool from './components/VoiceTool'
-import { HiMiniMicrophone } from 'react-icons/hi2'
+import { HiMiniMicrophone, HiOutlineChatBubbleLeftRight } from 'react-icons/hi2'
 import useRealtime from './hooks/useRealtime'
 
+type Mode = 'voice' | 'text'
+
 function App() {
+  const [mode, setMode] = useState<Mode>('voice')
   const [inputValue, setInputValue] = useState('')
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([])
   
@@ -48,6 +51,10 @@ function App() {
     })
   }
 
+  const toggleMode = () => {
+    setMode(prev => prev === 'voice' ? 'text' : 'voice')
+  }
+
   return (
     <div className="app">
       <div className="header">
@@ -56,14 +63,27 @@ function App() {
           <h1>LEGO ROBOT</h1>
         </div>
         <div className="subtitle">Everything is Awesome! 🎵</div>
+        <button className="mode-toggle" onClick={toggleMode} title={`Switch to ${mode === 'voice' ? 'Text' : 'Voice'} Mode`}>
+          {mode === 'voice' ? (
+            <HiOutlineChatBubbleLeftRight size={20} />
+          ) : (
+            <HiMiniMicrophone size={20} />
+          )}
+        </button>
       </div>
 
       <div className="messages-container">
-        {messages.length === 0 ? (
+        {mode === 'voice' && messages.length === 0 ? (
           <div className="welcome">
             <HiMiniMicrophone size={64} className="welcome-icon" />
             <h2>Ready to Build!</h2>
-            <p>Tap the mic or type a command to control your LEGO robot</p>
+            <p>Tap the mic to start voice control</p>
+          </div>
+        ) : mode === 'text' && messages.length === 0 ? (
+          <div className="welcome">
+            <HiOutlineChatBubbleLeftRight size={64} className="welcome-icon" />
+            <h2>Let's Chat!</h2>
+            <p>Type your commands below</p>
           </div>
         ) : (
           <div className="messages">
@@ -79,19 +99,23 @@ function App() {
       </div>
 
       <div className="input-area">
-        <input
-          type="text"
-          placeholder="Type a command..."
-          className="text-input"
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          onKeyDown={handleInputKeyDown}
-        />
-        <VoiceTool
-          onClick={handleVoice}
-          callState={callState}
-          analyzer={analyzer}
-        />
+        {mode === 'text' && (
+          <input
+            type="text"
+            placeholder="Type a command..."
+            className="text-input"
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            onKeyDown={handleInputKeyDown}
+          />
+        )}
+        {mode === 'voice' && (
+          <VoiceTool
+            onClick={handleVoice}
+            callState={callState}
+            analyzer={analyzer}
+          />
+        )}
       </div>
     </div>
   )
