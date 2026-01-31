@@ -1,0 +1,88 @@
+{
+  "id": "02852aeb-4692-4f92-ba58-a65bfc40c3af",
+  "status": "Succeeded",
+  "result": {
+    "analyzerId": "prebuilt-videoSearch",
+    "apiVersion": "2025-11-01",
+    "createdAt": "2026-01-30T22:46:40Z",
+    "stringEncoding": "utf8",
+    "warnings": [],
+    "contents": [
+      {
+        "markdown": "# Video: 00:00.967 => 00:48.333\nWidth: 1920\nHeight: 1080\n\n\n\nKey Frames\n- 00:00.967 ![](keyFrame.967.jpg)\n- 00:01.933 ![](keyFrame.1933.jpg)\n- 00:02.900 ![](keyFrame.2900.jpg)\n- 00:03.867 ![](keyFrame.3867.jpg)\n- 00:04.833 ![](keyFrame.4833.jpg)\n- 00:05.800 ![](keyFrame.5800.jpg)\n- 00:06.767 ![](keyFrame.6767.jpg)\n- 00:07.733 ![](keyFrame.7733.jpg)\n- 00:08.700 ![](keyFrame.8700.jpg)\n- 00:09.667 ![](keyFrame.9667.jpg)\n- 00:10.633 ![](keyFrame.10633.jpg)\n- 00:11.600 ![](keyFrame.11600.jpg)\n- 00:12.567 ![](keyFrame.12567.jpg)\n- 00:13.533 ![](keyFrame.13533.jpg)\n- 00:14.500 ![](keyFrame.14500.jpg)\n- 00:15.467 ![](keyFrame.15467.jpg)\n- 00:16.433 ![](keyFrame.16433.jpg)\n- 00:17.400 ![](keyFrame.17400.jpg)\n- 00:18.367 ![](keyFrame.18367.jpg)\n- 00:19.333 ![](keyFrame.19333.jpg)\n- 00:20.300 ![](keyFrame.20300.jpg)\n- 00:21.267 ![](keyFrame.21267.jpg)\n- 00:22.233 ![](keyFrame.22233.jpg)\n- 00:23.200 ![](keyFrame.23200.jpg)\n- 00:24.167 ![](keyFrame.24167.jpg)\n- 00:25.133 ![](keyFrame.25133.jpg)\n- 00:26.100 ![](keyFrame.26100.jpg)\n- 00:27.067 ![](keyFrame.27067.jpg)\n- 00:28.033 ![](keyFrame.28033.jpg)\n- 00:29.000 ![](keyFrame.29000.jpg)\n- 00:29.967 ![](keyFrame.29967.jpg)\n- 00:30.933 ![](keyFrame.30933.jpg)\n- 00:31.900 ![](keyFrame.31900.jpg)\n- 00:32.867 ![](keyFrame.32867.jpg)\n- 00:33.833 ![](keyFrame.33833.jpg)\n- 00:34.800 ![](keyFrame.34800.jpg)\n- 00:35.767 ![](keyFrame.35767.jpg)\n- 00:36.733 ![](keyFrame.36733.jpg)\n- 00:37.700 ![](keyFrame.37700.jpg)\n- 00:38.667 ![](keyFrame.38667.jpg)\n- 00:39.633 ![](keyFrame.39633.jpg)\n- 00:40.600 ![](keyFrame.40600.jpg)\n- 00:41.567 ![](keyFrame.41567.jpg)\n- 00:42.533 ![](keyFrame.42533.jpg)\n- 00:43.500 ![](keyFrame.43500.jpg)\n- 00:44.467 ![](keyFrame.44467.jpg)\n- 00:45.433 ![](keyFrame.45433.jpg)\n- 00:46.400 ![](keyFrame.46400.jpg)\n- 00:47.367 ![](keyFrame.47367.jpg)\n- 00:48.333 ![](keyFrame.48333.jpg)",
+        "fields": {
+          "Summary": {
+            "type": "string",
+            "valueString": "A small robot constructed from colorful building blocks is positioned on a grid-patterned table next to a can of Coca-Cola. Over the course of the segment, the robot uses a mechanical arm to grasp the can and then moves it across the table. The robot's movements are gradual and deliberate, showing the arm extending, gripping the can, lifting it slightly, and then transporting it to a new location on the table. The background remains consistent with a white chair and some objects on the right side of the table throughout the segment."
+          }
+        },
+        "kind": "audioVisual",
+        "startTimeMs": 967,
+        "endTimeMs": 48333,
+        "width": 1920,
+        "height": 1080,
+        "KeyFrameTimesMs": [
+          967,
+          1933,
+          2900,
+          3867,
+          4833,
+          5800,
+          6767,
+          7733,
+          8700,
+          9667,
+          10633,
+          11600,
+          12567,
+          13533,
+          14500,
+          15467,
+          16433,
+          17400,
+          18367,
+          19333,
+          20300,
+          21267,
+          22233,
+          23200,
+          24167,
+          25133,
+          26100,
+          27067,
+          28033,
+          29000,
+          29967,
+          30933,
+          31900,
+          32867,
+          33833,
+          34800,
+          35767,
+          36733,
+          37700,
+          38667,
+          39633,
+          40600,
+          41567,
+          42533,
+          43500,
+          44467,
+          45433,
+          46400,
+          47367,
+          48333
+        ],
+        "mimeType": "video/mp4"
+      }
+    ]
+  },
+  "usage": {
+    "videoHours": 0.015,
+    "contextualizationTokens": 14166,
+    "tokens": {
+      "gpt-4.1-mini-input": 21232,
+      "gpt-4.1-mini-output": 342
+    }
+  }
+}

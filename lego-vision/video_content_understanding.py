@@ -10,6 +10,8 @@ import base64
 import mimetypes
 import requests
 from pathlib import Path
+from datetime import datetime
+from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -81,7 +83,7 @@ def analyze_video_from_url(video_url: str, analyzer_id: str = "prebuilt-videoSea
     return result.as_dict()
 
 
-def analyze_video_from_file(file_path: str, analyzer_id: str = "prebuilt-videoSearch") -> dict:
+def analyze_video_from_file(file_path: str, analyzer_id: str = "prebuilt-videoSearch") -> tuple[dict, str]:
     """
     Analyze a local video file using Azure Content Understanding REST API.
     Uses binary upload endpoint for efficient file transfer.
@@ -91,7 +93,7 @@ def analyze_video_from_file(file_path: str, analyzer_id: str = "prebuilt-videoSe
         analyzer_id: The analyzer to use (default: prebuilt-videoSearch)
     
     Returns:
-        dict: Analysis result containing key frames, transcript, descriptions, etc.
+        tuple: (Analysis result dict, Operation URL for downloading files)
     """
     endpoint = os.environ.get("CONTENTUNDERSTANDING_ENDPOINT")
     if not endpoint:
@@ -115,6 +117,8 @@ def analyze_video_from_file(file_path: str, analyzer_id: str = "prebuilt-videoSe
     if not mime_type:
         mime_type = "video/mp4"
     
+    # Note: enableSegment and returnDetails are analyzer config options, not query parameters
+    # For prebuilt analyzers, these are pre-configured. To customize, create a custom analyzer.
     url = f"{endpoint.rstrip('/')}/contentunderstanding/analyzers/{analyzer_id}:analyzeBinary?api-version={API_VERSION}"
     
     headers = get_auth_headers()
@@ -126,12 +130,13 @@ def analyze_video_from_file(file_path: str, analyzer_id: str = "prebuilt-videoSe
     if response.status_code == 202:
         operation_location = response.headers.get("Operation-Location")
         if operation_location:
-            return poll_operation(operation_location)
+            result = poll_operation(operation_location)
+            return result, operation_location
     
     if not response.ok:
         print(f"Error {response.status_code}: {response.text}")
     response.raise_for_status()
-    return response.json()
+    return response.json(), ""
 
 
 def poll_operation(operation_url: str, poll_interval: int = 5, max_wait: int = 600) -> dict:
@@ -170,6 +175,129 @@ def poll_operation(operation_url: str, poll_interval: int = 5, max_wait: int = 6
         elapsed += poll_interval
     
     raise TimeoutError(f"Operation timed out after {max_wait} seconds")
+
+
+def save_keyframe_image_to_file(
+    image_content: bytes,
+    keyframe_id: str,
+    test_name: str,
+    output_dir: str = "output",
+    identifier: Optional[str] = None,
+) -> str:
+    """Save keyframe image to output file.
+
+    Args:
+        image_content: The binary image content to save
+        keyframe_id: The keyframe ID (e.g., "keyframes/733")
+        test_name: Name prefix for the output file
+        output_dir: Directory to save the output file (default: "output")
+        identifier: Optional unique identifier to avoid conflicts
+
+    Returns:
+        str: Path to the saved image file
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    frame_id = keyframe_id.split("/")[-1] if "/" in keyframe_id else keyframe_id
+
+    output_dir_path = Path(__file__).parent / output_dir
+    output_dir_path.mkdir(parents=True, exist_ok=True)
+
+    if identifier:
+        output_filename = f"{test_name}_{identifier}_{timestamp}_{frame_id}.jpg"
+    else:
+        output_filename = f"{test_name}_{timestamp}_{frame_id}.jpg"
+
+    saved_file_path = output_dir_path / output_filename
+
+    with open(saved_file_path, "wb") as image_file:
+        image_file.write(image_content)
+
+    print(f"Image file saved to: {saved_file_path}")
+    return str(saved_file_path)
+
+
+def extract_keyframe_ids(result: Dict[str, Any]) -> List[str]:
+    """Extract all keyframe IDs from the analysis result.
+
+    Args:
+        result: The analysis result from the analyzer
+
+    Returns:
+        List of keyframe IDs (e.g., 'keyframes/1000', 'keyframes/2000')
+    """
+    keyframe_ids = []
+    contents = result.get("result", {}).get("contents", []) or result.get("contents", [])
+    
+    for content in contents:
+        key_frame_times_ms = content.get("keyFrameTimesMs") or content.get("KeyFrameTimesMs", [])
+        if key_frame_times_ms:
+            for time_ms in key_frame_times_ms:
+                keyframe_ids.append(f"keyframes/{time_ms}")
+    
+    return keyframe_ids
+
+
+def get_result_file(operation_url: str, file_id: str) -> Optional[bytes]:
+    """Download a result file (e.g., keyframe image) from the analysis result.
+
+    Args:
+        operation_url: The Operation-Location URL from the analysis
+        file_id: The file ID to download (e.g., "keyframes/733")
+
+    Returns:
+        bytes: The file content, or None if download failed
+    """
+    base_url = operation_url.split("?")[0]
+    file_url = f"{base_url}/files/{file_id}?api-version={API_VERSION}"
+    
+    headers = get_auth_headers()
+    response = requests.get(file_url, headers=headers)
+    
+    if response.ok:
+        return response.content
+    else:
+        print(f"Failed to download {file_id}: {response.status_code} - {response.text}")
+        return None
+
+
+def download_keyframes(result: Dict[str, Any], operation_url: str, max_frames: int = 25, identifier: str = None) -> List[str]:
+    """Download keyframe images from the analysis result.
+
+    Args:
+        result: The analysis result dictionary
+        operation_url: The Operation-Location URL from the analysis
+        max_frames: Maximum number of frames to download (default: 5)
+        identifier: Optional identifier for output filenames
+
+    Returns:
+        List of paths to saved keyframe images
+    """
+    keyframe_ids = extract_keyframe_ids(result)
+    saved_paths = []
+    
+    if not keyframe_ids:
+        print("No keyframe IDs found in analysis result.")
+        return saved_paths
+    
+    print(f"\n🖼️ Downloading {min(len(keyframe_ids), max_frames)} of {len(keyframe_ids)} keyframe images...")
+    
+    for keyframe_id in keyframe_ids[:max_frames]:
+        print(f"Getting result file: {keyframe_id}")
+        image_content = get_result_file(operation_url, keyframe_id)
+        
+        if image_content:
+            saved_path = save_keyframe_image_to_file(
+                image_content=image_content,
+                keyframe_id=keyframe_id,
+                test_name="video_keyframe",
+                identifier=identifier
+            )
+            saved_paths.append(saved_path)
+            print(f"✅ Saved keyframe image to: {saved_path}")
+        else:
+            print(f"❌ No image content retrieved for keyframe: {keyframe_id}")
+    
+    return saved_paths
 
 
 def print_video_analysis(result: dict) -> None:
@@ -247,19 +375,30 @@ def main():
     """Main function demonstrating video analysis."""
     import sys
     
-
     video_path = 'vid/lego-agent-move.mp4'
-    print(f"Analyzing local video: {video_path}")
-    result = analyze_video_from_file(video_path)
-
+    analyzer_id = 'prebuilt-videoSearch'
+    
+    print(f"🔍 Analyzing local video: {video_path}")
+    result, operation_url = analyze_video_from_file(video_path, analyzer_id)
     
     print_video_analysis(result)
+    
+    # Download keyframe images
+    if operation_url:
+        saved_keyframes = download_keyframes(
+            result=result,
+            operation_url=operation_url,
+            max_frames=5,
+            identifier=analyzer_id
+        )
+        if saved_keyframes:
+            print(f"\n✅ Downloaded {len(saved_keyframes)} keyframe images")
     
     # Save full result to JSON
     output_path = Path(__file__).parent / "video_analysis_result.json"
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2, ensure_ascii=False)
-    print(f"\nFull result saved to: {output_path}")
+    print(f"\n📋 Full result saved to: {output_path}")
 
 
 if __name__ == "__main__":

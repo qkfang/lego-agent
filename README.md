@@ -102,7 +102,7 @@ Create a `.env` file in the `lego-api/` directory:
 ```env
 AZURE_VOICE_ENDPOINT=your_azure_openai_endpoint
 AZURE_VOICE_KEY=your_azure_openai_key
-COSMOSDB_CONNECTION=your_cosmosdb_connection_string
+COSMOSDB_ENDPOINT=your_COSMOSDB_ENDPOINT_string
 SUSTINEO_STORAGE=your_azure_storage_connection_string
 LOCAL_TRACING_ENABLED=false
 PROJECT_CONNECTION_STRING=your_azure_ai_projects_connection

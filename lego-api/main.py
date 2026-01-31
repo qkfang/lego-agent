@@ -33,7 +33,7 @@ load_dotenv()
 
 AZURE_VOICE_ENDPOINT = os.getenv("AZURE_VOICE_ENDPOINT") or ""
 AZURE_VOICE_KEY = os.getenv("AZURE_VOICE_KEY", "fake_key")
-COSMOSDB_CONNECTION = os.getenv("COSMOSDB_CONNECTION", "fake_connection")
+COSMOSDB_ENDPOINT = os.getenv("COSMOSDB_ENDPOINT", "fake_connection")
 SUSTINEO_STORAGE = os.environ.get("SUSTINEO_STORAGE", "EMPTY")
 LOCAL_TRACING_ENABLED = os.getenv("LOCAL_TRACING_ENABLED", "false").lower() == "true"
 

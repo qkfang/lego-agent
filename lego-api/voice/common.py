@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-COSMOSDB_CONNECTION = os.getenv("COSMOSDB_CONNECTION", "fake_connection")
+COSMOSDB_ENDPOINT = os.getenv("COSMOSDB_ENDPOINT", "fake_connection")
 DATABASE_NAME = "sustineo"
 CONTAINER_NAME = "VoiceConfigurations"
 
@@ -123,7 +123,7 @@ async def load_prompty_file(
 @contextlib.asynccontextmanager
 async def get_cosmos_container():
     # Create a Cosmos DB client
-    client = CosmosClient.from_connection_string(COSMOSDB_CONNECTION)
+    client = CosmosClient.from_connection_string(COSMOSDB_ENDPOINT)
     database = await client.create_database_if_not_exists(DATABASE_NAME)
     container = await database.create_container_if_not_exists(
         id=CONTAINER_NAME,

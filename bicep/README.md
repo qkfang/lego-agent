@@ -122,7 +122,7 @@ After deployment, you'll need to:
    PROJECT_CONNECTION_STRING=<from-step-1>
    CONTENT_UNDERSTANDING_ENDPOINT=<from-step-2>
    CONTENT_UNDERSTANDING_KEY=<from-step-2>
-   COSMOSDB_CONNECTION=<from-step-3>
+   COSMOSDB_ENDPOINT=<from-step-3>
    SUSTINEO_STORAGE=<storage-account-blob-endpoint>
    AZURE_VOICE_ENDPOINT=<openai-endpoint>
    AZURE_VOICE_KEY=<openai-key>
