@@ -12,6 +12,7 @@ from prompty import _load_with_slots
 
 from azure.cosmos import PartitionKey
 from azure.cosmos.aio import CosmosClient, ContainerProxy
+from azure.identity.aio import DefaultAzureCredential
 
 from openai.types.beta.realtime.session_update_event import SessionTool
 from model import Configuration, DefaultConfiguration
@@ -122,8 +123,9 @@ async def load_prompty_file(
 
 @contextlib.asynccontextmanager
 async def get_cosmos_container():
-    # Create a Cosmos DB client
-    client = CosmosClient.from_connection_string(COSMOSDB_ENDPOINT)
+    # Create a Cosmos DB client using managed identity
+    credential = DefaultAzureCredential()
+    client = CosmosClient(COSMOSDB_ENDPOINT, credential=credential)
     database = await client.create_database_if_not_exists(DATABASE_NAME)
     container = await database.create_container_if_not_exists(
         id=CONTAINER_NAME,
@@ -133,6 +135,7 @@ async def get_cosmos_container():
     try:
         yield container
     finally:
+        await credential.close()
         await client.close()
 
 

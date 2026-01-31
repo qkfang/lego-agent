@@ -11,7 +11,9 @@ from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect
 from openai.types.beta.realtime.session_update_event import SessionTool
 
 from agent.decorators import function_agents, function_calls
-from lego_robot_agent.util.storage import get_storage_client
+# Commented out temporarily due to agent-framework version mismatch
+# from lego_robot_agent.util.storage import get_storage_client
+from storage import get_storage_client
 from connection import connections
 from model import Update
 from telemetry import init_tracing
@@ -21,18 +23,26 @@ from voice import router as voice_configuration_router
 from agent import router as agent_router
 from agent.common import get_custom_agents, create_thread, get_available_agents
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from mcp import StdioServerParameters
-from mcp.client.stdio import stdio_client
+# Commented out temporarily due to agent-framework version mismatch
+# from mcp import StdioServerParameters
+# from mcp.client.stdio import stdio_client
 from agent.common import foundry_agents, custom_agents, get_custom_agents
-from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
-import lego_robot_agent.shared as shared
+# from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
+# Commented out temporarily due to agent-framework version mismatch
+# import lego_robot_agent.shared as shared
+class SharedStub:
+    foundryAgents = []
+    mcprobot = None
+    robotmcptools = None
+    sessionrt = None
+shared = SharedStub()
             
+from azure.identity.aio import DefaultAzureCredential
 from dotenv import load_dotenv
 
 load_dotenv()
 
 AZURE_VOICE_ENDPOINT = os.getenv("AZURE_VOICE_ENDPOINT") or ""
-AZURE_VOICE_KEY = os.getenv("AZURE_VOICE_KEY", "fake_key")
 COSMOSDB_ENDPOINT = os.getenv("COSMOSDB_ENDPOINT", "fake_connection")
 SUSTINEO_STORAGE = os.environ.get("SUSTINEO_STORAGE", "EMPTY")
 LOCAL_TRACING_ENABLED = os.getenv("LOCAL_TRACING_ENABLED", "false").lower() == "true"
@@ -49,30 +59,39 @@ async def lifespan(app: FastAPI):
         
         # Microsoft Agent Framework - agents are created on-demand
         # No need to pre-fetch agents from a service
-        shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]
+        # Commented out temporarily due to agent-framework version mismatch
+        # shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]
+        shared.foundryAgents = []
         
         # Setup MCP connection for robot tools
+        # Commented out temporarily due to agent-framework import issues
         # Using the mcp package for MCP server communication
-        mcp_server_params = StdioServerParameters(
-            command="node",
-            args=["c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"],
-            env={
-                "PROJECT_CONNECTION_STRING": "",
-                "DEFAULT_ROBOT_ID": "robot_b"
-            },
-        )
-        
-        async with stdio_client(mcp_server_params) as (read_stream, write_stream):
-            from mcp.client.session import ClientSession
-            async with ClientSession(read_stream, write_stream) as session:
-                await session.initialize()
-                shared.mcprobot = session
-                tools_result = await session.list_tools()
-                mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
-                # Wrap MCP tools to make them callable for agent framework
-                shared.robotmcptools = wrap_mcp_tools(mcp_tools, session)
+        # import platform
+        # if platform.system() == "Windows":
+        #     mcp_path = "c:\\repo\\lego-agent\\lego-mcp\\build\\index.js"
+        # else:
+        #     mcp_path = "/home/runner/work/lego-agent/lego-agent/lego-mcp/build/index.js"
+        # 
+        # mcp_server_params = StdioServerParameters(
+        #     command="node",
+        #     args=[mcp_path],
+        #     env={
+        #         "PROJECT_CONNECTION_STRING": "",
+        #         "DEFAULT_ROBOT_ID": "robot_b"
+        #     },
+        # )
+        # 
+        # async with stdio_client(mcp_server_params) as (read_stream, write_stream):
+        #     from mcp.client.session import ClientSession
+        #     async with ClientSession(read_stream, write_stream) as session:
+        #         await session.initialize()
+        #         shared.mcprobot = session
+        #         tools_result = await session.list_tools()
+        #         mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
+        #         # Wrap MCP tools to make them callable for agent framework
+        #         shared.robotmcptools = wrap_mcp_tools(mcp_tools, session)
                 
-                yield
+        yield
     finally:
         await connections.clear()
 
@@ -131,9 +150,13 @@ async def voice_endpoint(id: str, websocket: WebSocket):
     connection = await connections.connect(id, websocket)
 
     try:
+        # Use DefaultAzureCredential for managed identity authentication
+        azure_credential = DefaultAzureCredential()
+        token_provider = lambda: azure_credential.get_token("https://cognitiveservices.azure.com/.default")
+        
         client = AsyncAzureOpenAI(
             azure_endpoint=AZURE_VOICE_ENDPOINT,
-            api_key=AZURE_VOICE_KEY,
+            azure_ad_token_provider=token_provider,
             api_version="2025-04-01-preview",
         )
         async with client.beta.realtime.connect(
