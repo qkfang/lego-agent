@@ -1,0 +1,133 @@
+$color-lego-red: #D92C2C;
+$color-lego-red-dark: #B71C1C;
+$color-lego-blue: #0055BF;
+$color-lego-blue-light: #2196F3;
+$color-lego-blue-dark: #004494;
+$color-lego-yellow: #FFD500;
+$color-lego-yellow-light: #FFEB3B;
+$color-lego-orange: #FF8C00;
+$color-lego-orange-dark: #F57C00;
+$color-lego-purple: #9B5FB8;
+$color-lego-purple-light: #BA68C8;
+$color-zinc-50: #fafafa;
+
+.voice-tool {
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: relative;
+  height: 120px;
+  margin: 0 auto;
+}
+
+.canvas {
+  background-color: transparent;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+}
+
+.idle {
+  background: linear-gradient(135deg, $color-lego-blue 0%, $color-lego-purple 100%);
+  color: $color-zinc-50;
+  border: 4px solid $color-zinc-50;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  z-index: 100;
+  position: relative;
+  box-shadow: 0 8px 25px rgba(0, 85, 191, 0.5);
+  transition: all 0.3s ease;
+  animation: float 3s ease-in-out infinite;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, $color-lego-blue-light 0%, $color-lego-purple-light 100%);
+    border-color: $color-lego-yellow;
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(255, 213, 0, 0.7);
+    animation: none;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes blink {
+  0% {
+    fill: $color-lego-yellow;
+  }
+
+  50% {
+    fill: $color-lego-red;
+  }
+
+  100% {
+    fill: $color-lego-yellow;
+  }
+}
+
+.call {
+  background: linear-gradient(135deg, $color-lego-red 0%, $color-lego-orange 100%);
+  color: $color-zinc-50;
+  border: 4px solid $color-lego-yellow;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  z-index: 100;
+  position: relative;
+  box-shadow: 0 8px 25px rgba(217, 44, 44, 0.7);
+  animation: callPulse 1.5s ease-in-out infinite;
+  
+  & svg {
+    fill: $color-lego-yellow;
+    animation: blink 2s linear infinite;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, $color-lego-red-dark 0%, $color-lego-orange-dark 100%);
+    border-color: $color-lego-blue-light;
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(33, 150, 243, 0.8);
+  }
+}
+
+@keyframes callPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 25px rgba(217, 44, 44, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(255, 213, 0, 0.9);
+  }
+}
