@@ -28,8 +28,15 @@ from agent.common import foundry_agents, custom_agents, get_custom_agents
 # from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
 # import lego_robot_agent.shared as shared
 
-# Stub for shared module
+# Stub for shared module - temporary replacement while agent_framework compatibility is resolved
+# This provides the same interface as lego_robot_agent.shared without the incompatible dependencies
 class SharedStub:
+    """Temporary stub replacing lego_robot_agent.shared module.
+    
+    Provides minimal interface needed by the API while the agent_framework
+    compatibility issue is being resolved. This avoids ImportError from
+    FunctionTool missing in current agent_framework version.
+    """
     foundryAgents = []
     mcprobot = None
     robotmcptools = None

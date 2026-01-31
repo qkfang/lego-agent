@@ -3,6 +3,7 @@ import io
 import base64
 import json
 import aiohttp
+import logging
 # Temporarily disable due to agent_framework compatibility
 # import lego_robot_agent.shared as lego_shared
 # from lego_robot_agent.util.storage import save_image_blobs, save_image_binary_blobs
@@ -14,6 +15,8 @@ from model import AgentUpdateEvent, Content
 from agent.common import execute_foundry_agent, post_request
 from dotenv import load_dotenv
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 AZURE_IMAGE_ENDPOINT = os.environ.get("AZURE_IMAGE_ENDPOINT", "EMPTY").rstrip("/")
 AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
@@ -57,7 +60,7 @@ async def robot_agent(
     # await agent.run(goal)
     
     # For testing purposes, just log the goal
-    print(f"Robot agent called with goal: {goal}")
+    logger.info(f"Robot agent called with goal: {goal}")
     await notify("robot_agent", "running", information=f"Processing goal: {goal}")
     await notify("robot_agent", "completed", information="Robot agent execution completed (stub)", output=True)
         
