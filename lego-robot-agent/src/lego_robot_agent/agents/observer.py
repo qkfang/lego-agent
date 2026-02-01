@@ -5,9 +5,9 @@ LEGO Observer Agent - Captures and analyzes the robot field state.
 import json
 import requests
 from typing import TYPE_CHECKING
-from agent_framework import ChatAgent, ai_function
-from agent_framework.azure import AzureAIAgentClient
-from azure.ai.projects.models import PromptAgentDefinition
+from pathlib import Path
+from agent_framework import ai_function
+from agent_framework.declarative import AgentFactory
 from .. import shared
 
 if TYPE_CHECKING:
@@ -126,12 +126,12 @@ class LegoObserverAgent:
     AGENT_NAME = "lego-observer"
     
     def __init__(self):
-        self.agent: ChatAgent = None
+        self.agent = None
         self._context: "AgentContext" = None
 
     async def init(self, context: "AgentContext"):
         """
-        Initialize the observer agent using Microsoft Agent Framework with tools.
+        Initialize the observer agent using declarative YAML with tools.
         
         Args:
             context: The agent context with Azure client and dependencies
@@ -140,52 +140,16 @@ class LegoObserverAgent:
         self._context = context
         _observer_context = context
         
-        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
-        if agentdef is None:
-            agentdef = await shared.project_client.agents.create_version(
-                agent_name=self.AGENT_NAME,
-                definition=PromptAgentDefinition(
-                    model="gpt-4o",
-                    instructions='''
-You are robot observer agent. 
-
-You must ignore the information from other agents.
-MUST call get_field_state_by_camera every single time to get the latest field data.
-You must not reuse previous detection_result json data.
-
-Each time you are asked for a photo or detection_result, you must get it yourself by using camera and take a photo.
-if you are asked to 'provide the current field data', you must take a photo and analyze it to return detection_result.
-
-EVERY SINGLE TIME, you must use a camera to capture new field photo.
-never return previous or existing detection_result from past conversations, must take a new photo each time.
-Just do it, don't ask for confirmation or approval.
-
-the robot is facing east. treat the left bottom corner as the origin (0,0)
-the x axis is the east direction, and the y axis is the north direction.
-
-MUST return detection_result in json format exactly as it as, NEVER CHANGE STRUCTURE OR ANY CALCULATION. 
-dont return any other text or explanation.
-
-{
-    "detection_result": {
-       // details
-    }
-}
-'''
-                ),
-            )
+        # Get the path to the YAML file
+        prompts_dir = Path(__file__).parent.parent / "prompts"
+        yaml_path = prompts_dir / "observer.yaml"
         
-        self.agent = ChatAgent(
-            chat_client=AzureAIAgentClient(
-                    project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
-                    model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
-                    agent_name=agentdef.name,
-                    credential=shared.credential,
-                ),
-            name=self.AGENT_NAME,
-            description="Captures and analyzes the robot field state",
-            tools=[get_field_state_by_camera]
+        # Create agent from declarative YAML using AgentFactory with custom tools
+        agent_factory = AgentFactory(
+            client_kwargs={"credential": shared.credential},
+            bindings={"get_field_state_by_camera": get_field_state_by_camera}
         )
+        self.agent = agent_factory.create_agent_from_yaml_path(yaml_path)
 
     async def exec(self, message: str) -> str:
         """Execute the observer agent with a message."""

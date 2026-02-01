@@ -3,9 +3,8 @@ LEGO Judger Agent - Evaluates goal completion.
 """
 
 from typing import TYPE_CHECKING
-from agent_framework import ChatAgent
-from agent_framework.azure import AzureAIAgentClient
-from azure.ai.projects.models import PromptAgentDefinition
+from pathlib import Path
+from agent_framework.declarative import AgentFactory
 from .. import shared
 
 if TYPE_CHECKING:
@@ -18,47 +17,27 @@ class LegoJudgerAgent:
     AGENT_NAME = "lego-judger"
     
     def __init__(self):
-        self.agent: ChatAgent = None
+        self.agent = None
         self._context: "AgentContext" = None
 
     async def init(self, context: "AgentContext"):
         """
-        Initialize the judger agent using Microsoft Agent Framework.
+        Initialize the judger agent using declarative YAML.
         
         Args:
             context: The agent context with Azure client and dependencies
         """
         self._context = context
         
-        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
-        if agentdef is None:
-            agentdef = await shared.project_client.agents.create_version(
-                agent_name=self.AGENT_NAME,
-                definition=PromptAgentDefinition(
-                    model="gpt-4o",
-                    instructions='''
-You are robot judger agent. 
-
-You need to decide if the goal is already achieved based on the current field data and the goal.
-when the distance between coke and bowser is less than 180 pixels, it means that the robot has delievered the coke to the bowser successfully.
-robot position should not be considered.
-
-You must provide an answer in response by saying **goal completed** or **goal failed**. Also include the reason for your decision.
-NEVER repeat other agent's response, just provide your own answer.
-'''
-                ),
-            )
+        # Get the path to the YAML file
+        prompts_dir = Path(__file__).parent.parent / "prompts"
+        yaml_path = prompts_dir / "judger.yaml"
         
-        self.agent = ChatAgent(
-            chat_client=AzureAIAgentClient(
-                    project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
-                    model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
-                    agent_name=agentdef.name,
-                    credential=shared.credential,
-                ),
-            name=self.AGENT_NAME,
-            description="Evaluates goal completion based on field data"
+        # Create agent from declarative YAML using AgentFactory
+        agent_factory = AgentFactory(
+            client_kwargs={"credential": shared.credential}
         )
+        self.agent = agent_factory.create_agent_from_yaml_path(yaml_path)
 
     async def exec(self, message: str) -> str:
         """Execute the judger agent with a message."""

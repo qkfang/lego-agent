@@ -52,6 +52,50 @@ The package uses dependency injection instead of global state:
 - Each sub-agent receives the context during initialization
 - Event callbacks for notifications are passed through the context
 
+### Declarative Agent Definitions
+
+Agent prompts and configurations are defined using **Microsoft Agent Framework Declarative YAML** files, located in the `src/lego_robot_agent/prompts/` directory. Each agent has a corresponding YAML file that follows the declarative agent schema:
+
+- **orchestrator.yaml**: Coordinates the overall workflow
+- **observer.yaml**: Captures and analyzes the robot field state
+- **planner.yaml**: Creates step-by-step action plans
+- **controller.yaml**: Executes physical robot actions via MCP tools
+- **judger.yaml**: Evaluates goal completion
+
+The YAML files follow the Microsoft Agent Framework declarative schema:
+
+```yaml
+kind: Prompt
+name: lego-orchestrator
+displayName: LEGO Orchestrator Agent
+description: Coordinates the overall workflow and decides when the task is complete
+instructions: |
+  [Agent instructions here]
+model:
+  id: =Env.AZURE_OPENAI_DEPLOYMENT_NAME
+  connection:
+    kind: remote
+    endpoint: =Env.AZURE_AI_PROJECT_ENDPOINT
+```
+
+The agents are created using `AgentFactory` from `agent-framework-declarative`:
+
+```python
+from agent_framework.declarative import AgentFactory
+from pathlib import Path
+
+# Create agent from YAML file
+agent_factory = AgentFactory(client_kwargs={"credential": credential})
+agent = agent_factory.create_agent_from_yaml_path(Path("src/lego_robot_agent/prompts/orchestrator.yaml"))
+```
+
+This declarative approach provides:
+- **Cross-Platform Compatibility**: Same YAML works in Python and .NET
+- **Separation of Concerns**: Agent behavior defined separately from code
+- **PowerFx Support**: Use environment variables with `=Env.VARIABLE_NAME` syntax
+- **Reusability**: Share agent definitions across projects
+- **Maintainability**: Update prompts without code changes
+
 ## Project Structure
 
 ```
@@ -69,6 +113,15 @@ lego-robot-agent/
 │       │   ├── planner.py
 │       │   ├── controller.py
 │       │   └── judger.py
+│       ├── prompts/              # Declarative agent YAML definitions
+│       │   ├── orchestrator.yaml
+│       │   ├── observer.yaml
+│       │   ├── planner.yaml
+│       │   ├── controller.yaml
+│       │   ├── judger.yaml
+│       │   └── README.md
+│       ├── util/
+│       │   └── ...
 │       └── detection/
 │           ├── __init__.py
 │           ├── detector.py
