@@ -7,6 +7,7 @@ from agent_framework import ChatAgent
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
+from ..util.yaml_loader import get_agent_instructions, get_agent_model
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -30,22 +31,17 @@ class LegoJudgerAgent:
         """
         self._context = context
         
+        # Load instructions from YAML file
+        instructions = get_agent_instructions('judger')
+        model_id = get_agent_model('judger')
+        
         agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
         if agentdef is None:
             agentdef = await shared.project_client.agents.create_version(
                 agent_name=self.AGENT_NAME,
                 definition=PromptAgentDefinition(
-                    model="gpt-4o",
-                    instructions='''
-You are robot judger agent. 
-
-You need to decide if the goal is already achieved based on the current field data and the goal.
-when the distance between coke and bowser is less than 180 pixels, it means that the robot has delievered the coke to the bowser successfully.
-robot position should not be considered.
-
-You must provide an answer in response by saying **goal completed** or **goal failed**. Also include the reason for your decision.
-NEVER repeat other agent's response, just provide your own answer.
-'''
+                    model=model_id,
+                    instructions=instructions
                 ),
             )
         

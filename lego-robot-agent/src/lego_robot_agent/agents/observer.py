@@ -9,6 +9,7 @@ from agent_framework import ChatAgent, ai_function
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
+from ..util.yaml_loader import get_agent_instructions, get_agent_model
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -117,38 +118,17 @@ class LegoObserverAgent:
         self._context = context
         _observer_context = context
         
+        # Load instructions from YAML file
+        instructions = get_agent_instructions('observer')
+        model_id = get_agent_model('observer')
+        
         agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
         if agentdef is None:
             agentdef = await shared.project_client.agents.create_version(
                 agent_name=self.AGENT_NAME,
                 definition=PromptAgentDefinition(
-                    model="gpt-4o",
-                    instructions='''
-You are robot observer agent. 
-
-You must ignore the information from other agents.
-MUST call get_field_state_by_camera every single time to get the latest field data.
-You must not reuse previous detection_result json data.
-
-Each time you are asked for a photo or detection_result, you must get it yourself by using camera and take a photo.
-if you are asked to 'provide the current field data', you must take a photo and analyze it to return detection_result.
-
-EVERY SINGLE TIME, you must use a camera to capture new field photo.
-never return previous or existing detection_result from past conversations, must take a new photo each time.
-Just do it, don't ask for confirmation or approval.
-
-the robot is facing east. treat the left bottom corner as the origin (0,0)
-the x axis is the east direction, and the y axis is the north direction.
-
-MUST return detection_result in json format exactly as it as, NEVER CHANGE STRUCTURE OR ANY CALCULATION. 
-dont return any other text or explanation.
-
-{
-    "detection_result": {
-       // details
-    }
-}
-'''
+                    model=model_id,
+                    instructions=instructions
                 ),
             )
         

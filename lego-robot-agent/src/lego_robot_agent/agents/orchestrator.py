@@ -7,6 +7,7 @@ from agent_framework import ChatAgent
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
+from ..util.yaml_loader import get_agent_instructions, get_agent_model
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -30,18 +31,17 @@ class LegoOrchestratorAgent:
         """
         self._context = context
         
+        # Load instructions from YAML file
+        instructions = get_agent_instructions('orchestrator')
+        model_id = get_agent_model('orchestrator')
+        
         agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
         if agentdef is None:
             agentdef = await shared.project_client.agents.create_version(
                 agent_name=self.AGENT_NAME,
                 definition=PromptAgentDefinition(
-                    model="gpt-4o",
-                    instructions='''
-You are robot orchestrator agent. 
-Always starting with analyzing the current field data.
-When judger agent has already determined that the goal is completed or failed, you must end the conversation by saying 'agents have completed actions' and provide a summary of past activities.
-It's always good to ask user to check the final result in the end.
-'''
+                    model=model_id,
+                    instructions=instructions
                 ),
             )
         

@@ -7,6 +7,7 @@ from agent_framework import ChatAgent
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
+from ..util.yaml_loader import get_agent_instructions, get_agent_model
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -35,21 +36,17 @@ class LegoControllerAgent:
         if context.mcp_session is not None:
             tools = context.mcp_tools if context.mcp_tools else []
 
+        # Load instructions from YAML file
+        instructions = get_agent_instructions('controller')
+        model_id = get_agent_model('controller')
+
         agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
         if agentdef is None:
             agentdef = await shared.project_client.agents.create_version(
                 agent_name=self.AGENT_NAME,
                 definition=PromptAgentDefinition(
-                    model="gpt-4o",
-                    instructions='''You are robot controller agent. need to follow the plan to control the robot to action. 
-do one step at a time and wait for earlier action to complete. 
-MUST run all the steps using robot function and action physically without skipping any step.
-dont ask for any confirmation, just follow the plan step by step.
-
-You do not know if the robot action is successful or not, and you should not only say the action has been done.
-NEVER say 'task is completed' or 'successfully completed the task', just say the action is done.
-NEVER repeat other agent's response, just provide your own answer.
-After performing all actions, say that 'detection_result' is no longer valid, need to ask observer agent to provide the latest field data.'''
+                    model=model_id,
+                    instructions=instructions
                 ),
             )
         
