@@ -32,7 +32,7 @@ instructions: |
   the robot is facing east. treat the left bottom corner as the origin (0,0)
   the x axis is the east direction, and the y axis is the north direction.
   
-  MUST return detection_result in json format exactly as it as, NEVER CHANGE STRUCTURE OR ANY CALCULATION. 
+  MUST return detection_result in json format exactly as it is, NEVER CHANGE STRUCTURE OR ANY CALCULATION. 
   dont return any other text or explanation.
   
   {
