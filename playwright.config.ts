@@ -23,11 +23,6 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: 'npm run dev',
-    cwd: './lego-web',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
+  // Note: lego-web dev server and lego-api should be started manually
+  // See tests/README.md for instructions
 });

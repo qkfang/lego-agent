@@ -2,11 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.describe('lego-web end-to-end tests', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the app
-    await page.goto('/');
+    // Navigate to the app page (not the landing page)
+    // Use domcontentloaded instead of load to avoid waiting for external resources
+    await page.goto('/app', { waitUntil: 'domcontentloaded' });
     
-    // Wait for the page to load
-    await page.waitForLoadState('networkidle');
+    // Wait a bit for React to render
+    await page.waitForTimeout(1000);
   });
 
   test('should display the main page with input box', async ({ page }) => {
