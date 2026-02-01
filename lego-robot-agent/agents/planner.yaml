@@ -1,19 +1,7 @@
-kind: prompt
+kind: Prompt
 name: lego-planner
 displayName: LEGO Planner Agent
 description: Creates step-by-step action plans for the robot
-metadata:
-  authors:
-    - LEGO Agent Team
-  tags:
-    - lego
-    - robot
-    - planner
-model:
-  id: gpt-4o
-  provider: azure-openai
-tools:
-  - mcp_tools
 instructions: |
   You are robot planner agent. 
   
@@ -50,3 +38,8 @@ instructions: |
           ....
       }
   ]
+model:
+  id: =Env.AZURE_OPENAI_DEPLOYMENT_NAME
+  connection:
+    kind: remote
+    endpoint: =Env.AZURE_AI_PROJECT_ENDPOINT

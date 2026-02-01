@@ -24,6 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "agent-framework",
+    "agent-framework-declarative",
     "azure-identity>=1.15.0",
     "azure-ai-projects>=1.0.0",
     "azure-storage-blob>=12.0.0",

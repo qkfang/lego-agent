@@ -5,11 +5,10 @@ LEGO Observer Agent - Captures and analyzes the robot field state.
 import json
 import requests
 from typing import TYPE_CHECKING
-from agent_framework import ChatAgent, ai_function
-from agent_framework.azure import AzureAIAgentClient
-from azure.ai.projects.models import PromptAgentDefinition
+from pathlib import Path
+from agent_framework import ai_function
+from agent_framework.declarative import AgentFactory
 from .. import shared
-from ..util.yaml_loader import get_agent_instructions, get_agent_model
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -104,12 +103,12 @@ class LegoObserverAgent:
     AGENT_NAME = "lego-observer"
     
     def __init__(self):
-        self.agent: ChatAgent = None
+        self.agent = None
         self._context: "AgentContext" = None
 
     async def init(self, context: "AgentContext"):
         """
-        Initialize the observer agent using Microsoft Agent Framework with tools.
+        Initialize the observer agent using declarative YAML with tools.
         
         Args:
             context: The agent context with Azure client and dependencies
@@ -118,31 +117,16 @@ class LegoObserverAgent:
         self._context = context
         _observer_context = context
         
-        # Load instructions from YAML file
-        instructions = get_agent_instructions('observer')
-        model_id = get_agent_model('observer')
+        # Get the path to the YAML file
+        agents_dir = Path(__file__).parent.parent.parent.parent / "agents"
+        yaml_path = agents_dir / "observer.yaml"
         
-        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
-        if agentdef is None:
-            agentdef = await shared.project_client.agents.create_version(
-                agent_name=self.AGENT_NAME,
-                definition=PromptAgentDefinition(
-                    model=model_id,
-                    instructions=instructions
-                ),
-            )
-        
-        self.agent = ChatAgent(
-            chat_client=AzureAIAgentClient(
-                    project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
-                    model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
-                    agent_name=agentdef.name,
-                    credential=shared.credential,
-                ),
-            name=self.AGENT_NAME,
-            description="Captures and analyzes the robot field state",
-            tools=[get_field_state_by_camera]
+        # Create agent from declarative YAML using AgentFactory with custom tools
+        agent_factory = AgentFactory(
+            client_kwargs={"credential": shared.credential},
+            bindings={"get_field_state_by_camera": get_field_state_by_camera}
         )
+        self.agent = agent_factory.create_agent_from_yaml_path(yaml_path)
 
     async def exec(self, message: str) -> str:
         """Execute the observer agent with a message."""

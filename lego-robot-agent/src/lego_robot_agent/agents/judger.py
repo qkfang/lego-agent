@@ -3,11 +3,9 @@ LEGO Judger Agent - Evaluates goal completion.
 """
 
 from typing import TYPE_CHECKING
-from agent_framework import ChatAgent
-from agent_framework.azure import AzureAIAgentClient
-from azure.ai.projects.models import PromptAgentDefinition
+from pathlib import Path
+from agent_framework.declarative import AgentFactory
 from .. import shared
-from ..util.yaml_loader import get_agent_instructions, get_agent_model
 
 if TYPE_CHECKING:
     from ..context import AgentContext
@@ -19,42 +17,27 @@ class LegoJudgerAgent:
     AGENT_NAME = "lego-judger"
     
     def __init__(self):
-        self.agent: ChatAgent = None
+        self.agent = None
         self._context: "AgentContext" = None
 
     async def init(self, context: "AgentContext"):
         """
-        Initialize the judger agent using Microsoft Agent Framework.
+        Initialize the judger agent using declarative YAML.
         
         Args:
             context: The agent context with Azure client and dependencies
         """
         self._context = context
         
-        # Load instructions from YAML file
-        instructions = get_agent_instructions('judger')
-        model_id = get_agent_model('judger')
+        # Get the path to the YAML file
+        agents_dir = Path(__file__).parent.parent.parent.parent / "agents"
+        yaml_path = agents_dir / "judger.yaml"
         
-        agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
-        if agentdef is None:
-            agentdef = await shared.project_client.agents.create_version(
-                agent_name=self.AGENT_NAME,
-                definition=PromptAgentDefinition(
-                    model=model_id,
-                    instructions=instructions
-                ),
-            )
-        
-        self.agent = ChatAgent(
-            chat_client=AzureAIAgentClient(
-                    project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
-                    model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
-                    agent_name=agentdef.name,
-                    credential=shared.credential,
-                ),
-            name=self.AGENT_NAME,
-            description="Evaluates goal completion based on field data"
+        # Create agent from declarative YAML using AgentFactory
+        agent_factory = AgentFactory(
+            client_kwargs={"credential": shared.credential}
         )
+        self.agent = agent_factory.create_agent_from_yaml_path(yaml_path)
 
     async def exec(self, message: str) -> str:
         """Execute the judger agent with a message."""

@@ -1,20 +1,7 @@
-kind: prompt
+kind: Prompt
 name: lego-observer
 displayName: LEGO Observer Agent
 description: Captures and analyzes the robot field state
-metadata:
-  authors:
-    - LEGO Agent Team
-  tags:
-    - lego
-    - robot
-    - observer
-    - camera
-model:
-  id: gpt-4o
-  provider: azure-openai
-tools:
-  - get_field_state_by_camera
 instructions: |
   You are robot observer agent. 
   
@@ -40,3 +27,8 @@ instructions: |
          // details
       }
   }
+model:
+  id: =Env.AZURE_OPENAI_DEPLOYMENT_NAME
+  connection:
+    kind: remote
+    endpoint: =Env.AZURE_AI_PROJECT_ENDPOINT

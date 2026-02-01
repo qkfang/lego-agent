@@ -52,9 +52,9 @@ The package uses dependency injection instead of global state:
 - Each sub-agent receives the context during initialization
 - Event callbacks for notifications are passed through the context
 
-### Agent Definitions
+### Declarative Agent Definitions
 
-Agent prompts and configurations are defined using Microsoft Agent Framework YAML files, located in the `agents/` directory. Each agent has a corresponding YAML file that follows the Microsoft Agent Framework schema:
+Agent prompts and configurations are defined using **Microsoft Agent Framework Declarative YAML** files, located in the `agents/` directory. Each agent has a corresponding YAML file that follows the declarative agent schema:
 
 - **orchestrator.yaml**: Coordinates the overall workflow
 - **observer.yaml**: Captures and analyzes the robot field state
@@ -62,43 +62,51 @@ Agent prompts and configurations are defined using Microsoft Agent Framework YAM
 - **controller.yaml**: Executes physical robot actions via MCP tools
 - **judger.yaml**: Evaluates goal completion
 
-The YAML files follow this structure:
+The YAML files follow the Microsoft Agent Framework declarative schema:
 
 ```yaml
-kind: prompt
+kind: Prompt
 name: lego-orchestrator
 displayName: LEGO Orchestrator Agent
 description: Coordinates the overall workflow and decides when the task is complete
-metadata:
-  authors:
-    - LEGO Agent Team
-  tags:
-    - lego
-    - robot
-model:
-  id: gpt-4o
-  provider: azure-openai
-tools: []
 instructions: |
   [Agent instructions here]
+model:
+  id: =Env.AZURE_OPENAI_DEPLOYMENT_NAME
+  connection:
+    kind: remote
+    endpoint: =Env.AZURE_AI_PROJECT_ENDPOINT
 ```
 
-This approach allows you to:
-- Modify agent behaviors without changing code
-- Share agent definitions across projects
-- Version control prompts separately
-- Follow Microsoft Agent Framework best practices
+The agents are created using `AgentFactory` from `agent-framework-declarative`:
+
+```python
+from agent_framework.declarative import AgentFactory
+from pathlib import Path
+
+# Create agent from YAML file
+agent_factory = AgentFactory(client_kwargs={"credential": credential})
+agent = agent_factory.create_agent_from_yaml_path(Path("agents/orchestrator.yaml"))
+```
+
+This declarative approach provides:
+- **Cross-Platform Compatibility**: Same YAML works in Python and .NET
+- **Separation of Concerns**: Agent behavior defined separately from code
+- **PowerFx Support**: Use environment variables with `=Env.VARIABLE_NAME` syntax
+- **Reusability**: Share agent definitions across projects
+- **Maintainability**: Update prompts without code changes
 
 ## Project Structure
 
 ```
 lego-robot-agent/
-├── agents/                    # Agent YAML definitions
+├── agents/                    # Declarative agent YAML definitions
 │   ├── orchestrator.yaml
 │   ├── observer.yaml
 │   ├── planner.yaml
 │   ├── controller.yaml
-│   └── judger.yaml
+│   ├── judger.yaml
+│   └── README.md
 ├── src/
 │   └── lego_robot_agent/
 │       ├── __init__.py
@@ -113,7 +121,6 @@ lego-robot-agent/
 │       │   ├── controller.py
 │       │   └── judger.py
 │       ├── util/
-│       │   ├── yaml_loader.py    # YAML loading utilities
 │       │   └── ...
 │       └── detection/
 │           ├── __init__.py
