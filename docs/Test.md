@@ -1,4 +1,4 @@
-# LEGO Robot Agent Testing Guide
+# Testing Guide
 
 ## Quick Start
 
@@ -325,28 +325,24 @@ jobs:
           python run_tests.py
 ```
 
-## Additional Resources
+## API Testing
 
-- [Main README](../README.md) - Project overview and setup
-- [TEST_RESULTS.md](TEST_RESULTS.md) - Detailed test results and findings
-- [lego-robot-agent README](README.md) - Package documentation
-- [Azure AI Projects Documentation](https://learn.microsoft.com/azure/ai-studio/)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
+Run the API test suite:
+```bash
+cd lego-api
+pytest tests/
+```
 
-## Support
+Available test scenarios:
+- Simple sequential agent operations
+- Multiple agent coordination
+- YOLO object detection
+- Action execution validation
 
-If you encounter issues:
-1. Check the troubleshooting section above
-2. Review test output for specific error messages
-3. Verify all prerequisites are met
-4. Check Azure service health status
-5. Refer to TEST_RESULTS.md for known issues
+## Test Results
 
-## Contributing
-
-When adding new tests:
-1. Place test files in `src/tests/` directory
-2. Name files with `test*` prefix
-3. Include docstring describing what the test does
-4. Update this README with test description
-5. Ensure tests can be run via the test runner
+For detailed test results and findings, see the test output from the test runner. The test suite validates:
+- Object detection and color-based tracking
+- Individual agent capabilities (Observer, Planner, Controller)
+- Sequential multi-step workflows
+- Complete orchestrated agent interactions
