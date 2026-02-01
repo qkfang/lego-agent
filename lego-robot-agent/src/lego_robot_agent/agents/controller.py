@@ -30,8 +30,8 @@ class LegoControllerAgent:
         self._context = context
 
         # Get the path to the YAML file
-        agents_dir = Path(__file__).parent.parent.parent.parent / "agents"
-        yaml_path = agents_dir / "controller.yaml"
+        prompts_dir = Path(__file__).parent.parent / "prompts"
+        yaml_path = prompts_dir / "controller.yaml"
         
         # Create agent from declarative YAML using AgentFactory
         # MCP tools should be configured in the YAML or passed through context

@@ -118,8 +118,8 @@ class LegoObserverAgent:
         _observer_context = context
         
         # Get the path to the YAML file
-        agents_dir = Path(__file__).parent.parent.parent.parent / "agents"
-        yaml_path = agents_dir / "observer.yaml"
+        prompts_dir = Path(__file__).parent.parent / "prompts"
+        yaml_path = prompts_dir / "observer.yaml"
         
         # Create agent from declarative YAML using AgentFactory with custom tools
         agent_factory = AgentFactory(

@@ -54,7 +54,7 @@ The package uses dependency injection instead of global state:
 
 ### Declarative Agent Definitions
 
-Agent prompts and configurations are defined using **Microsoft Agent Framework Declarative YAML** files, located in the `agents/` directory. Each agent has a corresponding YAML file that follows the declarative agent schema:
+Agent prompts and configurations are defined using **Microsoft Agent Framework Declarative YAML** files, located in the `src/lego_robot_agent/prompts/` directory. Each agent has a corresponding YAML file that follows the declarative agent schema:
 
 - **orchestrator.yaml**: Coordinates the overall workflow
 - **observer.yaml**: Captures and analyzes the robot field state
@@ -86,7 +86,7 @@ from pathlib import Path
 
 # Create agent from YAML file
 agent_factory = AgentFactory(client_kwargs={"credential": credential})
-agent = agent_factory.create_agent_from_yaml_path(Path("agents/orchestrator.yaml"))
+agent = agent_factory.create_agent_from_yaml_path(Path("src/lego_robot_agent/prompts/orchestrator.yaml"))
 ```
 
 This declarative approach provides:
@@ -100,13 +100,6 @@ This declarative approach provides:
 
 ```
 lego-robot-agent/
-├── agents/                    # Declarative agent YAML definitions
-│   ├── orchestrator.yaml
-│   ├── observer.yaml
-│   ├── planner.yaml
-│   ├── controller.yaml
-│   ├── judger.yaml
-│   └── README.md
 ├── src/
 │   └── lego_robot_agent/
 │       ├── __init__.py
@@ -120,6 +113,13 @@ lego-robot-agent/
 │       │   ├── planner.py
 │       │   ├── controller.py
 │       │   └── judger.py
+│       ├── prompts/              # Declarative agent YAML definitions
+│       │   ├── orchestrator.yaml
+│       │   ├── observer.yaml
+│       │   ├── planner.yaml
+│       │   ├── controller.yaml
+│       │   ├── judger.yaml
+│       │   └── README.md
 │       ├── util/
 │       │   └── ...
 │       └── detection/
