@@ -29,11 +29,8 @@ from agent.common import (
 )
 
 import json
-# Commented out temporarily due to agent-framework version mismatch
-# import lego_robot_agent.shared as shared
-class SharedStub:
-    sessionrt = None
-shared = SharedStub()
+# Temporarily disable lego_robot_agent imports due to agent_framework compatibility
+# import lego_robot_agent.shared as lego_shared
 
 import agent.agents as agents  # noqa: F401
 import agent.functions as functions  # noqa: F401
@@ -205,7 +202,9 @@ async def execute_agent(id: str, function: FunctionCall):
             )
             result = await func(**args)
 
-            await shared.sessionrt.realtime.send(
+            # Get shared module at runtime to avoid circular import
+            import main
+            await main.shared.sessionrt.realtime.send(
                 ConversationItemCreateEvent(
                     type="conversation.item.create",
                     item=ConversationItem(
@@ -216,7 +215,7 @@ async def execute_agent(id: str, function: FunctionCall):
                 )
             )
             
-            await shared.sessionrt.realtime.response.create()
+            await main.shared.sessionrt.realtime.response.create()
 
         else:
             return {"error": "Function not found"}
@@ -225,3 +224,45 @@ async def execute_agent(id: str, function: FunctionCall):
         "message": f"Agent {function.name} executed",
         "call_id": function.call_id,
     }
+
+
+@router.post("/test/{agent_id}")
+async def test_execute_agent(agent_id: str, payload: dict[str, Any]):
+    """Test endpoint to execute agents without WebSocket connection.
+    
+    This endpoint allows testing agent execution directly via HTTP POST
+    without requiring a WebSocket connection.
+    """
+    from fastapi import HTTPException
+    global function_agents
+    
+    # Check if agent exists
+    if agent_id not in function_agents:
+        raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+    
+    function_agent = function_agents[agent_id]
+    functions = dir(agents)
+    
+    if function_agent.id not in functions:
+        raise HTTPException(status_code=404, detail="Function not found")
+    
+    # Create a mock notify function that just logs
+    async def mock_notify(agent_id: str, status: str, subagent: str = None, 
+                         information: str = None, content: Any = None, output: bool = False):
+        print(f"[{agent_id}] {status}: {information if information else ''}")
+    
+    # Execute function agent
+    func = getattr(agents, function_agent.id)
+    args = payload.copy()
+    args["notify"] = mock_notify
+    
+    try:
+        result = await func(**args)
+        return {
+            "status": "success",
+            "agent_id": agent_id,
+            "result": result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
