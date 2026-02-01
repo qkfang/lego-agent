@@ -77,19 +77,31 @@ async def get_field_state_by_camera() -> str:
     if context.is_test:
         # Mock mode: use sample images
         import os
+        from pathlib import Path
+        
+        # Find project root by looking for a marker file (e.g., sample directory)
+        current_file = Path(__file__).resolve()
+        project_root = None
+        
+        # Try to find project root by going up directories
+        for parent in current_file.parents:
+            sample_dir = parent / "sample"
+            if sample_dir.exists() and sample_dir.is_dir():
+                project_root = parent
+                break
+        
+        # Fallback: use environment variable if set
+        if project_root is None and os.getenv("LEGO_PROJECT_ROOT"):
+            project_root = Path(os.getenv("LEGO_PROJECT_ROOT"))
+        
+        # Last resort: try relative path from current file
+        if project_root is None:
+            project_root = current_file.parents[4]  # 4 levels up from observer.py
+        
         if context.test_count == 1:
-            # First call: use step1.jpg
-            image_file = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "sample", "step1.jpg")
+            image_file = project_root / "sample" / "step1.jpg"
         else:
-            # Subsequent calls: use step2.jpg
-            image_file = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "sample", "step2.jpg")
-
-        # Fallback to absolute path if relative path doesn't work
-        if not os.path.exists(image_file):
-            if context.test_count == 1:
-                image_file = "/home/runner/work/lego-agent/lego-agent/sample/step1.jpg"
-            else:
-                image_file = "/home/runner/work/lego-agent/lego-agent/sample/step2.jpg"
+            image_file = project_root / "sample" / "step2.jpg"
 
         print(f'Mock mode: context.test_count={context.test_count}, using image: {image_file}')
         with open(image_file, "rb") as f:

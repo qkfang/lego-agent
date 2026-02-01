@@ -6,8 +6,8 @@ test.describe('lego-web end-to-end tests', () => {
     // Use domcontentloaded instead of load to avoid waiting for external resources
     await page.goto('/app', { waitUntil: 'domcontentloaded' });
     
-    // Wait a bit for React to render
-    await page.waitForTimeout(1000);
+    // Wait for the input box to be visible (React app is ready)
+    await page.locator('input[type="text"][placeholder*="Send a message"]').waitFor();
   });
 
   test('should display the main page with input box', async ({ page }) => {
@@ -40,9 +40,6 @@ test.describe('lego-web end-to-end tests', () => {
     
     // Verify the input is cleared after sending
     await expect(inputBox).toHaveValue('');
-    
-    // Wait a bit to see if there's any response
-    await page.waitForTimeout(1000);
   });
 
   test('should interact with the UI after sending command', async ({ page }) => {
@@ -52,11 +49,9 @@ test.describe('lego-web end-to-end tests', () => {
     await inputBox.fill('move robot forward 10 cm');
     await inputBox.press('Enter');
     
-    // Wait for potential updates
-    await page.waitForTimeout(2000);
-    
-    // Take a screenshot for verification
-    await page.screenshot({ path: 'tests/e2e/screenshots/after-command.png', fullPage: true });
+    // Verify input is cleared and still functional
+    await expect(inputBox).toHaveValue('');
+    await expect(inputBox).toBeVisible();
   });
 
   test('should handle multiple commands', async ({ page }) => {
@@ -65,15 +60,14 @@ test.describe('lego-web end-to-end tests', () => {
     // Send first command
     await inputBox.fill('move robot forward');
     await inputBox.press('Enter');
-    await page.waitForTimeout(500);
+    await expect(inputBox).toHaveValue('');
     
     // Send second command
     await inputBox.fill('turn robot left');
     await inputBox.press('Enter');
-    await page.waitForTimeout(500);
+    await expect(inputBox).toHaveValue('');
     
     // Verify input is still functional
     await expect(inputBox).toBeVisible();
-    await expect(inputBox).toHaveValue('');
   });
 });
