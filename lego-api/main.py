@@ -156,7 +156,10 @@ async def voice_endpoint(id: str, websocket: WebSocket):
     try:
         # Use DefaultAzureCredential for managed identity authentication
         azure_credential = DefaultAzureCredential()
-        token_provider = lambda: azure_credential.get_token("https://cognitiveservices.azure.com/.default")
+        
+        async def token_provider():
+            token = await azure_credential.get_token("https://cognitiveservices.azure.com/.default")
+            return token.token
         
         client = AsyncAzureOpenAI(
             azure_endpoint=AZURE_VOICE_ENDPOINT,
