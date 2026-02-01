@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { initializeServer } from "./config.js";
+import { initializeServer, setMockMode } from "./config.js";
 import { registerRobotTools } from "./robotTools.js";
 
 export function createServer(): McpServer {
@@ -17,6 +17,13 @@ export function createServer(): McpServer {
 }
 
 export async function startServer(): Promise<void> {
+  // Check if IS_MOCK environment variable is set
+  const isMockEnv = process.env.IS_MOCK === "true";
+  if (isMockEnv) {
+    setMockMode(true);
+    console.error("Running in MOCK mode - robot commands will be simulated");
+  }
+  
   const serverInitialized = initializeServer();
   
   console.error("\n==================================================");
@@ -25,6 +32,7 @@ export async function startServer(): Promise<void> {
       serverInitialized ? "successfully initialized" : "initialization failed"
     }`
   );
+  console.error(`Mock Mode: ${isMockEnv ? "ENABLED" : "DISABLED"}`);
   console.error("Starting server...");
   console.error("==================================================\n");
 

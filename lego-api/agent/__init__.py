@@ -224,3 +224,48 @@ async def execute_agent(id: str, function: FunctionCall):
         "message": f"Agent {function.name} executed",
         "call_id": function.call_id,
     }
+
+
+@router.post("/test/{agent_id}")
+async def test_execute_agent(agent_id: str, payload: dict[str, Any]):
+    """Test endpoint to execute agents without WebSocket connection.
+    
+    This endpoint allows testing agent execution directly via HTTP POST
+    without requiring a WebSocket connection.
+    """
+    global function_agents
+    
+    # Check if agent exists
+    if agent_id not in function_agents:
+        return {"error": f"Agent {agent_id} not found"}
+    
+    function_agent = function_agents[agent_id]
+    functions = dir(agents)
+    
+    if function_agent.id not in functions:
+        return {"error": "Function not found"}
+    
+    # Create a mock notify function that just logs
+    async def mock_notify(agent_id: str, status: str, subagent: str = None, 
+                         information: str = None, content: Any = None, output: bool = False):
+        print(f"[{agent_id}] {status}: {information if information else ''}")
+    
+    # Execute function agent
+    func = getattr(agents, function_agent.id)
+    args = payload.copy()
+    args["notify"] = mock_notify
+    
+    try:
+        result = await func(**args)
+        return {
+            "status": "success",
+            "agent_id": agent_id,
+            "result": result
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "agent_id": agent_id,
+            "error": str(e)
+        }
+

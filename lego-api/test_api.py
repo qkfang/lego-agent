@@ -68,6 +68,37 @@ def test_list_functions():
     assert response.status_code == 200
     print("✓ List functions passed\n")
 
+def test_robot_agent_execution():
+    """Test robot agent execution via test endpoint"""
+    print("Testing POST /api/agent/test/robot_agent...")
+    payload = {"goal": "move forward 10 cm"}
+    response = requests.post(
+        f"{BASE_URL}/api/agent/test/robot_agent",
+        json=payload
+    )
+    print(f"Status: {response.status_code}")
+    result = response.json()
+    print(f"Response: {json.dumps(result, indent=2)}")
+    assert response.status_code == 200
+    assert result["status"] == "success"
+    assert result["agent_id"] == "robot_agent"
+    print("✓ Robot agent execution passed\n")
+
+def test_robot_agent_complex_goal():
+    """Test robot agent with a more complex goal"""
+    print("Testing POST /api/agent/test/robot_agent with complex goal...")
+    payload = {"goal": "turn left 90 degrees and move forward 20 cm"}
+    response = requests.post(
+        f"{BASE_URL}/api/agent/test/robot_agent",
+        json=payload
+    )
+    print(f"Status: {response.status_code}")
+    result = response.json()
+    print(f"Response: {json.dumps(result, indent=2)}")
+    assert response.status_code == 200
+    assert result["status"] == "success"
+    print("✓ Complex goal execution passed\n")
+
 def test_voice_configuration():
     """Test voice configuration endpoints"""
     print("Testing GET /api/configuration/...")
@@ -78,7 +109,8 @@ def test_voice_configuration():
         print(f"Found {len(configs)} configurations")
         print("✓ Voice configuration passed\n")
     else:
-        print(f"⚠ Voice configuration not available (status {response.status_code})\n")
+        print(f"⚠ Voice configuration not available (status {response.status_code})")
+        print("  Note: This is expected if Cosmos DB firewall blocks the request\n")
 
 def test_openapi():
     """Test OpenAPI specification"""
@@ -95,7 +127,7 @@ def test_openapi():
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("Testing lego-api endpoints")
+    print("Testing lego-api endpoints with MCP integration")
     print("=" * 60 + "\n")
     
     try:
@@ -104,6 +136,8 @@ if __name__ == "__main__":
         test_list_agents()
         test_refresh_agents()
         test_list_functions()
+        test_robot_agent_execution()
+        test_robot_agent_complex_goal()
         test_voice_configuration()
         test_openapi()
         
@@ -114,6 +148,8 @@ if __name__ == "__main__":
         print("- API server is running correctly")
         print("- All agent endpoints are working")
         print("- robot_agent is properly registered")
+        print("- Robot agent execution works via test endpoint")
+        print("- MCP integration is working in mock mode")
         print("- RBAC with managed identity is configured")
         print("- Azure resources have proper permissions")
     except Exception as e:
