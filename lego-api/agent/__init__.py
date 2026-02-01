@@ -233,17 +233,18 @@ async def test_execute_agent(agent_id: str, payload: dict[str, Any]):
     This endpoint allows testing agent execution directly via HTTP POST
     without requiring a WebSocket connection.
     """
+    from fastapi import HTTPException
     global function_agents
     
     # Check if agent exists
     if agent_id not in function_agents:
-        return {"error": f"Agent {agent_id} not found"}
+        raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
     
     function_agent = function_agents[agent_id]
     functions = dir(agents)
     
     if function_agent.id not in functions:
-        return {"error": "Function not found"}
+        raise HTTPException(status_code=404, detail="Function not found")
     
     # Create a mock notify function that just logs
     async def mock_notify(agent_id: str, status: str, subagent: str = None, 
@@ -263,9 +264,5 @@ async def test_execute_agent(agent_id: str, payload: dict[str, Any]):
             "result": result
         }
     except Exception as e:
-        return {
-            "status": "error",
-            "agent_id": agent_id,
-            "error": str(e)
-        }
+        raise HTTPException(status_code=500, detail=str(e))
 
