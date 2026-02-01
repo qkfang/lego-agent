@@ -75,12 +75,35 @@ async def get_field_state_by_camera() -> str:
     
     # Use local file if is_test is True, otherwise use camera
     if context.is_test:
+        # Mock mode: use sample images
+        import os
+        from pathlib import Path
+        
+        # Find project root by looking for a marker file (e.g., sample directory)
+        current_file = Path(__file__).resolve()
+        project_root = None
+        
+        # Try to find project root by going up directories
+        for parent in current_file.parents:
+            sample_dir = parent / "sample"
+            if sample_dir.exists() and sample_dir.is_dir():
+                project_root = parent
+                break
+        
+        # Fallback: use environment variable if set
+        if project_root is None and os.getenv("LEGO_PROJECT_ROOT"):
+            project_root = Path(os.getenv("LEGO_PROJECT_ROOT"))
+        
+        # Last resort: try relative path from current file
+        if project_root is None:
+            project_root = current_file.parents[4]  # 4 levels up from observer.py
+        
         if context.test_count == 1:
-            image_file = "D://gh-repo//lego-agent//testdata//field-1.jpg"
-        elif context.test_count > 1:
-            image_file = "D://gh-repo//lego-agent//testdata//field-2.jpg"
+            image_file = project_root / "sample" / "step1.jpg"
+        else:
+            image_file = project_root / "sample" / "step2.jpg"
 
-        print('context.test_count=' + str(context.test_count) + ' ' + image_file)
+        print(f'Mock mode: context.test_count={context.test_count}, using image: {image_file}')
         with open(image_file, "rb") as f:
             img_data = f.read()
 
