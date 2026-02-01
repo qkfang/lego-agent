@@ -8,6 +8,12 @@ lego-mcp/temp
 lego-api/temp
 **/.runs/
 
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+tests/e2e/screenshots/
+
 # C extensions
 *.so
 

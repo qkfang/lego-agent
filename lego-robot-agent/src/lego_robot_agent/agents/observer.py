@@ -75,12 +75,23 @@ async def get_field_state_by_camera() -> str:
     
     # Use local file if is_test is True, otherwise use camera
     if context.is_test:
+        # Mock mode: use sample images
+        import os
         if context.test_count == 1:
-            image_file = "D://gh-repo//lego-agent//testdata//field-1.jpg"
-        elif context.test_count > 1:
-            image_file = "D://gh-repo//lego-agent//testdata//field-2.jpg"
+            # First call: use step1.jpg
+            image_file = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "sample", "step1.jpg")
+        else:
+            # Subsequent calls: use step2.jpg
+            image_file = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "sample", "step2.jpg")
 
-        print('context.test_count=' + str(context.test_count) + ' ' + image_file)
+        # Fallback to absolute path if relative path doesn't work
+        if not os.path.exists(image_file):
+            if context.test_count == 1:
+                image_file = "/home/runner/work/lego-agent/lego-agent/sample/step1.jpg"
+            else:
+                image_file = "/home/runner/work/lego-agent/lego-agent/sample/step2.jpg"
+
+        print(f'Mock mode: context.test_count={context.test_count}, using image: {image_file}')
         with open(image_file, "rb") as f:
             img_data = f.read()
 
