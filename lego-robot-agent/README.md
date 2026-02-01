@@ -52,10 +52,53 @@ The package uses dependency injection instead of global state:
 - Each sub-agent receives the context during initialization
 - Event callbacks for notifications are passed through the context
 
+### Agent Definitions
+
+Agent prompts and configurations are defined using Microsoft Agent Framework YAML files, located in the `agents/` directory. Each agent has a corresponding YAML file that follows the Microsoft Agent Framework schema:
+
+- **orchestrator.yaml**: Coordinates the overall workflow
+- **observer.yaml**: Captures and analyzes the robot field state
+- **planner.yaml**: Creates step-by-step action plans
+- **controller.yaml**: Executes physical robot actions via MCP tools
+- **judger.yaml**: Evaluates goal completion
+
+The YAML files follow this structure:
+
+```yaml
+kind: prompt
+name: lego-orchestrator
+displayName: LEGO Orchestrator Agent
+description: Coordinates the overall workflow and decides when the task is complete
+metadata:
+  authors:
+    - LEGO Agent Team
+  tags:
+    - lego
+    - robot
+model:
+  id: gpt-4o
+  provider: azure-openai
+tools: []
+instructions: |
+  [Agent instructions here]
+```
+
+This approach allows you to:
+- Modify agent behaviors without changing code
+- Share agent definitions across projects
+- Version control prompts separately
+- Follow Microsoft Agent Framework best practices
+
 ## Project Structure
 
 ```
 lego-robot-agent/
+├── agents/                    # Agent YAML definitions
+│   ├── orchestrator.yaml
+│   ├── observer.yaml
+│   ├── planner.yaml
+│   ├── controller.yaml
+│   └── judger.yaml
 ├── src/
 │   └── lego_robot_agent/
 │       ├── __init__.py
@@ -69,6 +112,9 @@ lego-robot-agent/
 │       │   ├── planner.py
 │       │   ├── controller.py
 │       │   └── judger.py
+│       ├── util/
+│       │   ├── yaml_loader.py    # YAML loading utilities
+│       │   └── ...
 │       └── detection/
 │           ├── __init__.py
 │           ├── detector.py
