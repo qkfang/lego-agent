@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./voicetool.module.scss";
 import { HiMiniMicrophone, HiSpeakerWave } from "react-icons/hi2";
+import Avatar from "./avatar";
 
 interface Props {
   onClick: () => void;
@@ -9,55 +10,43 @@ interface Props {
 }
 
 const VoiceTool: React.FC<Props> = ({ onClick, callState, analyzer }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [talking, setTalking] = useState(false);
 
   useEffect(() => {
-    if (callState === "call" && analyzer && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
+    if (callState === "call" && analyzer) {
       const bufferLength = analyzer.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
-      const width = canvas.width;
-      const height = canvas.height;
-      let sum = 0;
-      if (context) {
-        const draw = () => {
-          if (callState === "call" && analyzer) {
-            requestAnimationFrame(draw);
-          }
-          if (!analyzer) return;
+      
+      const checkTalking = () => {
+        if (callState === "call" && analyzer) {
+          requestAnimationFrame(checkTalking);
+        }
+        if (!analyzer) return;
 
-          context.clearRect(0, 0, width, height);
-          context.fillStyle = "rgb(255, 255, 255, 0)";
-          context.fillRect(0, 0, width, height);
+        analyzer.getByteFrequencyData(dataArray);
 
-          analyzer.getByteFrequencyData(dataArray);
-          context.strokeStyle = "rgb(255, 255, 255, 0.1)";
-
-          sum = 0;
-          for (let i = 0; i < bufferLength; i++) {
-            const radius = (100 * dataArray[i]) / 255 + 50;
-            sum += dataArray[i];
-            context.beginPath();
-            context.arc(width / 2, height / 2, radius, 0, Math.PI * 2);
-            context.stroke();
-          }
-          setTalking(sum > 0);
-        };
-        draw();
-      }
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
+        }
+        setTalking(sum > 0);
+      };
+      checkTalking();
     }
   }, [analyzer, callState]);
 
   return (
     <div className={styles.voiceTool}>
-      <canvas
-        ref={canvasRef}
-        className={styles.canvas}
-        width={224}
-        height={224}
-      />
+      {/* Digital Avatar Display */}
+      <div className={styles.avatarWrapper}>
+        <Avatar 
+          isActive={callState === "call"} 
+          speaking={talking}
+          analyzer={analyzer}
+        />
+      </div>
+      
+      {/* Microphone/Speaker Button */}
       <div
         className={callState === "call" ? styles.call : styles.idle}
         onClick={onClick}
@@ -69,4 +58,3 @@ const VoiceTool: React.FC<Props> = ({ onClick, callState, analyzer }) => {
 };
 
 export default VoiceTool;
-//callState === "call" ? styles.call : styles.idle

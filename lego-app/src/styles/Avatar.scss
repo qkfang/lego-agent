@@ -1,0 +1,208 @@
+.avatar-container {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.avatar {
+  position: relative;
+  width: 200px;
+  height: 220px;
+  transition: all 0.3s ease;
+
+  &.speaking {
+    animation: bounce 0.5s ease-in-out infinite;
+  }
+}
+
+.avatar-face {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.1s ease;
+}
+
+/* Mario's Hat */
+.hat {
+  position: relative;
+  width: 140px;
+  height: 70px;
+  margin-bottom: -10px;
+  z-index: 2;
+}
+
+.hat-top {
+  position: absolute;
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, #E31E24 0%, #C41E3A 100%);
+  border-radius: 50% 50% 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  
+  .m-logo {
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.hat-brim {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 20px;
+  background: linear-gradient(135deg, #C41E3A 0%, #8B1420 100%);
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Face */
+.face {
+  position: relative;
+  width: 120px;
+  height: 140px;
+  background: linear-gradient(135deg, #F4C095 0%, #E5A87A 100%);
+  border-radius: 50%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* Eyes */
+.eyes {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
+.eye {
+  width: 18px;
+  height: 24px;
+  background: #2C2C2C;
+  border-radius: 50%;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 6px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+  }
+}
+
+/* Nose */
+.nose {
+  width: 30px;
+  height: 35px;
+  background: linear-gradient(135deg, #E59560 0%, #D47A48 100%);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  margin-bottom: 5px;
+}
+
+/* Mustache */
+.mustache {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.mustache-left,
+.mustache-right {
+  width: 35px;
+  height: 20px;
+  background: linear-gradient(135deg, #5C4033 0%, #3E2723 100%);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.mustache-left {
+  transform: rotate(-15deg);
+}
+
+.mustache-right {
+  transform: rotate(15deg);
+}
+
+/* Mouth */
+.mouth {
+  width: 40px;
+  height: 8px;
+  background: #5C4033;
+  border-radius: 0 0 20px 20px;
+  transition: all 0.15s ease;
+  
+  &.mouth-open {
+    width: 50px;
+    height: 25px;
+    background: #2C2C2C;
+    border-radius: 50%;
+  }
+}
+
+.placeholder {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+
+  .start-icon {
+    font-size: 60px;
+    margin-bottom: 12px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  p {
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.9;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}

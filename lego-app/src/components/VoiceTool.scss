@@ -7,8 +7,16 @@
   justify-content: center;
   flex-direction: column;
   position: relative;
-  height: 120px;
+  height: auto;
   margin: 0 auto;
+  gap: 20px;
+
+  .avatar-wrapper {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .canvas {

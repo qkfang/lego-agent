@@ -8,6 +8,14 @@
   justify-content: center;
   flex-direction: column;
   margin-top: -30px;
+  
+  .avatarWrapper {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
 }
 
 .button {

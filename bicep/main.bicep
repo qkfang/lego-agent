@@ -320,6 +320,27 @@ resource customVisionPrediction 'Microsoft.CognitiveServices/accounts@2024-10-01
   }
 }
 
+// Azure Speech Service for avatar support
+resource speechService 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+  name: '${resourcePrefix}-speech'
+  location: location
+  sku: {
+    name: 'S0'
+  }
+  kind: 'SpeechServices'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    customSubDomainName: '${resourcePrefix}-speech'
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+    disableLocalAuth: false
+  }
+}
+
 // Cosmos DB account for storing configurations and data
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
   name: '${resourcePrefix}-cosmos'
