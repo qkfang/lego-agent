@@ -41,6 +41,8 @@ async def main():
                 azure_client=shared.azure_client,
                 mcp_session=session,
                 mcp_tools=shared.robotmcptools,
+                robot_data=shared.robotData,
+                is_test=True
             )
 
             legoObserverAgent = LegoObserverAgent()

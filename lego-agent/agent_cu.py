@@ -60,7 +60,7 @@ class ContentUnderstandingVideoAgent:
             created_agent = await self.project_client.agents.create(
                 name="agent-cu",
                 definition=PromptAgentDefinition(
-                    model="gpt-4o",
+                    model="gpt-4.1",
                     temperature=0.2,
                     instructions="""
 You are a video analysis assistant using Azure Content Understanding service.

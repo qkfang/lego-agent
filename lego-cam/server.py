@@ -5,7 +5,7 @@ from streamer import Streamer
 app = Flask(__name__)
 CORS(app)
 
-streamer = Streamer('192.168.0.50', 8080)
+streamer = Streamer('192.168.0.186', 8080)
 streamer.start()
 
 def gen():
@@ -28,4 +28,4 @@ def photo():
         return Response(streamer.get_jpeg(), mimetype='image/jpeg')
     
 if __name__ == '__main__':
-  app.run(host='192.168.0.50', threaded=True)
+  app.run(host='192.168.0.186', threaded=True)

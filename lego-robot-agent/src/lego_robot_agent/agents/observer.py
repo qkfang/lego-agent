@@ -145,7 +145,7 @@ class LegoObserverAgent:
             agentdef = await shared.project_client.agents.create_version(
                 agent_name=self.AGENT_NAME,
                 definition=PromptAgentDefinition(
-                    model="gpt-4o",
+                    model="gpt-4.1",
                     instructions='''
 You are robot observer agent. 
 

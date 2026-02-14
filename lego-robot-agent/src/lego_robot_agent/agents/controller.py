@@ -40,7 +40,7 @@ class LegoControllerAgent:
             agentdef = await shared.project_client.agents.create_version(
                 agent_name=self.AGENT_NAME,
                 definition=PromptAgentDefinition(
-                    model="gpt-4o",
+                    model="gpt-4.1",
                     instructions='''You are robot controller agent. need to follow the plan to control the robot to action. 
 do one step at a time and wait for earlier action to complete. 
 MUST run all the steps using robot function and action physically without skipping any step.
