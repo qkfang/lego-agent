@@ -6,6 +6,7 @@ from .. import shared
 from ..type.models import JudgementResult
 from ..context import AgentContext
 from ..type.models import FieldData
+from . import YELLOW, RESET
 
 
 class JudgeChatAgent(ChatAgent):
@@ -14,7 +15,7 @@ class JudgeChatAgent(ChatAgent):
     async def run(self, messages=None, **kwargs):
         kwargs.setdefault("response_format", JudgementResult)
         response = await super().run(messages, **kwargs)
-        print(f"\033[93m# lego-judge: {response}\033[0m")
+        print(f"{YELLOW}# lego-judge:{RESET} {response}")
         return response
 
 

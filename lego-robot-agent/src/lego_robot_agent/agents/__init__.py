@@ -2,6 +2,10 @@
 LEGO Robot Agent sub-agents package.
 """
 
+# Color constants for console output
+YELLOW = "\033[93m"
+RESET = "\033[0m"
+
 from .orchestrator import LegoOrchestratorAgent
 from .observer import LegoObserverAgent
 from .planner import LegoPlannerAgent
@@ -14,4 +18,6 @@ __all__ = [
     "LegoPlannerAgent",
     "LegoControllerAgent",
     "LegoJudgeAgent",
+    "YELLOW",
+    "RESET",
 ]

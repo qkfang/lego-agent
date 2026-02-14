@@ -4,6 +4,7 @@ from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
 from ..context import AgentContext
+from . import YELLOW, RESET
 
 
 class OrchestratorChatAgent(ChatAgent):
@@ -11,7 +12,7 @@ class OrchestratorChatAgent(ChatAgent):
 
     async def run(self, messages=None, **kwargs):
         response = await super().run(messages, **kwargs)
-        print(f"\033[93m# lego-orchestrator: {response}\033[0m")
+        print(f"{YELLOW}# lego-orchestrator:{RESET} {response}")
         return response
     
     

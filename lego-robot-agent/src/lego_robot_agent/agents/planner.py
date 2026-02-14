@@ -6,6 +6,7 @@ from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
 from ..context import AgentContext
 from ..type.models import RobotPlan
+from . import YELLOW, RESET
 
 
 class PlannerChatAgent(ChatAgent):
@@ -14,7 +15,7 @@ class PlannerChatAgent(ChatAgent):
     async def run(self, messages=None, **kwargs):
         kwargs.setdefault("response_format", RobotPlan)
         response = await super().run(messages, **kwargs)
-        print(f"\033[93m# lego-planner: {response}\033[0m")
+        print(f"{YELLOW}# lego-planner:{RESET} {response}")
         return response
 
 

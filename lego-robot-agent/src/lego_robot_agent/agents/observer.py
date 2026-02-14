@@ -6,6 +6,7 @@ from .. import shared
 from ..context import AgentContext
 from ..helper.logic import get_field_state_by_camera, _observer_context
 from ..type.models import FieldData, DetectionResult
+from . import YELLOW, RESET
 
 
 class ObserverChatAgent(ChatAgent):
@@ -14,7 +15,7 @@ class ObserverChatAgent(ChatAgent):
     async def run(self, messages=None, **kwargs):
         kwargs.setdefault("response_format", FieldData)
         response = await super().run(messages, **kwargs)
-        print(f"\033[93m# lego-observer: {response}\033[0m")
+        print(f"{YELLOW}# lego-observer:{RESET} {response}")
         return response
 
 

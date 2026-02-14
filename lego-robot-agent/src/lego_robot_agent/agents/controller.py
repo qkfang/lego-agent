@@ -3,6 +3,7 @@ from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
 from ..context import AgentContext
+from . import YELLOW, RESET
 
 
 class ControllerChatAgent(ChatAgent):
@@ -10,7 +11,7 @@ class ControllerChatAgent(ChatAgent):
 
     async def run(self, messages=None, **kwargs):
         response = await super().run(messages, **kwargs)
-        print(f"\033[93m# lego-controller: {response}\033[0m")
+        print(f"{YELLOW}# lego-controller:{RESET} {response}")
         return response
     
     

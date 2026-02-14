@@ -42,21 +42,16 @@ async def main():
         await legoPlannerAgent.init(context)
         await legoControllerAgent.init(context)
 
-        print("\033[93m \r\n-------- run_step1 -------- \033[0m")
         response1 = await legoObserverAgent.agent.run(
             'describe the current field. blue object is robot, red object is coke.'
         )
 
-        print("\033[93m \r\n-------- run_step2 -------- \033[0m")
-        fielddata = shared.robotData.step1_analyze_json_data()
         response2 = await legoPlannerAgent.agent.run(
-            f'move robot forward to the coke. {fielddata}'
+            f'move robot forward to the coke. {response1.value.model_dump_json()}'
         )
-        robot_plan = response2.value if hasattr(response2, 'value') else None
         
-        print("\033[93m \r\n-------- run_step3 -------- \033[0m")
         response3 = await legoControllerAgent.agent.run(
-            f'Follow the plan to make robot action. {robot_plan.model_dump_json()}'
+            f'Follow the plan to make robot action. {response2.value.model_dump_json()}'
         )
         
         for agent in [legoObserverAgent, legoControllerAgent, legoPlannerAgent]:
