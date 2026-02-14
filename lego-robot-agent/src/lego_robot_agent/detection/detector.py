@@ -483,7 +483,7 @@ def run_detection(args) -> Dict[str, Any]:
     else:
         return {"error": f"Unknown method: {args.method}"}
     
-    print(f"\nDetected {len(detected_objects)} objects:")
+    print(f"Detected {len(detected_objects)} objects:")
     for i, obj in enumerate(detected_objects):
         confidence_info = f" (conf: {obj['confidence']:.2f})" if 'confidence' in obj else ""
         print(f"  {i+1}. {obj['name']} at {obj['coordinates_2d']} (area: {obj['area']} pixels){confidence_info}")
@@ -493,14 +493,13 @@ def run_detection(args) -> Dict[str, Any]:
     if 'error' not in analysis:
         print(f"\n=== ANALYSIS RESULTS ===")
         print(f"Image dimensions: {analysis['image_dimensions']}")
-        
-        print(f"\nObjects detected:")
+        print(f"Objects detected:")
         for obj in analysis['objects']:
             print(f"  - {obj['name']}: Position {obj['position_2d']}")
         
-        print(f"\nDistances:")
+        print(f"Distances:")
         for dist in analysis['distances']:
-            print(f"  - {dist['from']} to {dist['to']}: {dist['distance_in_cm']:.2f} units")
+            print(f"  - {dist['from']} to {dist['to']}: {dist['distance_in_cm']:.2f} cm")
     
     if args.output:
         with open(args.output, 'w') as f:

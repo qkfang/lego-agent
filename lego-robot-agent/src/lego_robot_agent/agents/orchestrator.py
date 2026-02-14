@@ -11,7 +11,7 @@ class OrchestratorChatAgent(ChatAgent):
 
     async def run(self, messages=None, **kwargs):
         response = await super().run(messages, **kwargs)
-        print(f"# lego-orchestrator: {response}")
+        print(f"\033[93m# lego-orchestrator: {response}\033[0m")
         return response
     
     

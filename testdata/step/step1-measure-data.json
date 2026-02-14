@@ -41,7 +41,7 @@
       "object1": "red",
       "object2": "blue",
       "distance_pixels": 566.0883323298582,
-      "distance_units": 566.0883323298582,
+      "distance_in_cm": 566.0883323298582,
       "object1_position": [
         660,
         196

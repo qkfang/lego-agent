@@ -39,11 +39,19 @@ dependencies = [
     "azure-ai-agentserver-agentframework==1.0.0b10",  # Agent framework server integration
     "opencv-python",
     "pywin32>=311; platform_system=='Windows'",  # Windows-specific dependency for MCP
+    "jiter>=0.13.0",  # Fast JSON parsing, explicit for ARM64 Windows compatibility
 ]
 
 [project.optional-dependencies]
 yolo = ["ultralytics>=8.0.0"]
-dev = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0", "debugpy", "agent-dev-cli"]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "debugpy",
+    "agent-dev-cli",
+    "pythonnet>=3.0.0",  # .NET integration for tests
+    "cffi>=2.0.0",  # Explicit dependency for ARM64 Windows compatibility
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

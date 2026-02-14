@@ -60,9 +60,3 @@ class PlanStep(BaseModel):
 class RobotPlan(BaseModel):
     """Complete robot action plan with multiple steps."""
     steps: list[PlanStep]
-
-
-class JudgementResult:
-    """Result from the judge agent indicating completion status."""
-    completed: bool
-    reason: str = ""

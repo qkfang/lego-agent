@@ -1,7 +1,3 @@
-"""
-LegoAgent - Main LEGO Agent orchestrator using Microsoft Agent Framework workflows.
-"""
-
 import json
 import os
 import asyncio
@@ -24,30 +20,8 @@ from .agents import (
 
 
 class LegoAgent:
-    """
-    Main LEGO Agent orchestrator using Microsoft Agent Framework workflows.
-    
-    This class coordinates multiple specialized agents to control a LEGO robot:
-    - Orchestrator: Coordinates the overall workflow
-    - Observer: Captures and analyzes the robot field state
-    - Planner: Creates step-by-step action plans
-    - Controller: Executes physical robot actions
-    - Judge: Evaluates goal completion
-    
-    Usage:
-        context = AgentContext(azure_client=..., mcp_session=...)
-        agent = LegoAgent(context)
-        await agent.init()
-        await agent.run("Pick up the coke and deliver it to Bowser")
-    """
-    
+
     def __init__(self, context: AgentContext):
-        """
-        Initialize the LegoAgent with a context.
-        
-        Args:
-            context: The agent context containing all dependencies
-        """
         self._context = context
         self._init_done = False
         
@@ -65,11 +39,9 @@ class LegoAgent:
 
     @property
     def context(self) -> AgentContext:
-        """Get the agent context."""
         return self._context
 
     async def init(self):
-        """Initialize all sub-agents."""
         if not self._init_done:
             await self._orchestrator.init(self._context)
             await self._observer.init(self._context)
@@ -79,12 +51,6 @@ class LegoAgent:
             self._init_done = True
 
     def _build_workflow(self):
-        """
-        Build and return the workflow.
-        
-        Returns:
-            The built workflow (not wrapped as agent)
-        """
         orchestrator_executor = AgentExecutor(self._orchestrator.agent, id="lego-orchestrator")
         observer_executor = AgentExecutor(self._observer.agent, id="lego-observer")
         planner_executor = AgentExecutor(self._planner.agent, id="lego-planner")
@@ -110,14 +76,6 @@ class LegoAgent:
         return workflow
 
     async def as_workflow_agent(self):
-        """
-        Create and return the workflow wrapped as an agent for HTTP serving.
-        
-        This is useful for DevUI and HTTP server integration.
-        
-        Returns:
-            The workflow wrapped as an agent
-        """
         await self.init()
         self._iteration_count = 0
         return self._build_workflow().as_agent()
@@ -144,19 +102,7 @@ class LegoAgent:
             seen_files = current_files
 
     async def run(self, goal: str) -> str:
-        """
-        Run the agent workflow with the given goal.
-        
-        Args:
-            goal: The goal to achieve (e.g., "Pick up the coke and deliver it to Bowser")
-            
-        Returns:
-            A completion message
-        """
-        # Reset iteration counter
         self._iteration_count = 0
-        
-        # Build the workflow
         self._context.workflow = self._build_workflow()
         
         monitor_task = asyncio.create_task(self._monitor_temp_folder())
@@ -164,62 +110,11 @@ class LegoAgent:
         try:
             print(f"# USER: '{goal}'")
             
-            async for event in self._context.workflow.run_stream(goal):
-                match event:
-                    case AgentRunEvent() as agent_event:
-                        agent_name = getattr(agent_event, 'agent_name', 'unknown')
-                        message = getattr(agent_event, 'message', None)
-                        if message:
-                            content = getattr(message, 'content', '') or getattr(message, 'text', '')
-                            print(f"\033[94m[{agent_name}]\033[0m: {content}")
-                    case ExecutorCompletedEvent() as complete:
-                        executor_id = getattr(complete, 'executor_id', 'unknown')
-                        data = getattr(complete, 'data', None)
-                        
-                        # Print the executor completion
-                        print(f"\033[92m[{executor_id} completed]\033[0m")
-                        
-                        # Store judgement result if this is the decision executor
-                        if executor_id == 'judge_decision_executor' and isinstance(data, JudgementResult):
-                            self._last_judgement = data
-                        
-                        # Extract and print response
-                        if data is not None:
-                            # Handle list of responses (AgentExecutor returns a list)
-                            if isinstance(data, list) and len(data) > 0:
-                                response = data[0]
-                                if hasattr(response, 'agent_run_response'):
-                                    # It's an AgentExecutorResponse
-                                    agent_response = response.agent_run_response
-                                    if hasattr(agent_response, 'content'):
-                                        content = agent_response.content
-                                        print(f"  → {content}")
-                                    elif hasattr(response, 'full_conversation') and response.full_conversation:
-                                        # Get last message from conversation
-                                        last_msg = response.full_conversation[-1]
-                                        content = getattr(last_msg, 'content', '') or getattr(last_msg, 'text', '')
-                                        if content:
-                                            print(f"  → {content}")
-                            else:
-                                # Generic data - debug output
-                                print(f"  → Type: {type(data).__name__}, Value: {str(data)[:300]}")
-                    case WorkflowOutputEvent() as output:
-                        result = output.data
-                        if isinstance(result, JudgementResult):
-                            status = "✅ COMPLETED" if result.completed else "❌ MAX ITERATIONS"
-                            print(f"\033[93m{status}\033[0m: {result.reason}")
-                        else:
-                            print(f"\033[93mWorkflow output:\033[0m {result}")
-                        return "Robot agent run completed."
-
+            result = await self._context.workflow.run(goal)
+            
             print(f"\n\033[96m{'='*60}\033[0m")
             print(f"\033[96mWorkflow completed\033[0m")
-            if self._last_judgement:
-                status_icon = "✅" if self._last_judgement.completed else "❌"
-                print(f"{status_icon} Final Decision: completed={self._last_judgement.completed}")
-                if self._last_judgement.reason:
-                    reason_preview = self._last_judgement.reason[:150] + "..." if len(self._last_judgement.reason) > 150 else self._last_judgement.reason
-                    print(f"Reason: {reason_preview}")
+            print(f"Result: {result}")
             print(f"\033[96m{'='*60}\033[0m")
         finally:
             monitor_task.cancel()

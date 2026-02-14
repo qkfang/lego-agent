@@ -10,7 +10,7 @@ class ControllerChatAgent(ChatAgent):
 
     async def run(self, messages=None, **kwargs):
         response = await super().run(messages, **kwargs)
-        print(f"# lego-controller: {response}")
+        print(f"\033[93m# lego-controller: {response}\033[0m")
         return response
     
     

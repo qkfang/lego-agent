@@ -10,7 +10,7 @@ This package provides the `LegoAgent` class and supporting agents for controllin
 - **Observer Agent**: Captures and analyzes the robot field state
 - **Planner Agent**: Creates step-by-step action plans
 - **Controller Agent**: Executes physical robot actions via MCP tools
-- **Judger Agent**: Evaluates goal completion
+- **Judge Agent**: Evaluates goal completion
 
 ## Installation
 
@@ -68,7 +68,7 @@ lego-robot-agent/
 │       │   ├── observer.py
 │       │   ├── planner.py
 │       │   ├── controller.py
-│       │   └── judger.py
+│       │   └── judge.py
 │       └── detection/
 │           ├── __init__.py
 │           ├── detector.py
