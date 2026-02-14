@@ -4,21 +4,18 @@ from agent_framework import ChatAgent
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
-
-if TYPE_CHECKING:
-    from ..context import AgentContext
-
-
-class PlanStep(BaseModel):
-    """A single step in the robot action plan."""
-    action: str
-    args: dict[str, Any]
-    explain: str
+from ..context import AgentContext
+from ..type.models import RobotPlan
 
 
-class RobotPlan(BaseModel):
-    """Complete robot action plan with multiple steps."""
-    steps: list[PlanStep]
+class PlannerChatAgent(ChatAgent):
+    """ChatAgent subclass that always returns structured RobotPlan."""
+
+    async def run(self, messages=None, **kwargs):
+        kwargs.setdefault("response_format", RobotPlan)
+        response = await super().run(messages, **kwargs)
+        print(f"# lego-planner: {response}")
+        return response
 
 
 class LegoPlannerAgent:
@@ -29,12 +26,6 @@ class LegoPlannerAgent:
         self._context: "AgentContext" = None
 
     async def init(self, context: "AgentContext"):
-        """
-        Initialize the planner agent using Microsoft Agent Framework with MCP tools.
-        
-        Args:
-            context: The agent context with Azure client and dependencies
-        """
         self._context = context
         
         # Get MCP tools from context if available
@@ -58,8 +49,8 @@ you can use the robot mcp plugin to understand what actions what actions are ava
 the robot is facing east directly. treat the left bottom corner as the origin (0,0). 
 the x axis is the east direction, and the y axis is the north direction. robot is facing the object directly.
 
-when calculating the distance, you must use the following conversion: 60 pixels equal to 1 centimetre in the field data.
-assuming all the objects are in a straight line, calculate distance based on x-axis ONLY. 
+when calculating the distance, you must use the following conversion: 300 pixels equal to 1 centimetre in the field data.
+assuming all the objects are in a straight line, calculate distance based on x-axis ONLY. Don't need to turn or rotate degrees.
 when robot needs to move multiple time, remember to calculate and exclude the distance that it has moved.
 
 each step should be a json object with "action" and "args" fields. The action is the robot action name, and args is the arguments for the action.
@@ -90,7 +81,7 @@ Never try to run mcp action directly, just plan the steps and return the json ob
                 ),
             )
         
-        self.agent = ChatAgent(
+        self.agent = PlannerChatAgent(
             chat_client=AzureAIAgentClient(
                     project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
                     model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,

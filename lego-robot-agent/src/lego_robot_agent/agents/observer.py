@@ -5,7 +5,17 @@ from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
 from ..context import AgentContext
 from ..helper.logic import get_field_state_by_camera, _observer_context
-from ..type.models import FieldData
+from ..type.models import FieldData, DetectionResult
+
+
+class ObserverChatAgent(ChatAgent):
+    """ChatAgent subclass that always returns structured FieldData."""
+
+    async def run(self, messages=None, **kwargs):
+        kwargs.setdefault("response_format", FieldData)
+        response = await super().run(messages, **kwargs)
+        print(f"# lego-observer: {response}")
+        return response
 
 
 class LegoObserverAgent:
@@ -78,7 +88,7 @@ Expected structure:
                 ),
             )
         
-        self.agent = ChatAgent(
+        self.agent = ObserverChatAgent(
             chat_client=AzureAIAgentClient(
                     project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
                     model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,

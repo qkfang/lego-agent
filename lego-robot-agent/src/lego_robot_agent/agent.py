@@ -19,63 +19,8 @@ from .agents import (
     LegoObserverAgent,
     LegoPlannerAgent,
     LegoControllerAgent,
-    LegoJudgerAgent,
+    LegoJudgeAgent,
 )
-
-
-@dataclass
-class JudgementResult:
-    """Result from the judger agent indicating completion status."""
-    completed: bool
-    reason: str = ""
-
-
-@executor
-async def judger_decision_executor(
-    response: AgentExecutorResponse, 
-    ctx: WorkflowContext[JudgementResult]
-) -> None:
-    """
-    Custom executor that processes judger output and routes workflow.
-    Routes to completion or back to planner based on task completion.
-    
-    Args:
-        response: Response from the judger agent
-        ctx: Workflow context
-    """
-    # Extract content from the response object
-    content = ""
-    
-    # Try different ways to extract the content
-    if hasattr(response, 'result'):
-        content = str(response.result)
-    elif hasattr(response, 'content'):
-        content = str(response.content)
-    elif hasattr(response, 'text'):
-        content = str(response.text)
-    else:
-        # If none of the above, convert the response itself to string
-        content = str(response)
-    
-    content_lower = content.lower()
-    
-    # Check for completion indicators
-    completed = (
-        "task completed" in content_lower or 
-        "completed actions" in content_lower or
-        "goal achieved" in content_lower
-    )
-    
-    await ctx.send_message(JudgementResult(completed=completed, reason=content))
-
-
-@executor
-async def loop_back_executor(
-    result: JudgementResult,
-    ctx: WorkflowContext[str]
-) -> None:
-    """Convert JudgementResult back to string for observer when looping."""
-    await ctx.send_message(f"Previous attempt incomplete: {result.reason}. Please re-analyze the field.")
 
 
 class LegoAgent:
@@ -87,7 +32,7 @@ class LegoAgent:
     - Observer: Captures and analyzes the robot field state
     - Planner: Creates step-by-step action plans
     - Controller: Executes physical robot actions
-    - Judger: Evaluates goal completion
+    - Judge: Evaluates goal completion
     
     Usage:
         context = AgentContext(azure_client=..., mcp_session=...)
@@ -116,7 +61,7 @@ class LegoAgent:
         self._observer = LegoObserverAgent()
         self._planner = LegoPlannerAgent()
         self._controller = LegoControllerAgent()
-        self._judger = LegoJudgerAgent()
+        self._judge = LegoJudgeAgent()
 
     @property
     def context(self) -> AgentContext:
@@ -130,7 +75,7 @@ class LegoAgent:
             await self._observer.init(self._context)
             await self._planner.init(self._context)
             await self._controller.init(self._context)
-            await self._judger.init(self._context)
+            await self._judge.init(self._context)
             self._init_done = True
 
     def _build_workflow(self):
@@ -144,7 +89,7 @@ class LegoAgent:
         observer_executor = AgentExecutor(self._observer.agent, id="lego-observer")
         planner_executor = AgentExecutor(self._planner.agent, id="lego-planner")
         controller_executor = AgentExecutor(self._controller.agent, id="lego-controller")
-        judger_executor = AgentExecutor(self._judger.agent, id="lego-judger")
+        judge_executor = AgentExecutor(self._judge.agent, id="lego-judge")
         
         workflow = (
             WorkflowBuilder()
@@ -152,14 +97,13 @@ class LegoAgent:
             .add_edge(orchestrator_executor, observer_executor)
             .add_edge(observer_executor, planner_executor)
             .add_edge(planner_executor, controller_executor)
-            .add_edge(controller_executor, judger_executor)
-            .add_edge(judger_executor, judger_decision_executor)
+            .add_edge(controller_executor, observer_executor)
+            .add_edge(observer_executor, judge_executor)
             .add_edge(
-                judger_decision_executor, 
-                loop_back_executor,
+                judge_executor, 
+                observer_executor,
                 condition=lambda result: not result.completed and self._check_iteration_limit()
             )
-            .add_edge(loop_back_executor, observer_executor)
             .build()
         )
         return workflow
@@ -235,21 +179,13 @@ class LegoAgent:
                         print(f"\033[92m[{executor_id} completed]\033[0m")
                         
                         # Store judgement result if this is the decision executor
-                        if executor_id == 'judger_decision_executor' and isinstance(data, JudgementResult):
+                        if executor_id == 'judge_decision_executor' and isinstance(data, JudgementResult):
                             self._last_judgement = data
                         
                         # Extract and print response
                         if data is not None:
-                            # Handle JudgementResult
-                            if isinstance(data, JudgementResult):
-                                status_icon = "✅" if data.completed else "🔄"
-                                print(f"  {status_icon} Decision: completed={data.completed}")
-                                if data.reason:
-                                    # Show a preview of the reason
-                                    reason_preview = data.reason[:200] + "..." if len(data.reason) > 200 else data.reason
-                                    print(f"  → Reason: {reason_preview}")
                             # Handle list of responses (AgentExecutor returns a list)
-                            elif isinstance(data, list) and len(data) > 0:
+                            if isinstance(data, list) and len(data) > 0:
                                 response = data[0]
                                 if hasattr(response, 'agent_run_response'):
                                     # It's an AgentExecutorResponse

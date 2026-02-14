@@ -6,6 +6,15 @@ from .. import shared
 from ..context import AgentContext
 
 
+class OrchestratorChatAgent(ChatAgent):
+    """ChatAgent subclass that always returns structured FieldData."""
+
+    async def run(self, messages=None, **kwargs):
+        response = await super().run(messages, **kwargs)
+        print(f"# lego-orchestrator: {response}")
+        return response
+    
+    
 class LegoOrchestratorAgent:
     AGENT_NAME = "lego-orchestrator"
     
@@ -25,7 +34,7 @@ class LegoOrchestratorAgent:
                     instructions='''
 You are robot orchestrator agent. 
 Always starting with analyzing the current field data.
-When judger agent has already determined that the goal is completed or failed, you must end the conversation by saying 'agents have completed actions' and provide a summary of past activities.
+When judge agent has already determined that the goal is completed or failed, you must end the conversation by saying 'agents have completed actions' and provide a summary of past activities.
 It's always good to ask user to check the final result in the end.
 '''
                 ),

@@ -12,7 +12,7 @@ lego-web (React) ←WebSocket→ lego-api (FastAPI) ←MCP→ lego-mcp (Node.js)
 
 ### Core Components
 - **lego-api/**: Main FastAPI backend - voice interaction, agent orchestration, WebSocket server
-- **lego-robot-agent/**: Python package for multi-agent workflow (Orchestrator → Observer → Planner → Controller → Judger)
+- **lego-robot-agent/**: Python package for multi-agent workflow (Orchestrator → Observer → Planner → Controller → Judge)
 - **lego-mcp/**: TypeScript MCP server exposing robot tools (`robot_move`, `robot_turn`, `robot_arm`, etc.)
 - **lego-web/**: React Router v7 frontend with real-time monitoring
 - **lego-ble/**: BLE communication bridge to physical LEGO robots

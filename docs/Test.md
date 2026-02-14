@@ -132,7 +132,7 @@ python run_tests.py test4
 **What it tests:**
 - Full LegoAgent orchestration
 - Complex task: "grab bowser a coke and go back"
-- All agents working together (Orchestrator, Observer, Planner, Controller, Judger)
+- All agents working together (Orchestrator, Observer, Planner, Controller, Judge)
 - End-to-end workflow execution
 
 **Prerequisites:**

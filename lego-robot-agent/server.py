@@ -50,8 +50,6 @@ async def main():
     else:
         from azure.ai.agentserver.agentframework import from_agent_framework
         
-        print(f"Starting LEGO Robot Agent Workflow Server on port {args.port}...")
-        print("Workflow: Orchestrator -> Observer -> Planner -> Controller -> Judger -> Decision")
         print("Open AI Toolkit Agent Inspector to visualize the workflow")
         await from_agent_framework(workflow_agent).run_async()
 

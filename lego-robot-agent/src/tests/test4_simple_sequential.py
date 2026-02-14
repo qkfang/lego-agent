@@ -5,8 +5,10 @@ from lego_robot_agent.agents import (
     LegoObserverAgent,
     LegoPlannerAgent,
     LegoControllerAgent,
-    LegoJudgerAgent
+    LegoJudgeAgent
 )
+from lego_robot_agent.agents.planner import RobotPlan
+from lego_robot_agent.type.models import FieldData
 from lego_robot_agent.context import AgentContext
 import asyncio
 import lego_robot_agent.shared as shared
@@ -24,54 +26,43 @@ async def main():
         env={"IS_MOCK": "true"},
         load_prompts=False,
     ) as mcp_tool:
-        # Create context for the agents
+
         context = AgentContext(
             azure_client=shared.azure_client,
             mcp_session=None, 
             mcp_legorobot_action=[mcp_tool],
             robot_data=shared.robotData,
-            is_test=False
+            # is_test=True
         )
 
         legoObserverAgent = LegoObserverAgent()
-        legoControllerAgent = LegoControllerAgent()
         legoPlannerAgent = LegoPlannerAgent()
+        legoControllerAgent = LegoControllerAgent()
         await legoObserverAgent.init(context)
         await legoPlannerAgent.init(context)
         await legoControllerAgent.init(context)
 
         print("\033[93m \r\n-------- run_step1 -------- \033[0m")
         response1 = await legoObserverAgent.agent.run(
-    '''
-    describe the current field. blue object is robot, red object is coke.
-    '''
+            'describe the current field. blue object is robot, red object is coke.'
         )
-        print(f"# {legoObserverAgent.AGENT_NAME}: {response1}")
 
         print("\033[93m \r\n-------- run_step2 -------- \033[0m")
         fielddata = shared.robotData.step1_analyze_json_data()
         response2 = await legoPlannerAgent.agent.run(
-    '''
-    move robot forward to the coke.
-    ''' + fielddata
+            f'move robot forward to the coke. {fielddata}'
         )
-        print(f"# {legoPlannerAgent.AGENT_NAME}: {response2}")
-        controlldata = str(response2)
+        robot_plan = response2.value if hasattr(response2, 'value') else None
         
         print("\033[93m \r\n-------- run_step3 -------- \033[0m")
         response3 = await legoControllerAgent.agent.run(
-    '''
-    Follow the plan to make robot action.
-    ''' + controlldata
+            f'Follow the plan to make robot action. {robot_plan.model_dump_json()}'
         )
-        print(f"# {legoControllerAgent.AGENT_NAME}: {response3}")
         
-        # Clean up Azure client resources
         for agent in [legoObserverAgent, legoControllerAgent, legoPlannerAgent]:
             if hasattr(agent.agent, 'chat_client'):
                 await agent.agent.chat_client.close()
     
-    # Clean up project client
     await shared.project_client.close()
 
 if __name__ == "__main__":

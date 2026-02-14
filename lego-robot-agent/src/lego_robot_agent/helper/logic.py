@@ -2,12 +2,13 @@ import json
 import requests
 from agent_framework import ai_function
 from ..context import AgentContext
+from ..type.models import FieldData
 
 
 _observer_context: "AgentContext" = None
 
 
-async def _process_image(context: "AgentContext"):
+async def _process_image(context: "AgentContext") -> FieldData:
     """Process an image and return field data with detection results."""
     from ..models import RoboProcessArgs
     from ..detection import run_detection
@@ -39,8 +40,9 @@ async def _process_image(context: "AgentContext"):
         # Storage not available, use local path
         blob = robot_data.step1_analyze_img()
 
-    field_data = {"detection_result": detection_result, "blob": blob}
-    robot_data.field_data = field_data
+    # Validate and structure the data using Pydantic model
+    field_data = FieldData(detection_result=detection_result, blob=blob)
+    robot_data.field_data = field_data.model_dump()
     return field_data
 
 
@@ -106,5 +108,6 @@ async def get_field_state_by_camera() -> str:
     with open(context.robot_data.step0_img_path(), "wb") as f:
         f.write(img_data)
 
-    data = await _process_image(context)
-    return json.dumps(data)
+    field_data = await _process_image(context)
+    # Return JSON string using Pydantic's model_dump_json for proper serialization
+    return field_data.model_dump_json(indent=2)

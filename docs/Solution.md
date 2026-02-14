@@ -86,13 +86,13 @@ The system uses a sophisticated multi-agent workflow:
 2. **Observer**: Analyzes the current field state using computer vision
 3. **Planner**: Creates action plans based on observations and goals
 4. **Controller**: Executes robot actions via MCP tools
-5. **Judger**: Validates task completion and success
+5. **Judge**: Validates task completion and success
 
 Example workflow for "grab the coke":
 1. Observer analyzes field → "Robot at (0,0), red coke at (50cm, 0)"
 2. Planner creates plan → "Move forward 50cm, close gripper"
 3. Controller executes → Sends move and arm commands
-4. Judger validates → "Task completed successfully"
+4. Judge validates → "Task completed successfully"
 
 ## Computer Vision Capabilities
 

@@ -123,7 +123,7 @@ class TestLegoAgent:
         agent._observer.init = AsyncMock()
         agent._planner.init = AsyncMock()
         agent._controller.init = AsyncMock()
-        agent._judger.init = AsyncMock()
+        agent._judge.init = AsyncMock()
         
         await agent.init()
         
@@ -132,7 +132,7 @@ class TestLegoAgent:
         agent._observer.init.assert_called_once_with(mock_context)
         agent._planner.init.assert_called_once_with(mock_context)
         agent._controller.init.assert_called_once_with(mock_context)
-        agent._judger.init.assert_called_once_with(mock_context)
+        agent._judge.init.assert_called_once_with(mock_context)
 
     @pytest.mark.asyncio
     async def test_agent_init_idempotent(self, mock_context):
@@ -146,7 +146,7 @@ class TestLegoAgent:
         agent._observer.init = AsyncMock()
         agent._planner.init = AsyncMock()
         agent._controller.init = AsyncMock()
-        agent._judger.init = AsyncMock()
+        agent._judge.init = AsyncMock()
         
         await agent.init()
         await agent.init()  # Call again
@@ -207,11 +207,11 @@ class TestSubAgents:
         assert agent._context == mock_context
 
     @pytest.mark.asyncio
-    async def test_judger_agent_init(self, mock_context):
-        """Test LegoJudgerAgent initialization."""
-        from lego_robot_agent.agents import LegoJudgerAgent
+    async def test_judge_agent_init(self, mock_context):
+        """Test LegoJudgeAgent initialization."""
+        from lego_robot_agent.agents import LegoJudgeAgent
         
-        agent = LegoJudgerAgent()
+        agent = LegoJudgeAgent()
         await agent.init(mock_context)
         
         assert agent._context == mock_context

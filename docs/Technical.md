@@ -35,7 +35,7 @@ Multi-agent workflow system using Microsoft Agent Framework:
 - **Observer**: Analyzes field state and objects using computer vision
 - **Planner**: Creates action plans based on observations
 - **Controller**: Executes robot actions via MCP tools
-- **Judger**: Validates task completion
+- **Judge**: Validates task completion
 
 Each agent has `init(context)` and `exec(message)` methods and uses `AgentContext` for dependency injection.
 

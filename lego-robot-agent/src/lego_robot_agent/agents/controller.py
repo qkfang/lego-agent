@@ -5,6 +5,15 @@ from .. import shared
 from ..context import AgentContext
 
 
+class ControllerChatAgent(ChatAgent):
+    """ChatAgent subclass that always returns structured FieldData."""
+
+    async def run(self, messages=None, **kwargs):
+        response = await super().run(messages, **kwargs)
+        print(f"# lego-controller: {response}")
+        return response
+    
+    
 class LegoControllerAgent:
     AGENT_NAME = "lego-controller"
     
@@ -34,7 +43,7 @@ After performing all actions, say that 'detection_result' is no longer valid, ne
                 ),
             )
         
-        self.agent = ChatAgent(
+        self.agent = ControllerChatAgent(
             chat_client=AzureAIAgentClient(
                     project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
                     model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,
@@ -45,9 +54,3 @@ After performing all actions, say that 'detection_result' is no longer valid, ne
             description="Executes physical robot actions via MCP tools",
             tools=context.mcp_legorobot_action
         )
-
-    async def exec(self, message: str) -> str:
-        """Execute the controller agent with a message."""
-        response = await self.agent.run(message)
-        print(f"# {self.AGENT_NAME}: {response}")
-        return str(response)

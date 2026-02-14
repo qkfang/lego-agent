@@ -6,12 +6,12 @@ from .orchestrator import LegoOrchestratorAgent
 from .observer import LegoObserverAgent
 from .planner import LegoPlannerAgent
 from .controller import LegoControllerAgent
-from .judger import LegoJudgerAgent
+from .judge import LegoJudgeAgent
 
 __all__ = [
     "LegoOrchestratorAgent",
     "LegoObserverAgent",
     "LegoPlannerAgent",
     "LegoControllerAgent",
-    "LegoJudgerAgent",
+    "LegoJudgeAgent",
 ]

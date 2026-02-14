@@ -37,3 +37,28 @@ class FieldData(BaseModel):
     """Complete field data including detection results and image blob."""
     detection_result: DetectionResult
     blob: str | None = None
+
+
+class JudgementResult(BaseModel):
+    """Result from the judge agent indicating completion status."""
+    status: str  # "goal completed" or "goal failed"
+    reason: str
+    completed: bool
+
+
+class PlanStep(BaseModel):
+    """A single step in the robot action plan."""
+    action: str
+    args: dict[str, str | int | float]
+    explain: str
+
+
+class RobotPlan(BaseModel):
+    """Complete robot action plan with multiple steps."""
+    steps: list[PlanStep]
+
+
+class JudgementResult:
+    """Result from the judge agent indicating completion status."""
+    completed: bool
+    reason: str = ""

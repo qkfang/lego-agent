@@ -4,8 +4,9 @@ from lego_robot_agent.agents import (
     LegoObserverAgent,
     LegoPlannerAgent,
     LegoControllerAgent,
-    LegoJudgerAgent
+    LegoJudgeAgent
 )
+from lego_robot_agent.type.models import FieldData
 from lego_robot_agent.context import AgentContext
 import asyncio
 import lego_robot_agent.shared as shared
@@ -29,9 +30,12 @@ async def main():
         response = await legoObserverAgent.agent.run(
 '''
 describe the current field. blue object is robot, red object is goal.
-'''
+''',
+            response_format=FieldData
         )
         print(f"# {legoObserverAgent.AGENT_NAME}: {response}")
+        field_data = response.value if hasattr(response, 'value') else None
+        print(f"Structured output: {field_data}")
     finally:
         # Close Azure clients to prevent resource leaks
         if hasattr(shared.project_client, 'close'):

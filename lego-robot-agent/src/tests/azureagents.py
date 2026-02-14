@@ -103,9 +103,9 @@ NEVER repeat other agent's response, just provide your own answer.
     )
     print(f"Created agent: lego-controller")
     
-    # Create judger agent
-    judger = azure_client.create_agent(
-        name="lego-judger",
+    # Create judge agent
+    judge = azure_client.create_agent(
+        name="lego-judge",
         instructions='''
 You are robot judge. 
 You need to decide if the goal is already achieved based on the current field data and the goal.
@@ -116,7 +116,7 @@ You must provide an answer in response by saying 'goal completed' or 'goal faile
 NEVER repeat other agent's response, just provide your own answer.
 '''
     )
-    print(f"Created agent: lego-judger")
+    print(f"Created agent: lego-judge")
     
     print("\nAll agents created successfully with Microsoft Agent Framework!")
     print("Note: Agents are now created on-demand and don't persist in a service.")

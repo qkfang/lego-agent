@@ -3,12 +3,22 @@ from agent_framework import ChatAgent
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
+from ..type.models import JudgementResult
+from ..context import AgentContext
+from ..type.models import FieldData
 
-if TYPE_CHECKING:
-    from ..context import AgentContext
+
+class JudgeChatAgent(ChatAgent):
+    """ChatAgent subclass that always returns structured FieldData."""
+
+    async def run(self, messages=None, **kwargs):
+        kwargs.setdefault("response_format", JudgementResult)
+        response = await super().run(messages, **kwargs)
+        print(f"# lego-judge: {response}")
+        return response
 
 
-class LegoJudgerAgent:
+class LegoJudgeAgent:
     AGENT_NAME = "lego-judge"
     
     def __init__(self):
@@ -25,7 +35,7 @@ class LegoJudgerAgent:
                 definition=PromptAgentDefinition(
                     model="gpt-4.1",
                     instructions='''
-You are robot judger agent. 
+You are robot judge agent. 
 
 You need to decide if the goal is already achieved based on the current field data and the goal.
 when the distance between coke and bowser is less than 180 pixels, it means that the robot has delievered the coke to the bowser successfully.
@@ -37,7 +47,7 @@ NEVER repeat other agent's response, just provide your own answer.
                 ),
             )
         
-        self.agent = ChatAgent(
+        self.agent = JudgeChatAgent(
             chat_client=AzureAIAgentClient(
                     project_endpoint=shared.AZURE_AI_PROJECT_ENDPOINT,
                     model_deployment_name=shared.AZURE_OPENAI_DEPLOYMENT,

@@ -21,7 +21,7 @@ try:
         LegoObserverAgent,
         LegoPlannerAgent,
         LegoControllerAgent,
-        LegoJudgerAgent,
+        LegoJudgeAgent,
     )
     from lego_robot_agent.detection import ObjectDetector, create_sample_color_ranges, run_detection
     
@@ -33,7 +33,7 @@ except ImportError:
     from robot.robot_agent_observer import LegoObserverAgent
     from robot.robot_agent_planner import LegoPlannerAgent
     from robot.robot_agent_controller import LegoControllerAgent
-    from robot.robot_agent_judger import LegoJudgerAgent
+    from robot.robot_agent_judge import LegoJudgeAgent
     from robot.robotmodel import RobotData
     from robot.object_detector import ObjectDetector, create_sample_color_ranges, run as run_detection
     from model import Content
@@ -81,7 +81,7 @@ __all__ = [
     "LegoObserverAgent",
     "LegoPlannerAgent",
     "LegoControllerAgent",
-    "LegoJudgerAgent",
+    "LegoJudgeAgent",
     "ObjectDetector",
     "create_sample_color_ranges",
     "run_detection",

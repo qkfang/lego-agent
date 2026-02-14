@@ -15,7 +15,7 @@ async def main():
         name="mcp_legorobot_action",
         command="node",
         args=[shared.mcp_server_path],
-        # env={"IS_MOCK": "true"},
+        env={"IS_MOCK": "true"},
         load_prompts=False,
     ) as mcp_legorobot_action:
         

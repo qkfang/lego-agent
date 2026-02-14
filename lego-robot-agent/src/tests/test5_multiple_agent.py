@@ -36,7 +36,7 @@ async def main():
         
         # Clean up Azure client resources for all sub-agents
         for agent in [legoAgent._orchestrator, legoAgent._observer, legoAgent._planner, 
-                      legoAgent._controller, legoAgent._judger]:
+                      legoAgent._controller, legoAgent._judge]:
             if hasattr(agent, 'agent') and hasattr(agent.agent, 'chat_client'):
                 await agent.agent.chat_client.close()
     
