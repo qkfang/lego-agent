@@ -15,7 +15,7 @@ class PlannerChatAgent(ChatAgent):
     async def run(self, messages=None, **kwargs):
         kwargs.setdefault("response_format", RobotPlan)
         response = await super().run(messages, **kwargs)
-        print(f"{YELLOW}# lego-planner:{RESET} {response}")
+        print(f"{YELLOW}# lego-planner:{RESET}\r\n{response}\r\n")
         return response
 
 

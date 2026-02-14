@@ -69,7 +69,7 @@ class LegoAgent:
             .add_edge(
                 judge_executor, 
                 observer_executor,
-                condition=lambda result: "goal completed" not in result.agent_run_response.text.lower() and self._check_iteration_limit()
+                condition=lambda result: not self._is_goal_completed(result.agent_run_response.text) and self._check_iteration_limit()
             )
             .build()
         )
@@ -123,6 +123,13 @@ class LegoAgent:
         
         return "Robot agent run completed."
     
+    def _is_goal_completed(self, text: str) -> bool:
+        try:
+            data = json.loads(text)
+            return data.get("completed") is True
+        except (json.JSONDecodeError, AttributeError):
+            return False
+
     def _check_iteration_limit(self) -> bool:
         """Check if we're under iteration limit and increment counter."""
         self._iteration_count += 1

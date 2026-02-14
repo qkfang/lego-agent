@@ -32,7 +32,7 @@ async def main():
             mcp_session=None, 
             mcp_legorobot_action=[mcp_tool],
             robot_data=shared.robotData,
-            # is_test=True
+            is_test=True
         )
 
         legoObserverAgent = LegoObserverAgent()
@@ -47,11 +47,11 @@ async def main():
         )
 
         response2 = await legoPlannerAgent.agent.run(
-            f'move robot forward to the coke. {response1.value.model_dump_json()}'
+            f'move robot forward to the coke. {response1}'
         )
         
         response3 = await legoControllerAgent.agent.run(
-            f'Follow the plan to make robot action. {response2.value.model_dump_json()}'
+            f'Follow the plan to make robot action. {response2.value}'
         )
         
         for agent in [legoObserverAgent, legoControllerAgent, legoPlannerAgent]:

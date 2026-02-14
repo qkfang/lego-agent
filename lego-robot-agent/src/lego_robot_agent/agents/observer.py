@@ -15,7 +15,7 @@ class ObserverChatAgent(ChatAgent):
     async def run(self, messages=None, **kwargs):
         kwargs.setdefault("response_format", FieldData)
         response = await super().run(messages, **kwargs)
-        print(f"{YELLOW}# lego-observer:{RESET} {response}")
+        print(f"{YELLOW}# lego-observer:{RESET}\r\n{response}\r\n")
         return response
 
 

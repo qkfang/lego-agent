@@ -12,7 +12,7 @@ class OrchestratorChatAgent(ChatAgent):
 
     async def run(self, messages=None, **kwargs):
         response = await super().run(messages, **kwargs)
-        print(f"{YELLOW}# lego-orchestrator:{RESET} {response}")
+        print(f"{YELLOW}# lego-orchestrator:{RESET}\r\n{response}\r\n")
         return response
     
     

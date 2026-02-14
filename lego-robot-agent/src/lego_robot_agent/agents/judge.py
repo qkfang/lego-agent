@@ -15,7 +15,7 @@ class JudgeChatAgent(ChatAgent):
     async def run(self, messages=None, **kwargs):
         kwargs.setdefault("response_format", JudgementResult)
         response = await super().run(messages, **kwargs)
-        print(f"{YELLOW}# lego-judge:{RESET} {response}")
+        print(f"{YELLOW}# lego-judge:{RESET}\r\n{response}\r\n")
         return response
 
 

@@ -11,7 +11,7 @@ class ControllerChatAgent(ChatAgent):
 
     async def run(self, messages=None, **kwargs):
         response = await super().run(messages, **kwargs)
-        print(f"{YELLOW}# lego-controller:{RESET} {response}")
+        print(f"{YELLOW}# lego-controller:{RESET}\r\n{response}\r\n")
         return response
     
     

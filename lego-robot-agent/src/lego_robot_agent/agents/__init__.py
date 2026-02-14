@@ -3,7 +3,7 @@ LEGO Robot Agent sub-agents package.
 """
 
 # Color constants for console output
-YELLOW = "\033[93m"
+YELLOW = "\033[33m"
 RESET = "\033[0m"
 
 from .orchestrator import LegoOrchestratorAgent
