@@ -28,6 +28,15 @@ azure_client = AzureOpenAIChatClient(
     credential=credential,
 )
 
+### Set up for OpenTelemetry tracing ###
+from agent_framework.observability import configure_otel_providers
+
+configure_otel_providers(
+    vs_code_extension_port=4317,  # AI Toolkit gRPC port
+    enable_sensitive_data=True  # Enable capturing prompts and completions (including tool calls)
+)
+### Set up for OpenTelemetry tracing ###
+
 # Get Azure AI Foundry project endpoint from environment
 AZURE_AI_PROJECT_ENDPOINT = os.environ.get("AZURE_AI_PROJECT_ENDPOINT", os.environ.get("PROJECT_CONNECTION_STRING", ""))
 

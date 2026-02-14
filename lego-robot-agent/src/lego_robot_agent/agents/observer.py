@@ -1,19 +1,51 @@
-"""
-LEGO Observer Agent - Captures and analyzes the robot field state.
-"""
-
 import json
 import requests
-from typing import TYPE_CHECKING
+from pydantic import BaseModel
 from agent_framework import ChatAgent, ai_function
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
+from ..context import AgentContext
 
-if TYPE_CHECKING:
-    from ..context import AgentContext
 
-# Module-level context reference for the ai_function decorator
+class ObjectInfo(BaseModel):
+    """Information about a detected object."""
+    id: int
+    name: str
+    position_2d: list[int]
+    center_pixels: list[int]
+    area_pixels: float
+    orientation_degrees: float
+
+
+class DistanceInfo(BaseModel):
+    """Distance information between two objects."""
+    from_: str  # using from_ since 'from' is a Python keyword
+    to: str
+    distance_pixels: float
+    distance_units: float
+    from_position: list[int]
+    to_position: list[int]
+
+    class Config:
+        # Map 'from_' field to 'from' in JSON
+        fields = {'from_': 'from'}
+
+
+class DetectionResult(BaseModel):
+    """Result of field detection analysis."""
+    image_dimensions: list[int]
+    coordinate_system: str
+    objects: list[ObjectInfo]
+    distances: list[DistanceInfo]
+
+
+class FieldData(BaseModel):
+    """Complete field data including detection results and image blob."""
+    detection_result: DetectionResult
+    blob: str | None = None
+
+
 _observer_context: "AgentContext" = None
 
 
@@ -109,7 +141,7 @@ async def get_field_state_by_camera() -> str:
 
         context.increment_test_count()
     else:
-        url = "http://192.168.0.50:5000/photo"
+        url = "http://192.168.0.186:5000/photo"
         response = requests.get(url)
         img_data = response.content
 
@@ -130,12 +162,6 @@ class LegoObserverAgent:
         self._context: "AgentContext" = None
 
     async def init(self, context: "AgentContext"):
-        """
-        Initialize the observer agent using Microsoft Agent Framework with tools.
-        
-        Args:
-            context: The agent context with Azure client and dependencies
-        """
         global _observer_context
         self._context = context
         _observer_context = context
@@ -163,13 +189,36 @@ Just do it, don't ask for confirmation or approval.
 the robot is facing east. treat the left bottom corner as the origin (0,0)
 the x axis is the east direction, and the y axis is the north direction.
 
-MUST return detection_result in json format exactly as it as, NEVER CHANGE STRUCTURE OR ANY CALCULATION. 
-dont return any other text or explanation.
+MUST return detection_result in json format exactly as received from the tool, NEVER CHANGE STRUCTURE OR ANY CALCULATION. 
+Return ONLY valid JSON, no other text or explanation.
 
+Expected structure:
 {
-    "detection_result": {
-       // details
-    }
+  "detection_result": {
+    "image_dimensions": [width, height],
+    "coordinate_system": "2D with origin at bottom-left, y-axis pointing up",
+    "objects": [
+      {
+        "id": 0,
+        "name": "object_name",
+        "position_2d": [x, y],
+        "center_pixels": [x, y],
+        "area_pixels": number,
+        "orientation_degrees": number
+      }
+    ],
+    "distances": [
+      {
+        "from": "object1",
+        "to": "object2",
+        "distance_pixels": number,
+        "distance_units": number,
+        "from_position": [x, y],
+        "to_position": [x, y]
+      }
+    ]
+  },
+  "blob": "url_or_path"
 }
 '''
                 ),
@@ -189,6 +238,11 @@ dont return any other text or explanation.
 
     async def exec(self, message: str) -> str:
         """Execute the observer agent with a message."""
-        response = await self.agent.run(message)
+        response = await self.agent.run(message, response_format=FieldData)
         print(f"# {self.AGENT_NAME}: {response}")
+        
+        # If structured output is available, return it as JSON
+        if response.value:
+            return response.value.model_dump_json()
+        
         return str(response)

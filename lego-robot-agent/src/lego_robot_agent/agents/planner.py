@@ -32,8 +32,8 @@ class LegoPlannerAgent:
         
         # Get MCP tools from context if available
         tools = []
-        if context.mcp_session is not None:
-            tools = context.mcp_tools if context.mcp_tools else []
+        if context.mcp_legorobot_action is not None:
+            tools = context.mcp_legorobot_action if context.mcp_legorobot_action else []
         
         agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
         if agentdef is None:

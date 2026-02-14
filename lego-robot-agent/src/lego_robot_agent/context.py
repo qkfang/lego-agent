@@ -22,7 +22,7 @@ class AgentContext:
     Attributes:
         azure_client: The Azure OpenAI chat client for agent creation
         mcp_session: The MCP client session for robot communication
-        mcp_tools: Wrapped MCP tools for agent use
+        mcp_legorobot_action: Wrapped MCP tools for agent use
         robot_data: Robot state and file path management
         notify_callback: Optional callback for sending notifications
         temp_folder: Path to the temporary folder for file monitoring
@@ -35,14 +35,14 @@ class AgentContext:
     
     # Optional dependencies (can be set later)
     mcp_session: Optional[Any] = None  # MCP ClientSession
-    mcp_tools: Optional[list] = None  # Wrapped MCP tools
+    mcp_legorobot_action: Optional[list] = None  # Wrapped MCP tools
     robot_data: Optional["RobotData"] = None
     
     # Callbacks
     notify_callback: Optional[Callable[..., Coroutine[Any, Any, None]]] = None
     
     # Configuration
-    temp_folder: str = "D:/gh-repo/lego-agent/lego-mcp/temp"
+    temp_folder: str = "C:/repo/lego-agent/lego-mcp/temp"
     is_test: bool = False
     test_count: int = 1
     

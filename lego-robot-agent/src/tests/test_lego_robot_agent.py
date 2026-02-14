@@ -21,7 +21,7 @@ class TestRobotData:
         """Test RobotData initializes with correct defaults."""
         robot_data = RobotData()
         
-        assert robot_data.root == "D:/gh-repo/lego-agent/lego-api/temp"
+        assert robot_data.root == "C:/repo/lego-agent/lego-api/temp"
         assert robot_data.runid is not None
         assert robot_data.field_data == {}
         assert robot_data.sequence == 0

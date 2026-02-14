@@ -64,7 +64,7 @@ def create_context_from_shared():
     return AgentContext(
         azure_client=shared.azure_client,
         mcp_session=shared.mcprobot,
-        mcp_tools=shared.robotmcptools,
+        mcp_legorobot_action=shared.robotmcptools,
         robot_data=shared.robotData,
         notify_callback=shared.notify,
         is_test=shared.isTest,

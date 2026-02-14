@@ -20,7 +20,7 @@ async def main():
         context = AgentContext(
             azure_client=shared.azure_client,
             mcp_session=None,
-            mcp_tools=[],
+            mcp_legorobot_action=[],
         )
 
         legoObserverAgent = LegoObserverAgent()

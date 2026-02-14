@@ -32,7 +32,7 @@ from lego_robot_agent.models import RobotData
 context = AgentContext(
     azure_client=your_azure_client,
     mcp_session=your_mcp_session,
-    mcp_tools=your_mcp_tools,
+    mcp_legorobot_action=your_mcp_legorobot_action,
     robot_data=RobotData(),
 )
 

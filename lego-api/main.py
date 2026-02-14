@@ -90,10 +90,10 @@ async def lifespan(app: FastAPI):
                     await session.initialize()
                     shared.mcprobot = session
                     tools_result = await session.list_tools()
-                    mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
-                    print(f"MCP tools initialized: {len(mcp_tools)} tools available")
+                    mcp_legorobot_action = tools_result.tools if hasattr(tools_result, 'tools') else []
+                    print(f"MCP tools initialized: {len(mcp_legorobot_action)} tools available")
                     # Store tools info for later use
-                    shared.robotmcptools = mcp_tools
+                    shared.robotmcptools = mcp_legorobot_action
                 
         yield
     finally:

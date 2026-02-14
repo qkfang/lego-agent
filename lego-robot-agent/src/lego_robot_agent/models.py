@@ -13,7 +13,7 @@ class RobotData:
     Manages robot state and file paths for the agent workflow.
     """
     
-    def __init__(self, root: str = "D:/gh-repo/lego-agent/lego-api/temp"):
+    def __init__(self, root: str = "C:/repo/lego-agent/lego-api/temp"):
         self.root = root
         self.runid = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
         self.field_data = {}

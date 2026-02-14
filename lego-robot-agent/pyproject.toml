@@ -33,11 +33,14 @@ dependencies = [
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
     "mcp",
+    "opentelemetry-exporter-otlp-proto-grpc",  # Required for tracing tool calls
+    "azure-ai-agentserver-core==1.0.0b10",  # HTTP server hosting
+    "azure-ai-agentserver-agentframework==1.0.0b10",  # Agent framework server integration
 ]
 
 [project.optional-dependencies]
 yolo = ["ultralytics>=8.0.0"]
-dev = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0"]
+dev = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0", "debugpy", "agent-dev-cli"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

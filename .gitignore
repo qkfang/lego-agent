@@ -90,3 +90,4 @@ out/
 # OS specific
 .DS_Store
 Thumbs.db
+lego-robot-agent/server.log

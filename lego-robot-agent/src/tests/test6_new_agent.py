@@ -25,13 +25,14 @@ async def main():
             "PROJECT_CONNECTION_STRING": "",
             "DEFAULT_ROBOT_ID": "robot_b"
         },
+        load_prompts=False,  # lego-mcp doesn't implement prompts
     )
     
     # Create the agent context with all dependencies
     context = AgentContext(
         azure_client=shared.azure_client,
         mcp_session=None,  # Not needed with MCPStdioTool
-        mcp_tools=[mcp_tool],  # Pass the MCP tool directly
+        mcp_legorobot_action=[mcp_tool],  # Pass the MCP tool directly
         robot_data=RobotData(),
         is_test=True,  # Use test images
         test_count=1,
