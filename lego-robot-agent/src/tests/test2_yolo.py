@@ -25,11 +25,13 @@ async def main():
 
         legoObserverAgent = LegoObserverAgent()
         await legoObserverAgent.init(context)
-        await legoObserverAgent.exec(
+        
+        response = await legoObserverAgent.agent.run(
 '''
 describe the current field. blue object is robot, red object is goal.
 '''
         )
+        print(f"# {legoObserverAgent.AGENT_NAME}: {response}")
     finally:
         # Close Azure clients to prevent resource leaks
         if hasattr(shared.project_client, 'close'):

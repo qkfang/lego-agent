@@ -1,4 +1,7 @@
 from agent_framework import MCPStdioTool
+from pythonnet import load
+load("coreclr", dotnet_root=r"C:\Program Files\dotnet\x64")
+import clr
 from lego_robot_agent.agents import LegoControllerAgent
 from lego_robot_agent.context import AgentContext
 import asyncio
@@ -26,7 +29,10 @@ async def main():
         
         legoControllerAgent = LegoControllerAgent()
         await legoControllerAgent.init(context)
-        await legoControllerAgent.exec('move forward 20 cm, turn right 90 degrees, and do a full circle')
+        
+        response = await legoControllerAgent.agent.run(
+            'move forward 20 cm, turn right 90 degrees, and do a full circle')
+        print(f"# {legoControllerAgent.AGENT_NAME}: {response}")
         
         if hasattr(legoControllerAgent.agent, 'chat_client'):
             await legoControllerAgent.agent.chat_client.close()

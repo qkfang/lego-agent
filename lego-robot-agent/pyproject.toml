@@ -23,19 +23,22 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "agent-framework",
+    "agent-framework==1.0.0b260107",
+    "agent-framework-declarative==1.0.0b260107",  # Pin to compatible version
     "azure-identity>=1.15.0",
     "azure-ai-projects>=1.0.0",
     "azure-storage-blob>=12.0.0",
     "openai>=1.0.0",
-    "opencv-python>=4.8.0",
     "numpy>=1.24.0",
-    "requests>=2.31.0",
+    "requests>=2.32.3",  # Updated for prance compatibility
+    "pydantic>=2.12.4,<3.0",
     "python-dotenv>=1.0.0",
     "mcp",
-    "opentelemetry-exporter-otlp-proto-grpc",  # Required for tracing tool calls
+    "opentelemetry-exporter-otlp-proto-grpc",  # Required for OTLP gRPC exporters
     "azure-ai-agentserver-core==1.0.0b10",  # HTTP server hosting
     "azure-ai-agentserver-agentframework==1.0.0b10",  # Agent framework server integration
+    "opencv-python",
+    "pywin32>=311; platform_system=='Windows'",  # Windows-specific dependency for MCP
 ]
 
 [project.optional-dependencies]

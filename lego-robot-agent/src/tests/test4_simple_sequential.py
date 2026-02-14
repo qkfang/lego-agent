@@ -41,26 +41,30 @@ async def main():
         await legoControllerAgent.init(context)
 
         print("\033[93m \r\n-------- run_step1 -------- \033[0m")
-        await legoObserverAgent.exec(
+        response1 = await legoObserverAgent.agent.run(
     '''
     describe the current field. blue object is robot, red object is coke.
     '''
         )
+        print(f"# {legoObserverAgent.AGENT_NAME}: {response1}")
 
         print("\033[93m \r\n-------- run_step2 -------- \033[0m")
         fielddata = shared.robotData.step1_analyze_json_data()
-        controlldata = await legoPlannerAgent.exec(
+        response2 = await legoPlannerAgent.agent.run(
     '''
     move robot forward to the coke.
     ''' + fielddata
         )
+        print(f"# {legoPlannerAgent.AGENT_NAME}: {response2}")
+        controlldata = str(response2)
         
         print("\033[93m \r\n-------- run_step3 -------- \033[0m")
-        await legoControllerAgent.exec(
+        response3 = await legoControllerAgent.agent.run(
     '''
     Follow the plan to make robot action.
     ''' + controlldata
         )
+        print(f"# {legoControllerAgent.AGENT_NAME}: {response3}")
         
         # Clean up Azure client resources
         for agent in [legoObserverAgent, legoControllerAgent, legoPlannerAgent]:

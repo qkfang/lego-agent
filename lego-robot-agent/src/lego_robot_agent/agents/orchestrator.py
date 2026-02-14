@@ -1,20 +1,12 @@
-"""
-LEGO Orchestrator Agent - Coordinates the multi-agent workflow.
-"""
-
 from typing import TYPE_CHECKING
 from agent_framework import ChatAgent
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
 from .. import shared
-
-if TYPE_CHECKING:
-    from ..context import AgentContext
+from ..context import AgentContext
 
 
 class LegoOrchestratorAgent:
-    """LEGO Orchestrator Agent using Microsoft Agent Framework."""
-    
     AGENT_NAME = "lego-orchestrator"
     
     def __init__(self):
@@ -22,12 +14,6 @@ class LegoOrchestratorAgent:
         self._context: "AgentContext" = None
 
     async def init(self, context: "AgentContext"):
-        """
-        Initialize the orchestrator agent using Microsoft Agent Framework.
-        
-        Args:
-            context: The agent context with Azure client and dependencies
-        """
         self._context = context
         
         agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
@@ -55,9 +41,3 @@ It's always good to ask user to check the final result in the end.
             name=self.AGENT_NAME,
             description="Coordinates the overall workflow and decides when the task is complete"
         )
-
-    async def exec(self, message: str) -> str:
-        """Execute the orchestrator agent with a message."""
-        response = await self.agent.run(message)
-        print(f"# {self.AGENT_NAME}: {response}")
-        return str(response)

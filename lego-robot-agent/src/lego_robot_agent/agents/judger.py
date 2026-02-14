@@ -1,7 +1,3 @@
-"""
-LEGO Judger Agent - Evaluates goal completion.
-"""
-
 from typing import TYPE_CHECKING
 from agent_framework import ChatAgent
 from agent_framework.azure import AzureAIAgentClient
@@ -13,21 +9,13 @@ if TYPE_CHECKING:
 
 
 class LegoJudgerAgent:
-    """LEGO Judger Agent using Microsoft Agent Framework."""
-    
-    AGENT_NAME = "lego-judger"
+    AGENT_NAME = "lego-judge"
     
     def __init__(self):
         self.agent: ChatAgent = None
         self._context: "AgentContext" = None
 
     async def init(self, context: "AgentContext"):
-        """
-        Initialize the judger agent using Microsoft Agent Framework.
-        
-        Args:
-            context: The agent context with Azure client and dependencies
-        """
         self._context = context
         
         agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
@@ -59,9 +47,3 @@ NEVER repeat other agent's response, just provide your own answer.
             name=self.AGENT_NAME,
             description="Evaluates goal completion based on field data"
         )
-
-    async def exec(self, message: str) -> str:
-        """Execute the judger agent with a message."""
-        response = await self.agent.run(message)
-        print(f"# {self.AGENT_NAME}: {response}")
-        return str(response)

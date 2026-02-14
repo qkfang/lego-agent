@@ -1,4 +1,7 @@
 Flask
-numpy
-opencv-python
+numpy>=2.2.6
+opencv-python>=4.10.0
 flask-cors
+requests>=2.32.3
+grpcio>=1.41.0
+packaging>=24.2

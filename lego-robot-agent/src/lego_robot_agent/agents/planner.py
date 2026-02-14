@@ -1,8 +1,5 @@
-"""
-LEGO Planner Agent - Creates step-by-step action plans.
-"""
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+from pydantic import BaseModel
 from agent_framework import ChatAgent
 from agent_framework.azure import AzureAIAgentClient
 from azure.ai.projects.models import PromptAgentDefinition
@@ -12,9 +9,19 @@ if TYPE_CHECKING:
     from ..context import AgentContext
 
 
+class PlanStep(BaseModel):
+    """A single step in the robot action plan."""
+    action: str
+    args: dict[str, Any]
+    explain: str
+
+
+class RobotPlan(BaseModel):
+    """Complete robot action plan with multiple steps."""
+    steps: list[PlanStep]
+
+
 class LegoPlannerAgent:
-    """LEGO Planner Agent using Microsoft Agent Framework."""
-    
     AGENT_NAME = "lego-planner"
     
     def __init__(self):
@@ -58,10 +65,11 @@ when robot needs to move multiple time, remember to calculate and exclude the di
 each step should be a json object with "action" and "args" fields. The action is the robot action name, and args is the arguments for the action.
 
 below is the example format to output the plan with multiple steps. 
-MUST MUST only response the steps in the same array as the json output.
-Never try to run mcp action directly, just plan the steps and return the json array.
+MUST return ONLY valid JSON in this exact structure, no other text or explanation.
+Never try to run mcp action directly, just plan the steps and return the json object.
 
-[   
+{
+  "steps": [   
     {
         "action": "robotmcp-robot_move",
         "args": {
@@ -76,7 +84,8 @@ Never try to run mcp action directly, just plan the steps and return the json ar
     {
         ....
     }
-]  
+  ]
+}
 '''
                 ),
             )
@@ -92,9 +101,3 @@ Never try to run mcp action directly, just plan the steps and return the json ar
             description="Creates step-by-step action plans for the robot",
             tools=tools
         )
-
-    async def exec(self, message: str) -> str:
-        """Execute the planner agent with a message."""
-        response = await self.agent.run(message)
-        print(f"# {self.AGENT_NAME}: {response}")
-        return str(response)
