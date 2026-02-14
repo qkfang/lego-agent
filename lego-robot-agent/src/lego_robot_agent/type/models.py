@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class ObjectInfo(BaseModel):
@@ -13,16 +13,14 @@ class ObjectInfo(BaseModel):
 
 class DistanceInfo(BaseModel):
     """Distance information between two objects."""
-    from_: str  # using from_ since 'from' is a Python keyword
+    model_config = ConfigDict(populate_by_name=True)
+    
+    from_: str = Field(alias='from')  # using from_ since 'from' is a Python keyword
     to: str
     distance_pixels: float
-    distance_units: float
+    distance_in_cm: float
     from_position: list[int]
     to_position: list[int]
-
-    class Config:
-        # Map 'from_' field to 'from' in JSON
-        fields = {'from_': 'from'}
 
 
 class DetectionResult(BaseModel):
@@ -46,10 +44,16 @@ class JudgementResult(BaseModel):
     completed: bool
 
 
+class PlanStepArgs(BaseModel):
+    """Arguments for a robot action step."""
+    robot_id: str
+    distance_in_cm: int | None = None
+    angle_in_degrees: int | None = None
+
 class PlanStep(BaseModel):
     """A single step in the robot action plan."""
     action: str
-    args: dict[str, str | int | float]
+    args: PlanStepArgs
     explain: str
 
 

@@ -52,7 +52,7 @@ class LegoAgent:
         self._init_done = False
         
         # Workflow state
-        self._max_iterations = 10
+        self._max_iterations = 2
         self._iteration_count = 0
         self._last_judgement = None
         
@@ -89,6 +89,7 @@ class LegoAgent:
         observer_executor = AgentExecutor(self._observer.agent, id="lego-observer")
         planner_executor = AgentExecutor(self._planner.agent, id="lego-planner")
         controller_executor = AgentExecutor(self._controller.agent, id="lego-controller")
+        observer_post_executor = AgentExecutor(self._observer.agent, id="lego-observer-post")
         judge_executor = AgentExecutor(self._judge.agent, id="lego-judge")
         
         workflow = (
@@ -97,12 +98,12 @@ class LegoAgent:
             .add_edge(orchestrator_executor, observer_executor)
             .add_edge(observer_executor, planner_executor)
             .add_edge(planner_executor, controller_executor)
-            .add_edge(controller_executor, observer_executor)
-            .add_edge(observer_executor, judge_executor)
+            .add_edge(controller_executor, observer_post_executor)
+            .add_edge(observer_post_executor, judge_executor)
             .add_edge(
                 judge_executor, 
                 observer_executor,
-                condition=lambda result: not result.completed and self._check_iteration_limit()
+                condition=lambda result: "goal completed" not in result.agent_run_response.text.lower() and self._check_iteration_limit()
             )
             .build()
         )

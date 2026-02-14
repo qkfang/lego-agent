@@ -319,15 +319,14 @@ class ObjectDetector:
         
         return filtered_objects
     
-    def calculate_distance(self, obj1: Dict[str, Any], obj2: Dict[str, Any], 
-                          pixels_per_unit: float = 1.0) -> float:
+    def calculate_distance(self, obj1: Dict[str, Any], obj2: Dict[str, Any]) -> float:
         """Calculate Euclidean distance between two objects."""
         x1, y1 = obj1['coordinates_2d']
         x2, y2 = obj2['coordinates_2d']
         pixel_distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-        return pixel_distance / pixels_per_unit
+        return pixel_distance
     
-    def get_object_analysis(self, pixels_per_unit: float = 1.0) -> Dict[str, Any]:
+    def get_object_analysis(self, pixels_per_unit: float = 19.0) -> Dict[str, Any]:
         """Get comprehensive analysis of detected objects including distances."""
         if len(self.detected_objects) < 2:
             return {
@@ -366,34 +365,34 @@ class ObjectDetector:
                 bowser_obj = obj
         
         if robot_obj and coke_obj:
-            distance = self.calculate_distance(robot_obj, coke_obj, pixels_per_unit)
+            pixels = self.calculate_distance(robot_obj, coke_obj)
             analysis['distances'].append({
                 'from': robot_obj['name'],
                 'to': coke_obj['name'],
-                'distance_pixels': distance * pixels_per_unit,
-                'distance_units': distance,
+                'distance_pixels': pixels,
+                'distance_in_cm': pixels / pixels_per_unit,
                 'from_position': robot_obj['coordinates_2d'],
                 'to_position': coke_obj['coordinates_2d']
             })
         
         if robot_obj and bowser_obj:
-            distance = self.calculate_distance(robot_obj, bowser_obj, pixels_per_unit)
+            pixels = self.calculate_distance(robot_obj, bowser_obj)
             analysis['distances'].append({
                 'from': robot_obj['name'],
                 'to': bowser_obj['name'],
-                'distance_pixels': distance * pixels_per_unit,
-                'distance_units': distance,
+                'distance_pixels': pixels,
+                'distance_in_cm': pixels / pixels_per_unit,
                 'from_position': robot_obj['coordinates_2d'],
                 'to_position': bowser_obj['coordinates_2d']
             })
         
         if coke_obj and bowser_obj:
-            distance = self.calculate_distance(coke_obj, bowser_obj, pixels_per_unit)
+            pixels = self.calculate_distance(coke_obj, bowser_obj)
             analysis['distances'].append({
                 'from': coke_obj['name'],
                 'to': bowser_obj['name'],
-                'distance_pixels': distance * pixels_per_unit,
-                'distance_units': distance,
+                'distance_pixels': pixels,
+                'distance_in_cm': pixels / pixels_per_unit,
                 'from_position': coke_obj['coordinates_2d'],
                 'to_position': bowser_obj['coordinates_2d']
             })
@@ -501,7 +500,7 @@ def run_detection(args) -> Dict[str, Any]:
         
         print(f"\nDistances:")
         for dist in analysis['distances']:
-            print(f"  - {dist['from']} to {dist['to']}: {dist['distance_units']:.2f} units")
+            print(f"  - {dist['from']} to {dist['to']}: {dist['distance_in_cm']:.2f} units")
     
     if args.output:
         with open(args.output, 'w') as f:

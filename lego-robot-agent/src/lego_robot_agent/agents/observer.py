@@ -58,31 +58,57 @@ Return ONLY valid JSON, no other text or explanation.
 
 Expected structure:
 {
-  "detection_result": {
-    "image_dimensions": [width, height],
-    "coordinate_system": "2D with origin at bottom-left, y-axis pointing up",
-    "objects": [
-      {
-        "id": 0,
-        "name": "object_name",
-        "position_2d": [x, y],
-        "center_pixels": [x, y],
-        "area_pixels": number,
-        "orientation_degrees": number
-      }
-    ],
-    "distances": [
-      {
-        "from": "object1",
-        "to": "object2",
-        "distance_pixels": number,
-        "distance_units": number,
-        "from_position": [x, y],
-        "to_position": [x, y]
-      }
-    ]
-  },
-  "blob": "url_or_path"
+  "image_dimensions": [
+    960,
+    720
+  ],
+  "coordinate_system": "2D with origin at bottom-left, y-axis pointing up",
+  "objects": [
+    {
+      "id": 0,
+      "name": "robot",
+      "position_2d": [
+        396,
+        303
+      ],
+      "center_pixels": [
+        396,
+        417
+      ],
+      "area_pixels": 1002.0,
+      "orientation_degrees": 176.5552520751953
+    },
+    {
+      "id": 1,
+      "name": "coke",
+      "position_2d": [
+        703,
+        284
+      ],
+      "center_pixels": [
+        703,
+        436
+      ],
+      "area_pixels": 4852.5,
+      "orientation_degrees": 163.33570861816406
+    }
+  ],
+  "distances": [
+    {
+      "from": "robot",
+      "to": "coke",
+      "distance_pixels": 307.5873859572268,
+      "distance_in_cm": 15,
+      "from_position": [
+        396,
+        303
+      ],
+      "to_position": [
+        703,
+        284
+      ]
+    }
+  ]
 }
 '''
                 ),
