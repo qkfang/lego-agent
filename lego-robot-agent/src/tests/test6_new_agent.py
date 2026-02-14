@@ -6,21 +6,19 @@ instead of relying on global shared state.
 """
 
 import asyncio
-from mcp import StdioServerParameters
-from mcp.client.stdio import stdio_client
-from mcp.client.session import ClientSession
+from agent_framework import MCPStdioTool
 
 # New import style using the refactored package
 from lego_robot_agent import LegoAgent, AgentContext, RobotData
-from lego_robot_agent.util.mcp_tools import wrap_mcp_tools
 import lego_robot_agent.shared as shared
 
 
 async def main():
     """Run the LegoAgent with a sample goal."""
     
-    # Setup MCP connection
-    mcp_server_params = StdioServerParameters(
+    # Setup MCP connection using Microsoft Agent Framework's MCPStdioTool
+    mcp_tool = MCPStdioTool(
+        name="robot_mcp",
         command="node",
         args=[shared.mcp_server_path],
         env={
@@ -29,38 +27,29 @@ async def main():
         },
     )
     
-    async with stdio_client(mcp_server_params) as (read_stream, write_stream):
-        async with ClientSession(read_stream, write_stream) as mcp_session:
-            await mcp_session.initialize()
-            
-            # Get MCP tools
-            tools_result = await mcp_session.list_tools()
-            mcp_tools = tools_result.tools if hasattr(tools_result, 'tools') else []
-            wrapped_tools = wrap_mcp_tools(mcp_tools, mcp_session)
-            
-            # Create the agent context with all dependencies
-            context = AgentContext(
-                azure_client=shared.azure_client,
-                mcp_session=mcp_session,
-                mcp_tools=wrapped_tools,
-                robot_data=RobotData(),
-                is_test=True,  # Use test images
-                test_count=1,
-            )
-            
-            # Optional: Add notification callback
-            async def notify_callback(**kwargs):
-                print(f"[NOTIFY] {kwargs.get('subagent')}: {kwargs.get('status')}")
-            
-            context.notify_callback = notify_callback
-            
-            # Create and initialize the agent
-            agent = LegoAgent(context)
-            await agent.init()
-            
-            # Run the agent with a goal
-            result = await agent.run("Pick up the coke and deliver it to Bowser")
-            print(f"\n{result}")
+    # Create the agent context with all dependencies
+    context = AgentContext(
+        azure_client=shared.azure_client,
+        mcp_session=None,  # Not needed with MCPStdioTool
+        mcp_tools=[mcp_tool],  # Pass the MCP tool directly
+        robot_data=RobotData(),
+        is_test=True,  # Use test images
+        test_count=1,
+    )
+    
+    # Optional: Add notification callback
+    async def notify_callback(**kwargs):
+        print(f"[NOTIFY] {kwargs.get('subagent')}: {kwargs.get('status')}")
+    
+    context.notify_callback = notify_callback
+    
+    # Create and initialize the agent
+    agent = LegoAgent(context)
+    await agent.init()
+    
+    # Run the agent with a goal
+    result = await agent.run("Pick up the coke and deliver it to Bowser")
+    print(f"\n{result}")
 
 
 if __name__ == "__main__":
