@@ -1,11 +1,13 @@
 {
 	"servers": {
-		"lego-robot": {
+		"lego-robot-action": {
 			"command": "node",
 			"args": [
 				"lego-mcp\\build\\index.js"
 			],
-			"env": {},
+			"env": {
+				"IS_MOCK": "false"
+			},
 			"type": "stdio"
 		}
 	},

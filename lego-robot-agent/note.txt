@@ -1,0 +1,9 @@
+pip install -e ".[dev]"
+pip install -e . --force-reinstall --no-deps
+agentdev run server.py --verbose --port 8087 
+pip install -e .
+
+# ARM64 Windows Setup
+# Requires Microsoft Visual C++ Build Tools: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+# After installing Build Tools, reinstall packages that need compilation:
+# pip install --upgrade --force-reinstall grpcio cryptography pywin32

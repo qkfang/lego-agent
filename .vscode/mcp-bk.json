@@ -1,0 +1,19 @@
+{
+	"servers": {
+		"lego-robot": {
+			"command": "node",
+			"args": [
+				"lego-mcp\\build\\index.js"
+			],
+			"env": {
+				"IS_MOCK": "true"
+			},
+			"type": "stdio"
+		},
+		"lego-robot-remote": {
+			"url": "https://termless-marg-hotly.ngrok-free.dev/sse",
+			"type": "sse"
+		},
+	},
+	"inputs": []
+}
