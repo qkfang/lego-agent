@@ -1,4 +1,3 @@
-"""Test script for sequential agent workflow using Microsoft Agent Framework."""
 from agent_framework import MCPStdioTool
 from lego_robot_agent.agents import (
     LegoOrchestratorAgent,
@@ -17,22 +16,21 @@ import json
 async def main():
 
     shared.isTest = False
-    shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)]  # Agents are created on-demand in new framework
+    shared.foundryAgents = [agent async for agent in shared.project_client.agents.list(limit=100)] 
     
     async with MCPStdioTool(
         name="robot_mcp",
         command="node",
         args=[shared.mcp_server_path],
-        env={"IS_MOCK": "true"},
+        # env={"IS_MOCK": "true"},
         load_prompts=False,
     ) as mcp_tool:
 
         context = AgentContext(
             azure_client=shared.azure_client,
-            mcp_session=None, 
             mcp_legorobot_action=[mcp_tool],
             robot_data=shared.robotData,
-            is_test=True
+            # is_test=True
         )
 
         legoObserverAgent = LegoObserverAgent()

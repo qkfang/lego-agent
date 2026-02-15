@@ -5,15 +5,11 @@ from .. import shared
 from ..context import AgentContext
 from . import YELLOW, RESET
 
-
 class ControllerChatAgent(ChatAgent):
-    """ChatAgent subclass that always returns structured FieldData."""
-
     async def run(self, messages=None, **kwargs):
         response = await super().run(messages, **kwargs)
         print(f"{YELLOW}# lego-controller:{RESET}\r\n{response}\r\n")
         return response
-    
     
 class LegoControllerAgent:
     AGENT_NAME = "lego-controller"

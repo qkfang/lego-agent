@@ -8,16 +8,12 @@ from ..helper.logic import get_field_state_by_camera, _observer_context
 from ..type.models import FieldData, DetectionResult
 from . import YELLOW, RESET
 
-
 class ObserverChatAgent(ChatAgent):
-    """ChatAgent subclass that always returns structured FieldData."""
-
     async def run(self, messages=None, **kwargs):
         kwargs.setdefault("response_format", FieldData)
         response = await super().run(messages, **kwargs)
         print(f"{YELLOW}# lego-observer:{RESET}\r\n{response}\r\n")
         return response
-
 
 class LegoObserverAgent:
     AGENT_NAME = "lego-observer"

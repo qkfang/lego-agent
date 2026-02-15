@@ -1,3 +1,4 @@
+import json
 from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel
 from agent_framework import ChatAgent
@@ -8,16 +9,12 @@ from ..context import AgentContext
 from ..type.models import RobotPlan
 from . import YELLOW, RESET
 
-
 class PlannerChatAgent(ChatAgent):
-    """ChatAgent subclass that always returns structured RobotPlan."""
-
     async def run(self, messages=None, **kwargs):
         kwargs.setdefault("response_format", RobotPlan)
         response = await super().run(messages, **kwargs)
         print(f"{YELLOW}# lego-planner:{RESET}\r\n{response}\r\n")
         return response
-
 
 class LegoPlannerAgent:
     AGENT_NAME = "lego-planner"
@@ -28,11 +25,6 @@ class LegoPlannerAgent:
 
     async def init(self, context: "AgentContext"):
         self._context = context
-        
-        # Get MCP tools from context if available
-        tools = []
-        if context.mcp_legorobot_action is not None:
-            tools = context.mcp_legorobot_action if context.mcp_legorobot_action else []
         
         agentdef = next((agent for agent in shared.foundryAgents if agent.name == self.AGENT_NAME), None)
         if agentdef is None:
@@ -91,5 +83,5 @@ Never try to run mcp action directly, just plan the steps and return the json ob
                 ),
             name=self.AGENT_NAME,
             description="Creates step-by-step action plans for the robot",
-            tools=tools
+            tools=context.mcp_legorobot_action
         )

@@ -22,7 +22,7 @@ async def _process_image(context: "AgentContext") -> FieldData:
     args.confidence = 0.5
     args.output = robot_data.step1_analyze_json()
     args.visualize = robot_data.step1_analyze_img()
-    args.pixels_per_unit = 10
+    args.pixels_per_unit = 20
     args.no_display = True
     args.no_preprocessing = False
 

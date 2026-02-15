@@ -3,13 +3,12 @@ import os
 import asyncio
 from typing import List, Callable, Coroutine, Any, Optional
 from dataclasses import dataclass
-
 from agent_framework import WorkflowBuilder, WorkflowContext, WorkflowEvent, ChatMessage
 from agent_framework import AgentRunEvent, Role, WorkflowOutputEvent, ExecutorCompletedEvent
 from agent_framework import AgentExecutor, AgentExecutorRequest, AgentExecutorResponse, executor
-
 from .context import AgentContext
 from .models import Content
+
 from .agents import (
     LegoOrchestratorAgent,
     LegoObserverAgent,
@@ -18,19 +17,16 @@ from .agents import (
     LegoJudgeAgent,
 )
 
-
 class LegoAgent:
 
     def __init__(self, context: AgentContext):
         self._context = context
         self._init_done = False
         
-        # Workflow state
         self._max_iterations = 2
         self._iteration_count = 0
         self._last_judgement = None
         
-        # Sub-agents
         self._orchestrator = LegoOrchestratorAgent()
         self._observer = LegoObserverAgent()
         self._planner = LegoPlannerAgent()
@@ -106,16 +102,9 @@ class LegoAgent:
         self._context.workflow = self._build_workflow()
         
         monitor_task = asyncio.create_task(self._monitor_temp_folder())
-
         try:
             print(f"# USER: '{goal}'")
-            
             result = await self._context.workflow.run(goal)
-            
-            print(f"\n\033[96m{'='*60}\033[0m")
-            print(f"\033[96mWorkflow completed\033[0m")
-            print(f"Result: {result}")
-            print(f"\033[96m{'='*60}\033[0m")
         finally:
             monitor_task.cancel()
             if self._context.workflow:
